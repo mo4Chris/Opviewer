@@ -359,24 +359,28 @@ export class CtvSummaryComponent implements OnInit, OnChanges, OnDestroy {
     this.HSESOCFormCheck();
   }
 
-  public HSESOCFormStatus = {
+  private _HSESOCFormStatus = {
     emptyInputReason: false,
     badAmount: false,
   };
+
+  public get HSESOCFormStatus() {
+    return this._HSESOCFormStatus;
+  }
 
   public HSESOCFormCheck() {
     const the = (condition) => this.HSESOCCards.filter(condition).length > 0;
 
     if (the((card) => card.amount <= 0)) {
-      this.HSESOCFormStatus.badAmount = true;
+      this._HSESOCFormStatus.badAmount = true;
     } else {
-      this.HSESOCFormStatus.badAmount = false;
+      this._HSESOCFormStatus.badAmount = false;
     }
 
     if (the((card) => card.inputReason.length === 0)) {
-      this.HSESOCFormStatus.emptyInputReason = true;
+      this._HSESOCFormStatus.emptyInputReason = true;
     } else {
-      this.HSESOCFormStatus.emptyInputReason = false;
+      this._HSESOCFormStatus.emptyInputReason = false;
     }
   }
 
@@ -398,25 +402,29 @@ export class CtvSummaryComponent implements OnInit, OnChanges, OnDestroy {
     this.HSEToolboxTalksFormCheck();
   }
 
-  public HSEToolboxTalksFormStatus = {
+  private _HSEToolboxTalksFormStatus = {
     emptyInputReason: false,
     badAmount: false,
   };
+
+  public get HSEToolboxTalksFormStatus() {
+    return this._HSEToolboxTalksFormStatus;
+  }
 
   public HSEToolboxTalksFormCheck() {
     const the = (condition) =>
       this.HSEToolboxTalks.filter(condition).length > 0;
 
     if (the((talk) => talk.amount <= 0)) {
-      this.HSEToolboxTalksFormStatus.badAmount = true;
+      this._HSEToolboxTalksFormStatus.badAmount = true;
     } else {
-      this.HSEToolboxTalksFormStatus.badAmount = false;
+      this._HSEToolboxTalksFormStatus.badAmount = false;
     }
 
     if (the((talk) => talk.inputReason.length === 0)) {
-      this.HSEToolboxTalksFormStatus.emptyInputReason = true;
+      this._HSEToolboxTalksFormStatus.emptyInputReason = true;
     } else {
-      this.HSEToolboxTalksFormStatus.emptyInputReason = false;
+      this._HSEToolboxTalksFormStatus.emptyInputReason = false;
     }
   }
 
@@ -441,25 +449,95 @@ export class CtvSummaryComponent implements OnInit, OnChanges, OnDestroy {
     this.HSEDrillsFormCheck();
   }
 
-  public HSEDrillsFormStatus = {
+  private _HSEDrillsFormStatus = {
     emptyInputReason: false,
     badAmount: false,
   };
+
+  public get HSEDrillsFormStatus() {
+    return this._HSEDrillsFormStatus;
+  }
 
   public HSEDrillsFormCheck() {
     const the = (condition) => this.HSEDrills.filter(condition).length > 0;
 
     if (the((drill) => drill.amount <= 0)) {
-      this.HSEDrillsFormStatus.badAmount = true;
+      this._HSEDrillsFormStatus.badAmount = true;
     } else {
-      this.HSEDrillsFormStatus.badAmount = false;
+      this._HSEDrillsFormStatus.badAmount = false;
     }
 
     if (the((drill) => drill.inputReason.length === 0)) {
-      this.HSEDrillsFormStatus.emptyInputReason = true;
+      this._HSEDrillsFormStatus.emptyInputReason = true;
     } else {
-      this.HSEDrillsFormStatus.emptyInputReason = false;
+      this._HSEDrillsFormStatus.emptyInputReason = false;
     }
+  }
+
+  // Saving HSE cards + toolbox talks + drills
+
+  private _checkHSE() {
+    return (
+      !this.HSESOCFormStatus.badAmount &&
+      !this.HSESOCFormStatus.emptyInputReason &&
+      !this.HSEToolboxTalksFormStatus.badAmount &&
+      !this.HSEToolboxTalksFormStatus.emptyInputReason &&
+      !this.HSEDrillsFormStatus.badAmount &&
+      !this.HSEDrillsFormStatus.emptyInputReason
+    );
+  }
+
+  public get checkHSE() {
+    return this._checkHSE();
+  }
+
+  private _isSavingHSE = false;
+
+  public get isSavingHSE() {
+    return this._isSavingHSE;
+  }
+
+  private _lastSaveHSE: Moment | undefined;
+
+  public get lastSaveHSE() {
+    return this._lastSaveHSE;
+  }
+
+  private _saveErrorHSE: Moment | false;
+
+  public get saveErrorHSE() {
+    return this._saveErrorHSE;
+  }
+
+  public saveHSE() {
+    this.HSESOCFormCheck();
+    this.HSEToolboxTalksFormCheck();
+    this.HSEDrillsFormCheck();
+    if (!this._checkHSE()) {
+      return;
+    }
+    this._isSavingHSE = true;
+
+    let lastValue;
+    this.newService
+      .updateCtvDprHse(this.data.mmsi, this.data.date, {
+        SOCCards: this.HSESOCCards,
+        toolboxTalks: this.HSEToolboxTalks,
+        drills: this.HSEDrills,
+      })
+      .pipe(
+        catchError((err) => of(err)),
+        finalize(() => {
+          this._isSavingHSE = false;
+          if (lastValue instanceof HttpErrorResponse) {
+            this._saveErrorHSE = this.dateService.now();
+            return;
+          }
+          this._saveErrorHSE = false;
+          this._lastSaveHSE = this.dateService.now();
+        })
+      )
+      .subscribe((v) => (lastValue = v));
   }
 
   // Fuel

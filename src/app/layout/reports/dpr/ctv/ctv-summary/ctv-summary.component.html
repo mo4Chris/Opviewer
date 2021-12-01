@@ -571,15 +571,36 @@
           </div>
         </div>
         <div class="ctv-summary-widget__cell">
-          <div class="alert alert-danger m-unset" role="alert">
-            Something went wrong while saving at. Please check if you have an
-            active internet connection and try again. Contact us if this problem
-            persists.
+          <div
+            *ngIf="saveErrorHSE"
+            class="alert alert-danger m-unset"
+            role="alert"
+          >
+            Something went wrong while saving at {{ formatDate(saveErrorHSE) }}.
+            Please check if you have an active internet connection and try
+            again. Contact us if this problem persists.
           </div>
-          <div class="alert alert-success m-unset" role="alert">
-            Successfully saved at
+          <div
+            *ngIf="lastSaveHSE"
+            class="alert alert-success m-unset"
+            role="alert"
+          >
+            Successfully saved at {{ formatDate(lastSaveHSE) }}
           </div>
-          <button class="btn btn-primary btn-shine--primary">Save</button>
+          <button
+            (click)="saveHSE()"
+            class="btn btn-primary btn-shine--primary"
+            [ngClass]="{
+              disabled: isSavingHSE || !checkHSE,
+              'btn-shine': isSavingHSE,
+              'btn-warning': !checkHSE,
+              'btn--saving': isSavingHSE
+            }"
+            [disabled]="isSavingHSE || !checkHSE"
+          >
+            <i class="fa fa-save"></i>
+            Save
+          </button>
         </div>
         <div
           *ngIf="showSkeletonOverlay"

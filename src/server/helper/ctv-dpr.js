@@ -234,8 +234,48 @@ async function updateCtvDprAccessHoursWeather(req, res) {
   return res.status(200).send(response);
 }
 
+async function updateCtvDprHse(req, res) {
+  await promiseValidatePermissionToViewVesselData(req, res);
+
+  const { mmsi, date, data } = req.body;
+  if (isNotDefined(mmsi)) {
+    return res.status(400).send({ error: "mmsi required in body" });
+  }
+  if (isNotDefined(date)) {
+    return res.status(400).send({ error: "date required in body" });
+  }
+  if (date < 0) {
+    return res.status(400).send({ error: "invalid date" });
+  }
+  if (isNotDefined(data)) {
+    return res.status(400).send({ error: "data required in body" });
+  }
+  if (typeof data !== "object") {
+    return res.status(400).send({ error: "invalid data" });
+  }
+
+  const { SOCCards, toolboxTalks, drills } = data;
+  if (
+    !Array.isArray(SOCCards) ||
+    !Array.isArray(toolboxTalks) ||
+    !Array.isArray(drills)
+  ) {
+    return res.status(400).send({
+      error: "SOCCards, toolboxTalks or drills is invalid",
+    });
+  }
+
+  const response = await CtvDprInputModel.findOneAndUpdate(
+    { mmsi, date },
+    { HSE: { SOCCards, toolboxTalks, drills } }
+  ).exec();
+
+  return res.status(200).send(response);
+}
+
 module.exports = {
   getCtvDprInput,
   updateCtvDprInputConsumption,
   updateCtvDprAccessHoursWeather,
+  updateCtvDprHse,
 };

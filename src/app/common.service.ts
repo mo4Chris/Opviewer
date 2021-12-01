@@ -30,7 +30,11 @@ import { UsermanagementVesselModel } from "./layout/usermanagement/usermanagemen
 import { UserService } from "./shared/services/user.service";
 import { CTVDprInputModel } from "./layout/reports/dpr/ctv/ctvreport/ctvreport.component";
 import { CtvConsumptionWidgetModel } from "./layout/reports/dpr/ctv/ctv-summary/widgets/ctv-summary-consumption/ctv-summary-consumption.component";
-import { CtvWeatherDowntimeRowOptionsModel } from "./layout/reports/dpr/ctv/ctv-summary/ctv-summary.component";
+import {
+  CtvHSEDrillOptionModel,
+  CtvHSERowOptionModel,
+  CtvWeatherDowntimeRowOptionsModel,
+} from "./layout/reports/dpr/ctv/ctv-summary/ctv-summary.component";
 
 const httpOptions = {
   headers: new HttpHeaders({
@@ -219,6 +223,17 @@ export class CommonService {
     data: CtvDprAccessHoursWeatherModel
   ): Observable<CTVDprInputModel> {
     return this.post("/api/updateCtvDprAccessHoursWeather", {
+      mmsi,
+      date,
+      data,
+    });
+  }
+  updateCtvDprHse(
+    mmsi: number,
+    date: number,
+    data: CtvDprHseModel
+  ): Observable<CTVDprInputModel> {
+    return this.post("/api/updateCtvDprHse", {
       mmsi,
       date,
       data,
@@ -640,4 +655,10 @@ interface CtvDprAccessHoursWeatherModel {
   amountOfHoursOnHire: number;
   engineHours: number;
   weatherDowntime: CtvWeatherDowntimeRowOptionsModel[];
+}
+
+interface CtvDprHseModel {
+  SOCCards: CtvHSERowOptionModel[];
+  toolboxTalks: CtvHSERowOptionModel[];
+  drills: CtvHSEDrillOptionModel[];
 }
