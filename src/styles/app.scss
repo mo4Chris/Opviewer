@@ -4,3 +4,8 @@
 @import "utils";
 @import "rtl";
 @import "responsive";
+
+/* The class name on the body decides the global theme. */
+@import "portal/themes/classic";
+@import "portal/themes/dark";
+@import "portal/themes/light";
