@@ -12,6 +12,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonService } from '../common.service';
 import { HttpClientModule } from '@angular/common/http';
 import { AlertComponent } from './components/alert/alert.component';
+import { PortalSidebarComponent } from './components/portal-sidebar/portal-sidebar.component';
 
 @NgModule({
     imports: [
@@ -24,7 +25,7 @@ import { AlertComponent } from './components/alert/alert.component';
         TranslateModule,
         NgbDropdownModule
     ],
-    declarations: [LayoutComponent, SidebarComponent, HeaderComponent, AlertComponent],
+    declarations: [LayoutComponent, SidebarComponent, HeaderComponent, AlertComponent, PortalSidebarComponent],
     providers: [CommonService]
 })
 export class LayoutModule {}

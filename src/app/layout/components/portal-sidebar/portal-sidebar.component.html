@@ -1,0 +1,69 @@
+<div #portalSidebar class="portal-sidebar" [style]="injectedStyle"
+  [ngClass]="{ 'portal-sidebar--hide': !isExpanded, 'portal-sidebar--measure': isMeasuring }">
+  <div class="portal-sidebar__groups">
+    <div class="portal-sidebar__icons">
+      <button class="portal-sidebar__icon" (click)="toggleExpanded()">
+        <i class="fa fa-fw fa-bars"></i>
+      </button>
+    </div>
+    <div class="portal-sidebar__icons">
+      <a class="portal-sidebar__icon" routerLink="/dashboard">
+        <i class="fa fa-fw fa-dashboard"></i>
+        <div class="portal-sidebar__label">
+          Dashboard
+        </div>
+      </a>
+      <a class="portal-sidebar__icon" routerLink="/reports">
+        <i class="fa fa-fw fa-table"></i>
+        <div class="portal-sidebar__label">
+          Reports
+        </div>
+      </a>
+      <a class="portal-sidebar__icon" routerLink="/forecast">
+        <i class="fa fa-fw fa-rss"></i>
+        <div class="portal-sidebar__label">
+          Forecast
+        </div>
+      </a>
+      <a class="portal-sidebar__icon" routerLink="/campaigns">
+        <i class="fa fa-fw fa-ship"></i>
+        <div class="portal-sidebar__label">
+          Campaigns
+        </div>
+      </a>
+      <a class="portal-sidebar__icon" routerLink="/users">
+        <i class="fa fa-fw fa-users"></i>
+        <div class="portal-sidebar__label">
+          Users
+        </div>
+      </a>
+      <a class="portal-sidebar__icon" routerLink="/signup">
+        <i class="fa fa-fw fa-user-plus"></i>
+        <div class="portal-sidebar__label">
+          Create new user
+        </div>
+      </a>
+      <a class="portal-sidebar__icon" routerLink="/clients">
+        <i class="fa fa-fw fa-building"></i>
+        <div class="portal-sidebar__label">
+          Client overview
+        </div>
+      </a>
+    </div>
+    <div class="portal-sidebar__spacer"></div>
+    <div class="portal-sidebar__icons">
+      <a class="portal-sidebar__icon" routerLink="/user-settings">
+        <i class="fa fa-fw fa-cog"></i>
+        <div class="portal-sidebar__label">
+          Settings
+        </div>
+      </a>
+      <a class="portal-sidebar__icon" routerLink="/login">
+        <i class="fa fa-fw fa-power-off"></i>
+        <div class="portal-sidebar__label">
+          Log out
+        </div>
+      </a>
+    </div>
+  </div>
+</div>
