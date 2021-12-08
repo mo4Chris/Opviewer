@@ -1,10 +1,14 @@
 :host {
+  // Colors
   --sidebar-background-color: var(--primary-container, rgba(24, 7, 58, 0.9));
   --sidebar-color: var(--on-primary-container, #FFF);
   --sidebar-icon-color: var(--on-primary-container, #FFF);
   --sidebar-icon-active-color: var(--on-secondary-container, #007bff);
+
+  // Typography
   --sidebar-font-family: var(--font-body, "MontSerrat", "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol");
 
+  // State
   --sidebar-icon-state-opacity: 0;
   --sidebar-icon-state-color: var(--secondary-container);
   --sidebar-icon-state-hover-opacity: 0.4;
@@ -30,7 +34,13 @@
 // Exception for classic theme
 .theme-classic :host {
   --sidebar-icon-state-color: var(--secondary);
-  --sidebar-icon-active-color: var(--secondary-container)
+  --sidebar-icon-active-color: var(--secondary-container);
+}
+
+// Exception for light theme (insufficient contrast)
+.theme-light :host {
+  --sidebar-icon-state-color: var(--secondary);
+  --sidebar-icon-active-color: var(--secondary-container);
 }
 
 :host {
@@ -122,7 +132,7 @@
       opacity: var(--sidebar-icon-state-opacity);
       background: var(--sidebar-icon-state-color);
       z-index: -1;
-      transition: opacity 0.1s var(--transition-out);
+      transition: opacity 0.15s var(--transition-out);
     }
 
     &:hover {
