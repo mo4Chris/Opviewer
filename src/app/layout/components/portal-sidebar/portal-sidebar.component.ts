@@ -36,6 +36,10 @@ export class PortalSidebarComponent implements AfterViewInit {
     window.alert('TODO: Feedback');
   }
 
+  public handleClickItem() {
+    this._isExpanded = false;
+  }
+
   public get isMeasuring() {
     return this._isMeasuring;
   }
