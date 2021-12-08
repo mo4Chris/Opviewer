@@ -67,3 +67,12 @@
 .theme-dark {
   --transition-out: var(--ease-out-quart);
 }
+
+/* State opacity */
+// Inspired by Material 3
+
+.theme-dark {
+  --state-hover-opacity: 0.08;
+  --state-focus-opacity: 0.12;
+  --state-active-opacity: 0.16;
+}

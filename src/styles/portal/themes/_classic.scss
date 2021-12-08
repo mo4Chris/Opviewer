@@ -5,7 +5,7 @@
   --theme-classic-blue: #007bff;
   --theme-classic-dark-blue: #18073a;
   --theme-classic-dark-blue-muted: rgba(24, 7, 58, 0.9);
-  --theme-classic-transit-blue: rgba(0, 159, 227, 0.25);
+  --theme-classic-transit-blue: rgba(229, 245, 252, 1);
   --theme-classic-transit-grey: #4a4949;
   --theme-classic-white: #FFF;
 }
@@ -21,7 +21,7 @@
   --secondary: var(--theme-classic-blue);
   --on-secondary: var(--theme-classic-white);
   --secondary-container: var(--theme-classic-transit-blue);
-  --on-seconary-container: var(--theme-classic-transit-grey);
+  --on-secondary-container: var(--theme-classic-transit-grey);
 }
 
 /* Typography */
@@ -75,4 +75,13 @@
 
 .theme-classic {
   --transition-out: var(--ease-out-quart);
+}
+
+/* State opacity */
+// Inspired by Material 3
+
+.theme-classic {
+  --state-hover-opacity: 0.08;
+  --state-focus-opacity: 0.12;
+  --state-active-opacity: 0.16;
 }

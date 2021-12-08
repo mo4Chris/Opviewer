@@ -1,4 +1,5 @@
-import { AfterViewInit, Component, ViewChild, OnDestroy, ChangeDetectorRef, AfterViewChecked } from '@angular/core';
+import { AfterViewInit, Component, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-portal-sidebar',
@@ -12,7 +13,7 @@ export class PortalSidebarComponent implements AfterViewInit {
   private _isExpanded = true;
   private _injectedStyle = '--sidebar-expanded-width: 100%;';
 
-  constructor(private _cdRef: ChangeDetectorRef) { }
+  constructor(private _cdRef: ChangeDetectorRef, private _router: Router) { }
 
   ngAfterViewInit(): void {
     this._updateExpandedWidth();

@@ -2,11 +2,18 @@
   --sidebar-background-color: var(--primary-container, rgba(24, 7, 58, 0.9));
   --sidebar-color: var(--on-primary-container, #FFF);
   --sidebar-icon-color: var(--on-primary-container, #FFF);
-  --sidebar-icon-active-color: var(--secondary, #007bff);
+  --sidebar-icon-active-color: var(--on-secondary-container, #007bff);
   --sidebar-font-family: var(--font-body, "MontSerrat", "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol");
-  --sidebar-icon-hover-background-color: var(--secondary-container);
-  --sidebar-icon-hover-color: var(--on-seconary-container);
 
+  --sidebar-icon-state-opacity: 0;
+  --sidebar-icon-state-color: var(--secondary-container);
+  --sidebar-icon-state-hover-opacity: 0.4;
+  --sidebar-icon-state-focus-opacity: 0.6;
+  --sidebar-icon-state-active-opacity: 0.8;
+  --sidebar-icon-state-active-link-opacity: 0.9;
+}
+
+.portal-sidebar {
   position: fixed;
   z-index: 2000;
   left: 0;
@@ -22,7 +29,8 @@
 
 // Exception for classic theme
 .theme-classic :host {
-  --sidebar-icon-hover-color: var(--secondary);
+  --sidebar-icon-state-color: var(--secondary);
+  --sidebar-icon-active-color: var(--secondary-container)
 }
 
 :host {
@@ -101,10 +109,39 @@
     align-items: baseline;
   }
 
-  .portal-sidebar__icon:hover {
-    color: var(--sidebar-icon-hover-color);
-    background-color: var(--sidebar-icon-hover-background-color);
-    text-decoration: none;
+  .portal-sidebar__icon {
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: var(--sidebar-icon-state-opacity);
+      background: var(--sidebar-icon-state-color);
+      z-index: -1;
+      transition: opacity 0.1s var(--transition-out);
+    }
+
+    &:hover {
+      text-decoration: none;
+      --sidebar-icon-state-opacity: var(--sidebar-icon-state-hover-opacity);
+    }
+
+    &:focus {
+      --sidebar-icon-state-opacity: var(--sidebar-icon-state-focus-opacity);
+    }
+
+    &:active {
+      --sidebar-icon-state-opacity: var(--sidebar-icon-state-active-opacity);
+    }
+
+    &.router-link-active {
+      --sidebar-icon-state-opacity: var(--sidebar-icon-state-active-link-opacity);
+      color: var(--sidebar-icon-active-color);
+    }
   }
 
   .portal-sidebar__label {

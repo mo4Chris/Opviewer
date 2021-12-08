@@ -11,43 +11,43 @@
       </button>
     </div>
     <div class="portal-sidebar__icons">
-      <a class="portal-sidebar__icon" routerLink="/dashboard">
+      <a class="portal-sidebar__icon" routerLink="/dashboard" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-dashboard"></i>
         <div class="portal-sidebar__label">
           Dashboard
         </div>
       </a>
-      <a class="portal-sidebar__icon" routerLink="/reports">
+      <a class="portal-sidebar__icon" routerLink="/reports" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-table"></i>
         <div class="portal-sidebar__label">
           Reports
         </div>
       </a>
-      <a class="portal-sidebar__icon" routerLink="/forecast">
+      <a class="portal-sidebar__icon" routerLink="/forecast" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-rss"></i>
         <div class="portal-sidebar__label">
           Forecast
         </div>
       </a>
-      <a class="portal-sidebar__icon" routerLink="/campaigns">
+      <a class="portal-sidebar__icon" routerLink="/campaigns" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-ship"></i>
         <div class="portal-sidebar__label">
           Campaigns
         </div>
       </a>
-      <a class="portal-sidebar__icon" routerLink="/users">
+      <a class="portal-sidebar__icon" routerLink="/users" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-users"></i>
         <div class="portal-sidebar__label">
           Users
         </div>
       </a>
-      <a class="portal-sidebar__icon" routerLink="/signup">
+      <a class="portal-sidebar__icon" routerLink="/signup" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-user-plus"></i>
         <div class="portal-sidebar__label">
           Create new user
         </div>
       </a>
-      <a class="portal-sidebar__icon" routerLink="/clients">
+      <a class="portal-sidebar__icon" routerLink="/clients" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-building"></i>
         <div class="portal-sidebar__label">
           Client overview
@@ -56,13 +56,19 @@
     </div>
     <div class="portal-sidebar__spacer"></div>
     <div class="portal-sidebar__icons">
-      <a class="portal-sidebar__icon" routerLink="/user-settings">
+      <a class="portal-sidebar__icon">
+        <i class="fa fa-fw fa-comment"></i>
+        <div class="portal-sidebar__label">
+          Give feedback
+        </div>
+      </a>
+      <a class="portal-sidebar__icon" routerLink="/user-settings" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-cog"></i>
         <div class="portal-sidebar__label">
           Settings
         </div>
       </a>
-      <a class="portal-sidebar__icon" routerLink="/login">
+      <a class="portal-sidebar__icon" routerLink="/login" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-power-off"></i>
         <div class="portal-sidebar__label">
           Log out
