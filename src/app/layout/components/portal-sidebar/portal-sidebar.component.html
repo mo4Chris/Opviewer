@@ -1,6 +1,9 @@
 <div #portalSidebar class="portal-sidebar" [style]="injectedStyle"
   [ngClass]="{ 'portal-sidebar--hide': !isExpanded, 'portal-sidebar--measure': isMeasuring }">
   <div class="portal-sidebar__groups">
+    <div class="portal-sidebar__logo">
+      <app-portal-logo [sidebarIsExpanded]="isExpanded"></app-portal-logo>
+    </div>
     <div class="portal-sidebar__icons">
       <button class="portal-sidebar__icon" (click)="toggleExpanded()">
         <i class="fa fa-fw fa-bars"></i>

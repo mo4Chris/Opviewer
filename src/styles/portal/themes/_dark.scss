@@ -1,3 +1,69 @@
 /* TODO: New MO4 Portal dark theme */
 
 /* The classic theme will be used as a testbed for this new system. In the meantime we will continue working on the new design tokens before switching over fully. */
+
+// These color tokens should be automatically generated based on hue and saturation values.
+
+.theme-dark {
+  --primary: hsl(227, 71%, 80%);
+  --on-primary: hsl(227, 71%, 20%);
+  --primary-container: hsl(227, 71%, 30%);
+  --on-primary-container: hsl(227, 71%, 90%);
+
+  --secondary: hsl(198, 100%, 80%);
+  --on-secondary: hsl(198, 100%, 20%);
+  --secondary-container: hsl(198, 100%, 30%);
+  --on-secondary-container: hsl(198, 100%, 90%);
+}
+
+/* Typography */
+
+.theme-dark {
+  text-rendering: auto;
+
+  --font-display: "MontSerrat", "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-body: "MontSerrat", "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+/* Sizes (to use for spacing) */
+
+.theme-dark {
+  --size-px: 1px;
+  --size-000: -.5rem;
+  --size-00: -0.25rem;
+  --size-05: 0.125rem;
+  --size-1: 0.25rem;
+  --size-2: 0.5rem;
+  --size-3: 0.75rem;
+  --size-4: 1rem;
+  --size-5: 1.25rem;
+  --size-6: 1.5rem;
+  --size-7: 1.75rem;
+  --size-8: 2rem;
+  --size-9: 2.25rem;
+  --size-10: 2.5rem;
+  --size-11: 2.75rem;
+  --size-12: 3rem;
+  --size-14: 3.5rem;
+  --size-16: 4rem;
+  --size-20: 5rem;
+  --size-24: 6rem;
+  --size-28: 7rem;
+  --size-32: 8rem;
+  --size-36: 9rem;
+  --size-40: 10rem;
+  --size-44: 11rem;
+  --size-48: 12rem;
+}
+
+/* Easings */
+
+.theme-dark {
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1)
+}
+
+/* Transitions */
+
+.theme-dark {
+  --transition-out: var(--ease-out-quart);
+}
