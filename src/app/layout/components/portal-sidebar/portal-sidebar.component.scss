@@ -15,6 +15,10 @@
   --sidebar-icon-state-focus-opacity: 0.6;
   --sidebar-icon-state-active-opacity: 0.8;
   --sidebar-icon-state-active-link-opacity: 0.9;
+
+  // Overlay
+  --sidebar-overlay-color: var(--primary-container, rgba(24, 7, 58, 0.9));
+  --sidebar-overlay-opacity: 0.4;
 }
 
 .portal-sidebar {
@@ -170,4 +174,21 @@
     border: none;
     text-align: left;
   }
+}
+
+.portal-sidebar__overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1999;
+  opacity: var(--sidebar-overlay-opacity);
+  background: var(--sidebar-background-color);
+  transition: opacity 0.4s var(--transition-out);
+}
+
+.portal-sidebar__overlay--hide {
+  pointer-events: none;
+  opacity: 0;
 }
