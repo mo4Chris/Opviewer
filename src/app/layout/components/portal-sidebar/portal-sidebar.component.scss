@@ -97,7 +97,7 @@
     position: absolute;
     left: 0;
     top: 0;
-    width: var(--sidebar-expanded-width, 100%);;
+    width: var(--size-36);
     height: 100%;
   }
 }
@@ -168,5 +168,6 @@
   button {
     background: none;
     border: none;
+    text-align: left;
   }
 }

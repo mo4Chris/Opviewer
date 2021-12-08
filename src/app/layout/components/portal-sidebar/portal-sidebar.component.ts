@@ -25,10 +25,15 @@ export class PortalSidebarComponent implements AfterViewInit {
     this._injectedStyle = '--sidebar-expanded-width: 100%;';
     this._cdRef.detectChanges();
     const width = this._elem.nativeElement.offsetWidth;
-    this._injectedStyle = `--sidebar-expanded-width: calc(${width}px - var(--size-16));`;
+    this._injectedStyle = `--sidebar-expanded-width: calc(${width}px - var(--size-8));`;
     this._isExpanded = false;
     this._isMeasuring = false;
     this._cdRef.detectChanges();
+  }
+
+  public handleClickFeedback() {
+    // TODO: Feedback should be in a separate service... not in an unrelated component.
+    window.alert('TODO: Feedback');
   }
 
   public get isMeasuring() {
@@ -46,5 +51,4 @@ export class PortalSidebarComponent implements AfterViewInit {
   public toggleExpanded() {
     this._isExpanded = !this._isExpanded;
   }
-
 }

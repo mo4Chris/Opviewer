@@ -14,64 +14,64 @@
       <a class="portal-sidebar__icon" routerLink="/dashboard" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-dashboard"></i>
         <div class="portal-sidebar__label">
-          Dashboard
+          {{ 'Dashboard' | translate }}
         </div>
       </a>
       <a class="portal-sidebar__icon" routerLink="/reports" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-table"></i>
         <div class="portal-sidebar__label">
-          Reports
+          {{ 'Analytics' | translate }}
         </div>
       </a>
       <a class="portal-sidebar__icon" routerLink="/forecast" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-rss"></i>
         <div class="portal-sidebar__label">
-          Forecast
+          {{ 'Forecast' | translate }}
         </div>
       </a>
       <a class="portal-sidebar__icon" routerLink="/campaigns" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-ship"></i>
         <div class="portal-sidebar__label">
-          Campaigns
+          {{ 'Campaigns' | translate }}
         </div>
       </a>
       <a class="portal-sidebar__icon" routerLink="/users" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-users"></i>
         <div class="portal-sidebar__label">
-          Users
+          {{ 'Users' | translate }}
         </div>
       </a>
       <a class="portal-sidebar__icon" routerLink="/signup" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-user-plus"></i>
         <div class="portal-sidebar__label">
-          Create new user
+          {{ 'Create new user' | translate }}
         </div>
       </a>
       <a class="portal-sidebar__icon" routerLink="/clients" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-building"></i>
         <div class="portal-sidebar__label">
-          Client overview
+          {{ 'Client overview' | translate }}
         </div>
       </a>
     </div>
     <div class="portal-sidebar__spacer"></div>
     <div class="portal-sidebar__icons">
-      <a class="portal-sidebar__icon">
+      <button (click)="handleClickFeedback()" class="portal-sidebar__icon">
         <i class="fa fa-fw fa-comment"></i>
         <div class="portal-sidebar__label">
           Give feedback
         </div>
-      </a>
+      </button>
       <a class="portal-sidebar__icon" routerLink="/user-settings" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-cog"></i>
         <div class="portal-sidebar__label">
-          Settings
+          {{ 'Settings' | translate }}
         </div>
       </a>
       <a class="portal-sidebar__icon" routerLink="/login" [routerLinkActive]="['router-link-active']">
         <i class="fa fa-fw fa-power-off"></i>
         <div class="portal-sidebar__label">
-          Log out
+          {{ 'Log out' | translate }}
         </div>
       </a>
     </div>
