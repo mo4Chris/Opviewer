@@ -9,6 +9,7 @@
   --sidebar-font-family: var(--font-body, "MontSerrat", "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol");
 
   // State
+  // TODO: Rename this to surface to stay consistent with the Material 3 colour role names
   --sidebar-icon-state-opacity: 0;
   --sidebar-icon-state-color: var(--secondary-container);
   --sidebar-icon-state-hover-opacity: 0.4;
