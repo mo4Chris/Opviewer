@@ -13,21 +13,21 @@
     <div class="portal-sidebar__icons">
       <a (click)="handleClickItem()" class="portal-sidebar__icon" routerLink="/dashboard"
         [routerLinkActive]="['router-link-active']">
-        <i class="fa fa-fw fa-dashboard"></i>
+        <i class="fa fa-fw fa-home portal-sidebar-small-icon-upscale"></i>
         <div class="portal-sidebar__label">
           {{ 'Dashboard' | translate }}
         </div>
       </a>
       <a (click)="handleClickItem()" class="portal-sidebar__icon" routerLink="/reports"
         [routerLinkActive]="['router-link-active']">
-        <i class="fa fa-fw fa-table"></i>
+        <i class="fa fa-fw fa-line-chart"></i>
         <div class="portal-sidebar__label">
           {{ 'Analytics' | translate }}
         </div>
       </a>
       <a (click)="handleClickItem()" class="portal-sidebar__icon" routerLink="/forecast"
         [routerLinkActive]="['router-link-active']">
-        <i class="fa fa-fw fa-rss"></i>
+        <i class="fa fa-fw fa-history portal-sidebar-horizontal-flip-and-upscale"></i>
         <div class="portal-sidebar__label">
           {{ 'Forecast' | translate }}
         </div>

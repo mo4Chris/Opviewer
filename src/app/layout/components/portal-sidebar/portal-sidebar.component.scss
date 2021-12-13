@@ -189,6 +189,19 @@
   transition: opacity 0.4s var(--transition-out);
 }
 
+.portal-sidebar-horizontal-flip-and-upscale { 
+  -moz-transform: scaleX(-1);
+  -o-transform: scaleX(-1);
+  -webkit-transform: scaleX(-1);
+  transform: scaleX(-1) scale(1.2);
+  filter: FlipH;
+  -ms-filter: "FlipH";
+}
+
+.portal-sidebar-small-icon-upscale {
+  transform: scale(1.2)
+}
+
 .portal-sidebar__overlay--hide {
   pointer-events: none;
   opacity: 0;
