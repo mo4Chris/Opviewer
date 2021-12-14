@@ -1,0 +1,33 @@
+/* Sizes (to use for spacing) */
+
+.theme-classic,
+.theme-dark,
+.theme-light {
+  --size-adjust: 0rem;
+  --size-px: 1px;
+  --size-000: calc(-0.5rem + var(--size-adjust));
+  --size-00: calc(-0.25rem + var(--size-adjust));
+  --size-05: calc(0.125rem + var(--size-adjust));
+  --size-1: calc(0.25rem + var(--size-adjust));
+  --size-2: calc(0.5rem + var(--size-adjust));
+  --size-3: calc(0.75rem + var(--size-adjust));
+  --size-4: calc(1rem + var(--size-adjust));
+  --size-5: calc(1.25rem + var(--size-adjust));
+  --size-6: calc(1.5rem + var(--size-adjust));
+  --size-7: calc(1.75rem + var(--size-adjust));
+  --size-8: calc(2rem + var(--size-adjust));
+  --size-9: calc(2.25rem + var(--size-adjust));
+  --size-10: calc(2.5rem + var(--size-adjust));
+  --size-11: calc(2.75rem + var(--size-adjust));
+  --size-12: calc(3rem + var(--size-adjust));
+  --size-14: calc(3.5rem + var(--size-adjust));
+  --size-16: calc(4rem + var(--size-adjust));
+  --size-20: calc(5rem + var(--size-adjust));
+  --size-24: calc(6rem + var(--size-adjust));
+  --size-28: calc(7rem + var(--size-adjust));
+  --size-32: calc(8rem + var(--size-adjust));
+  --size-36: calc(9rem + var(--size-adjust));
+  --size-40: calc(10rem + var(--size-adjust));
+  --size-44: calc(11rem + var(--size-adjust));
+  --size-48: calc(12rem + var(--size-adjust));
+}

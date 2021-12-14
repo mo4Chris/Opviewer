@@ -6,6 +6,13 @@
 @import "responsive";
 
 /* The class name on the body decides the global theme. */
+@import "portal/themes/common"; // Common tokens between themes
 @import "portal/themes/classic";
 @import "portal/themes/dark";
 @import "portal/themes/light";
+
+// Temporary place for this
+body {
+  background-color: var(--background);
+  color: var(--on-background);
+}
