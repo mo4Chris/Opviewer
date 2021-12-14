@@ -100,6 +100,8 @@ export class PortalSidebarComponent implements AfterViewInit {
     ]
   };
 
+  @ViewChild('dirtyHackHeader') private _header;
+
   constructor(private _cdRef: ChangeDetectorRef, private _router: Router, public permission: PermissionService) { }
 
   ngAfterViewInit(): void {
@@ -116,7 +118,8 @@ export class PortalSidebarComponent implements AfterViewInit {
 
   public handleClickFeedback() {
     // TODO: Feedback should be in a separate service... not in an unrelated component.
-    window.alert('TODO: Feedback');
+    // Using a dirty hack for now, until this is solved.
+    this._header.openFeedbackModal(this._header.modal);
   }
 
   public handleClickItem() {

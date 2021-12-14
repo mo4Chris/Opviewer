@@ -26,7 +26,7 @@
 
 .portal-sidebar {
   position: fixed;
-  z-index: 2000;
+  z-index: 1048;
   left: 0;
   top: 0;
   bottom: 0;
@@ -199,7 +199,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  z-index: 1999;
+  z-index: 1047;
   opacity: var(--sidebar-overlay-opacity);
   background: var(--sidebar-background-color);
   transition: opacity 0.4s var(--transition-out);

@@ -13,8 +13,16 @@
     <div *ngFor="let group of sidebarGroups"
       [ngClass]="{ 'portal-sidebar__icons': (group.type === sidebarContentType.Group), 'portal-sidebar__spacer': (group.type === sidebarContentType.Spacer) }">
       <ng-template ngFor let-button [ngForOf]="group.contents">
-        <a *ngIf="checkPermission(button.requiredPermissionsOr)" (click)="handleClickItem()"
-          [routerLink]="button.destination" [routerLinkActive]="['router-link-active']" class="portal-sidebar__icon">
+        <a *ngIf="checkPermission(button.requiredPermissionsOr) && button.destination !== '#feedback'"
+          (click)="handleClickItem()" [routerLink]="button.destination" [routerLinkActive]="['router-link-active']"
+          class="portal-sidebar__icon">
+          <i class="fa fa-fw" [ngClass]="[button.icon]"></i>
+          <div class="portal-sidebar__label">
+            {{ button.label | translate }}
+          </div>
+        </a>
+        <a *ngIf="checkPermission(button.requiredPermissionsOr) && button.destination === '#feedback'"
+          (click)="handleClickFeedback()" class="portal-sidebar__icon">
           <i class="fa fa-fw" [ngClass]="[button.icon]"></i>
           <div class="portal-sidebar__label">
             {{ button.label | translate }}
@@ -26,3 +34,4 @@
 </div>
 <div (click)="handleClickItem()" [ngClass]="{'portal-sidebar__overlay--hide': !isExpanded}"
   class="portal-sidebar__overlay"></div>
+<app-header *ngIf="!this.isMeasuring" #dirtyHackHeader style="display: none;"></app-header>
