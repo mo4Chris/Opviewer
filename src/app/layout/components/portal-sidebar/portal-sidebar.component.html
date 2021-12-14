@@ -10,79 +10,17 @@
         <i class="fa fa-fw fa-bars"></i>
       </button>
     </div>
-    <div class="portal-sidebar__icons">
-      <a (click)="handleClickItem()" class="portal-sidebar__icon" routerLink="/dashboard"
-        [routerLinkActive]="['router-link-active']">
-        <i class="fa fa-fw fa-home"></i>
-        <div class="portal-sidebar__label">
-          {{ 'Dashboard' | translate }}
-        </div>
-      </a>
-      <a (click)="handleClickItem()" class="portal-sidebar__icon" routerLink="/reports"
-        [routerLinkActive]="['router-link-active']">
-        <i class="fa fa-fw fa-line-chart"></i>
-        <div class="portal-sidebar__label">
-          {{ 'Analytics' | translate }}
-        </div>
-      </a>
-      <a (click)="handleClickItem()" class="portal-sidebar__icon" routerLink="/forecast"
-        [routerLinkActive]="['router-link-active']">
-        <i class="fa fa-fw fa-history"></i>
-        <div class="portal-sidebar__label">
-          {{ 'Forecast' | translate }}
-        </div>
-      </a>
-      <a (click)="handleClickItem()" class="portal-sidebar__icon" routerLink="/campaigns"
-        [routerLinkActive]="['router-link-active']">
-        <i class="fa fa-fw fa-ship"></i>
-        <div class="portal-sidebar__label">
-          {{ 'Campaigns' | translate }}
-        </div>
-      </a>
-      <a (click)="handleClickItem()" class="portal-sidebar__icon" routerLink="/users"
-        [routerLinkActive]="['router-link-active']">
-        <i class="fa fa-fw fa-users"></i>
-        <div class="portal-sidebar__label">
-          {{ 'Users' | translate }}
-        </div>
-      </a>
-      <a (click)="handleClickItem()" class="portal-sidebar__icon" routerLink="/signup"
-        [routerLinkActive]="['router-link-active']">
-        <i class="fa fa-fw fa-user-plus"></i>
-        <div class="portal-sidebar__label">
-          {{ 'Create new user' | translate }}
-        </div>
-      </a>
-      <a (click)="handleClickItem()" class="portal-sidebar__icon" routerLink="/clients"
-        [routerLinkActive]="['router-link-active']">
-        <i class="fa fa-fw fa-building"></i>
-        <div class="portal-sidebar__label">
-          {{ 'Client overview' | translate }}
-        </div>
-      </a>
-    </div>
-    <div class="portal-sidebar__spacer"></div>
-    <div class="portal-sidebar__icons">
-      <button (click)="handleClickFeedback()" class="portal-sidebar__icon">
-        <i class="fa fa-fw fa-comment"></i>
-        <div class="portal-sidebar__label">
-          Give feedback
-        </div>
-      </button>
-      <a (click)="handleClickItem()" class="portal-sidebar__icon" routerLink="/user-settings"
-        [routerLinkActive]="['router-link-active']">
-        <i class="fa fa-fw fa-cog"></i>
-        <div class="portal-sidebar__label">
-          {{ 'Settings' | translate }}
-        </div>
-      </a>
-      <a (click)="handleClickItem()" class="portal-sidebar__icon" routerLink="/login"
-        [routerLinkActive]="['router-link-active']">
-        <i class="fa fa-fw fa-power-off"></i>
-        <div class="portal-sidebar__label">
-          {{ 'Log out' | translate }}
-        </div>
-      </a>
+    <div *ngFor="let group of sidebarGroups"
+      [ngClass]="{ 'portal-sidebar__icons': (group.type === sidebarContentType.Group), 'portal-sidebar__spacer': (group.type === sidebarContentType.Spacer) }">
+      <ng-template ngFor let-button [ngForOf]="group.contents">
+        <a *ngIf="checkPermission(button.requiredPermissionsOr)" (click)="handleClickItem()"
+          [routerLink]="button.destination" [routerLinkActive]="['router-link-active']" class="portal-sidebar__icon">
+          <i class="fa fa-fw" [ngClass]="[button.icon]"></i>
+          <div class="portal-sidebar__label">
+            {{ button.label | translate }}
+          </div>
+        </a>
+      </ng-template>
     </div>
   </div>
 </div>
