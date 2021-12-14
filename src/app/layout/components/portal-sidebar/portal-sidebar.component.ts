@@ -44,8 +44,8 @@ export class PortalSidebarComponent implements AfterViewInit {
             type: sidebarContentType.Icon,
             label: 'Campaigns',
             icon: 'fa-ship',
-            destination: '/forecast',
-            requiredPermissionsOr: [/* 'twa.read' */]
+            destination: '/campaigns',
+            requiredPermissionsOr: [false]
           },
           {
             type: sidebarContentType.Icon,
