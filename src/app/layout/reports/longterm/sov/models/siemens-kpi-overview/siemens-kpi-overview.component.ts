@@ -4,6 +4,7 @@ import { forkJoin } from 'rxjs';
 import { CommonService } from '@app/common.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
+import { SettingsService } from '@app/supportModules/settings.service';
 
 
 // Encode daily operations per 15 minutes
@@ -42,8 +43,9 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     numCargoOps: 1,
     numPortCalls: 1,
     numMaintainanceOps: 1,
+    distanceSailed: 'N/a',
   }]];
-  currentDate = this.dateService.MatlabDateToObject(this.dateService.getMatlabDateYesterday());
+  currentDate = this.dateService.matlabDatenumToYMD(this.dateService.getMatlabDateYesterday());
   private timeRegex = new RegExp('([0-9]{2}):([0-9]{2})');
   private defaultMinDate: number;
 
@@ -51,9 +53,10 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     private newService: CommonService,
     private dateService: DatetimeService,
     private calcService: CalculationService,
+    private settingsService: SettingsService,
     private ref: ChangeDetectorRef,
   ) {
-    this.defaultMinDate = this.dateService.getMatlabDateMonthsAgo(-6);
+    this.defaultMinDate = this.dateService.getMatlabDatenumMonthsAgo(-6);
   }
 
   ngOnChanges() {
@@ -71,11 +74,12 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     };
     forkJoin([
       this.newService.getVessel2vesselsByRangeForSov(makeRequest(['date', 'transfers'])),
+      this.newService.getGeneralForVesselByRangeForSOV(makeRequest(['date', 'distancekm'])),
       this.newService.getPortcallsByRange(makeRequest(['date', 'startTime', 'stopTime', 'durationHr', 'plannedUnplannedStatus'])),
       this.newService.getTurbineTransfersForVesselByRangeForSOV(makeRequest(['fieldname', 'paxIn', 'default_paxIn', 'paxOut', 'default_paxOut', 'cargoIn', 'cargoOut', 'gangwayReadyDuration'])),
       this.newService.getPlatformTransfersForVesselByRangeForSOV(makeRequest(['location', 'paxIn', 'default_paxIn', 'paxOut', 'default_paxOut', 'cargoIn', 'cargoOut', 'gangwayReadyDuration'])),
       this.newService.getDprInputsByRange(makeRequest(['standBy', 'vesselNonAvailability', 'weatherDowntime', 'liquids', 'date', 'missedPaxCargo'])
-      )]).subscribe(([v2vs, portcalls, transfers, platforms, dprs]) => {
+      )]).subscribe(([v2vs, generalstats, portcalls, transfers, platforms, dprs]) => {
         this.kpis = [];
         this.parsePaxDefaults(v2vs);
         this.parsePaxDefaults(transfers);
@@ -86,13 +90,15 @@ export class SiemensKpiOverviewComponent implements OnChanges {
           const matchedDprs       = dprs.find(val => val._id === _mmsi) || {};
           const matchedV2vs       = v2vs.find(val => val._id === _mmsi) || {};
           const matchedPortcalls  = portcalls.find(val => val._id === _mmsi) || {};
+          const matchedGenerals   = generalstats.find(val => val._id === _mmsi) || {};
 
-          const dpr         = <FilteredDprData[]><any>this.dateService.groupDataByMonth(matchedDprs);
-          const _transfers  = this.dateService.groupDataByMonth(matchedTransfers);
-          const _platforms  = this.dateService.groupDataByMonth(matchedPlatforms);
-          const _v2vs       = this.dateService.groupDataByMonth(matchedV2vs);
-          const _portcalls  = this.dateService.groupDataByMonth(matchedPortcalls);
-          const _kpis       = [];
+          const dpr           = <FilteredDprData[]><any>this.dateService.groupMatlabDatenumsByMonth(matchedDprs);
+          const _transfers    = this.dateService.groupMatlabDatenumsByMonth(matchedTransfers);
+          const _platforms    = this.dateService.groupMatlabDatenumsByMonth(matchedPlatforms);
+          const _v2vs         = this.dateService.groupMatlabDatenumsByMonth(matchedV2vs);
+          const _portcalls    = this.dateService.groupMatlabDatenumsByMonth(matchedPortcalls);
+          const _kpis         = [];
+          const _generalstats = this.dateService.groupMatlabDatenumsByMonth(matchedGenerals);
 
           dpr.forEach(_dpr => {
             const filter    = (datas) => datas.find(_transfer => _transfer.month.date.year === _dpr.month.date.year && _transfer.month.date.month === _dpr.month.date.month);
@@ -100,8 +106,10 @@ export class SiemensKpiOverviewComponent implements OnChanges {
             const platform  = filter(_platforms);
             const v2v       = filter(_v2vs);
             const portcall  = filter(_portcalls) || { date: [] };
+            const general   = filter(_generalstats);
+
             const site      = transfer ? transfer.fieldname[0] : (platform ? 'platform' : '-');
-            _kpis.push(this.computeKpiForMonth({ site: site }, _dpr, portcall, transfer, platform, v2v));
+            _kpis.push(this.computeKpiForMonth({ site: site }, _dpr, general, portcall, transfer, platform, v2v));
           });
           this.kpis.push(_kpis.reverse());
         });
@@ -109,12 +117,13 @@ export class SiemensKpiOverviewComponent implements OnChanges {
       });
   }
 
-  computeKpiForMonth(info: { site: string }, dprs: FilteredDprData, portcalls: any, turbine: any, platform: any, v2v: any): SiemensKpi {
+  computeKpiForMonth(info: { site: string }, dprs: FilteredDprData, general: any,  portcalls: any, turbine: any, platform: any, v2v: any): SiemensKpi {
     const kpi: SiemensKpi = <SiemensKpi>{};
     kpi.month           = dprs.month.dateString;
     kpi.site            = this.formatFieldName(info.site);
     let standByHours    = 0, techDowntimeHours = 0, weatherDowntimeHours = 0, utilHours = 0;
     let portCallHours   = 0, fuelUsed = 0, maintainanceOps = 0;
+    let distanceSailed  = 0;
     let numDaysInMonth: number;
     const missedPaxCargo = dprs.missedPaxCargo;
     if (dprs.month.date.year === this.currentDate.year && dprs.month.date.month === this.currentDate.month) {
@@ -134,8 +143,8 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         const s = portcalls.startTime[pcIndex];
         const e = portcalls.stopTime[pcIndex];
         const dtObj = {
-          from: s === '_NaN_' ? '00:00' : this.dateService.MatlabDateToUnixEpoch(s).format('HH:mm'),
-          to: e === '_NaN_' ? '24:00' : this.dateService.MatlabDateToUnixEpoch(e).format('HH:mm'),
+          from: s === '_NaN_' ? '00:00' : this.dateService.matlabDatenumToMoment(s).format('HH:mm'),
+          to: e === '_NaN_' ? '24:00' : this.dateService.matlabDatenumToMoment(e).format('HH:mm'),
           isPlanned: portcalls.plannedUnplannedStatus !== 'unplanned',
         };
         this.applyDowntime(ops, STATUS_PORTCALL_PLANNED, [dtObj], (x) => x.isPlanned);
@@ -197,6 +206,11 @@ export class SiemensKpiOverviewComponent implements OnChanges {
         }
       });
     }
+    if (general) {
+      general?.distancekm?.forEach(dailyDistance => {
+        distanceSailed += this.parseInput(dailyDistance);
+      });
+    }
     if (missedPaxCargo && Array.isArray(missedPaxCargo)) {
       missedPaxCargo.forEach(_transfers => {
         _transfers.forEach(_transfer => {
@@ -219,6 +233,7 @@ export class SiemensKpiOverviewComponent implements OnChanges {
     kpi.paxTransferedGangway    = paxGangwayTransfer;
     kpi.numCargoOps             = cargoOps;
     kpi.numMaintainanceOps      = maintainanceOps;
+    kpi.distanceSailed          = this.calcService.switchUnitAndMakeString(distanceSailed, 'km', this.settingsService.unit_distance);
     return kpi;
   }
 
@@ -352,4 +367,5 @@ interface SiemensKpi {
   numCargoOps: number;
   numPortCalls: number;
   numMaintainanceOps: number;
+  distanceSailed: String;
 }

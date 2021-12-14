@@ -3,13 +3,10 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-
-
 import { SignupRoutingModule } from './signup-routing.module';
 import { SignupComponent } from './signup.component';
-import {CommonService} from '../common.service';
-import { UserService } from '../shared/services/user.service';
-import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
+import {CommonService} from '@app/common.service';
+import { UserService } from '@app/shared/services/user.service';
 
 
 @NgModule({

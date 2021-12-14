@@ -31,7 +31,7 @@ export class CtvKpiOverviewComponent implements OnChanges {
     cargoDownKg: 1,
     cargoUpKg: 1,
   }]];
-  currentDate = this.dateService.MatlabDateToObject(this.dateService.getMatlabDateYesterday());
+  currentDate = this.dateService.matlabDatenumToYMD(this.dateService.getMatlabDateYesterday());
 
   constructor(
     private newService: CommonService,
@@ -66,12 +66,13 @@ export class CtvKpiOverviewComponent implements OnChanges {
           const matchedDprs       = dprs.find(val => val._id == _mmsi) || {};
           const matchedEngines    = engines.find(val => val._id == _mmsi) || {};
 
-          const dpr         = this.dateService.groupDataByMonth(matchedDprs);
-          const _transfers  = this.dateService.groupDataByMonth(matchedTransfers);
-          const _engines    = this.dateService.groupDataByMonth(matchedEngines);
+          const dpr         = this.dateService.groupMatlabDatenumsByMonth(matchedDprs);
+          const _transfers  = this.dateService.groupMatlabDatenumsByMonth(matchedTransfers);
+          const _engines    = this.dateService.groupMatlabDatenumsByMonth(matchedEngines);
           const _kpis       = [];
 
           dpr.forEach((_dpr, index) => {
+            // TODO move to dateservice
             const filter    = (datas) => datas.find(_transfer => _transfer.month.date.year === _dpr.month.date.year && _transfer.month.date.month === _dpr.month.date.month);
             const transfer  = filter(_transfers);
             const site      = transfer ? transfer.fieldname[0] : 'N/a';
@@ -90,6 +91,7 @@ export class CtvKpiOverviewComponent implements OnChanges {
     let fuelUsed = 0, sailedMiles = 0;
 
     let numDaysInMonth: number;
+    // TODO move to dateservice
     if (dprs.month.date.year === this.currentDate.year && dprs.month.date.month === this.currentDate.month) {
       numDaysInMonth = this.currentDate.day;
     } else {
@@ -99,18 +101,19 @@ export class CtvKpiOverviewComponent implements OnChanges {
       fuelUsed                 += this.getFuelValue(dprs, engines, i) ??  0;
       sailedMiles              += dprs?.DPRstats[i]?.sailedDistance ?? 0;
     }
+
     let paxTransfer = 0, amountDockings = 0, cargoUpKg = 0, cargoDownKg = 0,  cargoOps = 0;
     if (turbine) {
-      
-      paxTransfer     += turbine.paxUp      .reduce((prev, curr) => prev + this.parseInput(curr), 0);
-      paxTransfer     += turbine.paxDown    .reduce((prev, curr) => prev + this.parseInput(curr), 0);
-      cargoUpKg       += turbine.cargoUp    .reduce((prev, curr) => prev + this.parseInput(curr), 0);
-      cargoDownKg     += turbine.cargoDown  .reduce((prev, curr) => prev + this.parseInput(curr), 0);
-      cargoOps        += turbine.cargoUp    .filter(value => value > 0).length;
-      cargoOps        += turbine.cargoDown  .filter(value => value > 0).length;
-      amountDockings  += turbine.detector   .filter(value => value == 'docking').length;
-
+      paxTransfer     += turbine.paxUp      ?.reduce((prev, curr) => prev + this.parseInput(curr), 0) ?? 0;
+      paxTransfer     += turbine.paxDown    ?.reduce((prev, curr) => prev + this.parseInput(curr), 0) ?? 0;
+      cargoUpKg       += turbine.cargoUp    ?.reduce((prev, curr) => prev + this.parseInput(curr), 0) ?? 0;
+      cargoDownKg     += turbine.cargoDown  ?.reduce((prev, curr) => prev + this.parseInput(curr), 0) ?? 0;
+      cargoOps        += turbine.cargoUp    ?.filter(value => value > 0)?.length ?? 0;
+      cargoOps        += turbine.cargoDown  ?.filter(value => value > 0)?.length ?? 0;
+      amountDockings  += turbine.detector   ?.filter(value => value == 'docking')?.length ?? 0;
     }
+
+    // TODO use user settings instead of hardcoded units
     kpi.totalFuelUsed           = this.calcService.roundNumber(fuelUsed || 0, 10, ' l');
     if (sailedMiles > 0){
       kpi.fuelUsedPerWorkingDay = this.calcService.roundNumber(fuelUsed / sailedMiles || 0, 10, ' l / NM');
@@ -126,33 +129,25 @@ export class CtvKpiOverviewComponent implements OnChanges {
     return kpi;
   }
 
-  private formatFieldName(rawname: string) {
-    if (rawname) {
-      return rawname.replace('_turbine_coordinates', '').replace(/_/g, ' ');
-    } else {
-      return '-';
-    }
+  private formatFieldName(rawname: string): string {
+    if (rawname) return rawname.replace('_turbine_coordinates', '').replace(/_/g, ' ') ?? '-';
+    return '-';
   }
   private parseInput(n: number | string): number {
-    if (n) {
-      if (typeof (n) === 'number') {
-        return isNaN(n) ? 0 : n;
-      } else if (typeof (n) === 'string') {
-        return parseInt(n, 10) || 0;
-      } else {
-        return 0;
-      }
-    } else {
-      return 0;
+    if (!n) return 0;
+    if (typeof (n) === 'number') {
+      return isNaN(n) ? 0 : n;
+    } else if (typeof (n) === 'string') {
+      return parseInt(n, 10) || 0;
     }
+    return 0;
   }
 
-  private getFuelValue(dprs, engines, i : number) {
-    if (dprs?.inputStats[i]?.fuelConsumption > 0) {
-      return dprs?.inputStats[i]?.fuelConsumption;
-    } else if (engines?.fuelUsedTotalM3[i] !== "n/a" && typeof engines?.fuelUsedTotalM3[i] === 'number' && engines?.fuelUsedTotalM3[i] > 0) {
-      return this.calcService.switchUnits(engines?.fuelUsedTotalM3[i] || 0, 'm3', 'liter');
-    }
+  private getFuelValue(dprs, engines, i : number): number {
+    if (dprs?.inputStats[i]?.fuelConsumption > 0) return dprs?.inputStats[i]?.fuelConsumption;
+    const fuelM3 = engines?.fuelUsedTotalM3?.[i];
+    if (typeof fuelM3 == 'number' && fuelM3 > 0) return <number> this.calcService.switchUnits(fuelM3 || 0, 'm3', 'liter');
+    return 0;
   }
 }
 interface ctvKpi {

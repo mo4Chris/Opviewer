@@ -70,7 +70,7 @@ export class AdminComponent implements OnInit {
   getLatestTwaUpdate() {
     this.newService.getLatestTwaUpdate().subscribe(lastUpdate => {
       if (lastUpdate > 0) {
-        const latestMatlabUpdate = this.dateService.daysSinceMatlabDate(lastUpdate);
+        const latestMatlabUpdate = this.dateService.getDaysSinceMatlabDatenum(lastUpdate);
         if (lastUpdate < 2) {
           this.last_TWA_Update = this.calcService.roundNumber(latestMatlabUpdate * 24, 10, ' hour(s)');
         } else {
@@ -94,19 +94,20 @@ export class AdminComponent implements OnInit {
       this.vesselInfo = vessels;
       this.newService.getLatestGeneral().subscribe(genStatInfos => {
         genStatInfos.forEach(genInfo => {
-          const vesselInfo: VesselModel = this.vesselInfo.find((vessel) => vessel.mmsi === genInfo._id);
+          const vesselInfo: VesselModel = this.vesselInfo.find(vessel => vessel.mmsi === genInfo._id);
           const isOnHire = vesselInfo !== undefined && vesselInfo.onHire;
           if (isOnHire && genInfo.date <= this.currentMatlabDate - 2) {
             this.noActivityVessels.push({
               matlabDate: genInfo.date,
               name: genInfo.vesselname.split('_').join(' '),
               client: vesselInfo.client[0],
-              lastActive: this.dateService.MatlabDateToJSDateYMD(genInfo.date),
+              lastActive: this.dateService.matlabDatenumToYmdString(genInfo.date),
               lastActiveDays: this.calcService.roundNumber(this.currentMatlabDate - genInfo.date, 1),
               type: vesselInfo.operationsClass,
             });
           }
         });
+
         this.noActivityVessels.sort((a, b) => {
           return a.matlabDate < b.matlabDate ? 1 : a.matlabDate === b.matlabDate ? 0 : -1;
         });

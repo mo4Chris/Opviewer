@@ -1,4 +1,3 @@
-import { isArray } from 'util';
 import { MapZoomData } from './mapZoomLayer';
 import { GmapService } from '../supportModules/gmap.service';
 import { CalculationService } from '../supportModules/calculation.service';
@@ -19,7 +18,7 @@ export class WavedataModel {
         windDir: number[];
     };
 
-    static mergeWavedataArray(arr: WavedataModel[]) {
+    static mergeWavedataArray(arr: Array<WavedataModel | {wavedata: RawWaveData}>) {
         const calcService = new CalculationService;
         const merged = {
             timeStamp: [],
@@ -78,12 +77,12 @@ export class WavedataModel {
     }
 
     cleanArray(arr: any) {
-        if (!isArray(arr)) {
+        if (!Array.isArray(arr)) {
             return [arr];
         } else if (arr.length === 1) {
             // We dont allow wavedata consisting of only 1 point
             return null;
-        } else if (isArray(arr[0])) {
+        } else if (Array.isArray(arr[0])) {
             return arr.map( elt => elt[0] );
         } else {
             return arr;
@@ -104,12 +103,6 @@ export class WavedataModel {
 }
 
 export class WaveSourceModel {
-    constructor(objLiteral?: Object) {
-        if (objLiteral) {
-            return Object.assign(new WaveSourceModel(), objLiteral);
-        }
-    }
-
     name: string;
     info: string;
     clients: string | string [];
@@ -128,6 +121,12 @@ export class WaveSourceModel {
         wind: string,
         windDir: string,
     };
+
+    constructor(objLiteral?: Object) {
+        if (objLiteral) {
+            return Object.assign(new WaveSourceModel(), objLiteral);
+        }
+    }
 
     getLatLng() {
         if (this.lon !== null && this.lat !== null) {
@@ -161,4 +160,26 @@ export class WaveSourceModel {
             this.asMapZoomData().setMap(map);
         }
     }
+}
+
+export interface RawWaveData {
+    source: string;
+    timeStamp: number[];
+    Hs?: number[];
+    Ts?: number[];
+    Tp?: number[];
+    Tz?: number[];
+    Hmax?: number[];
+    waveDir?: number[];
+    wavePeakDir?: number[];
+    windSpeed?: number[];
+    windGust?: number[];
+    windDir?: number[];
+}
+export interface RawSpectralData {
+    source: string;
+    timeStamp: number[];
+    k_x: number[];
+    k_y: number[];
+    density: number[][][]; // time x omega x direction
 }

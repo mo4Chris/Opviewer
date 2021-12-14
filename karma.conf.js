@@ -15,12 +15,13 @@ module.exports = function (config) {
     ],
     client:{
       jasmine: {
-        random: false
+        random: true,
+        DEFAULT_UPDATE_INTERVAL: 0
       },
       clearContext: false // leave Jasmine Spec Runner output visible in browser
     },
     coverageIstanbulReporter: {
-      reports: [ 'html', 'lcovonly' ],
+      reports: [ 'html' ],
       fixWebpackSourcePaths: true
     },
     angularCli: {
@@ -31,13 +32,13 @@ module.exports = function (config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['ChromeHeadlessNoSandbox'],
+    browsers: ['Chrome'],
     customLaunchers: {
       ChromeHeadlessNoSandbox: {
         base: 'ChromeHeadless',
         flags: ['--no-sandbox']
       }
     },
-    singleRun: false
+    singleRun: false,
   });
 };

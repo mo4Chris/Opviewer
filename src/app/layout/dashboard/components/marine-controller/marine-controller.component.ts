@@ -36,9 +36,7 @@ export class MarineControllerComponent implements OnInit {
 
   ngOnInit() {
     setTimeout(() => {
-      this.newService.getVesselsForCompany([{
-        client: this.tokenInfo.userCompany
-      }]).subscribe(vessels => {
+      this.newService.getVessel().subscribe(vessels => {
         this.vesselInfos = vessels;
         this.setZoomLevel();
         this.getUnassignedTransfers();
@@ -47,32 +45,31 @@ export class MarineControllerComponent implements OnInit {
   }
 
   getLocations() {
-    this.newService.getLatestBoatLocationForCompany(this.tokenInfo.userCompany).subscribe( boatLocationData => {
+    this.newService.getLatestBoatLocation().subscribe( boatLocationData => {
       this.locationData.emit(boatLocationData);
     });
   }
 
   setZoomLevel() {
+    if (!this.vesselInfos) return this.zoominfo.emit(this.defaultZoomInfo);
+
     const activeFields = [];
     const uniqueParkNames = this.vesselInfos.map(info => info.Site).filter((value, index, self) => {
       return typeof(value) === 'string' && self.indexOf(value) === index;
     });
     const isLoaded = [];
     const cb = () => {
-      if (activeFields.length > 0) {
-        // Do smart stuff
-        const props = this.calcService.GetPropertiesForMap(400,
-          activeFields.map(field => field.centroid.lat),
-          activeFields.map( field => field.centroid.lon)
-          );
-          this.zoominfo.emit({
-            zoomlvl: Math.min(props.zoomLevel, 8.5),
-            latitude: props.avgLatitude,
-            longitude: props.avgLongitude
-          });
-      } else {
-        this.zoominfo.emit(this.defaultZoomInfo);
-      }
+      if (activeFields.length == 0) return this.zoominfo.emit(this.defaultZoomInfo);
+      // Do smart stuff
+      const props = this.calcService.calcPropertiesForMap(400,
+        activeFields.map(field => field.centroid.lat),
+        activeFields.map( field => field.centroid.lon)
+      );
+      this.zoominfo.emit({
+        zoomlvl: Math.min(props.zoomLevel, 8.5),
+        latitude: props.avgLatitude,
+        longitude: props.avgLongitude
+      });
     };
 
     if (uniqueParkNames.length > 0) {
@@ -96,35 +93,35 @@ export class MarineControllerComponent implements OnInit {
   getUnassignedTransfers() {
     const min_lookback = 2; // MC gets no messages about yesterday
     const lookback = 14;
-    this.vesselInfos.forEach( (vesselInfo, vidx) => {
-      if (vesselInfo.operationsClass === 'CTV') {
-        this.newService.getTransfersForVesselByRange({
-          mmsi: [this.tokenInfo.userBoats[vidx].mmsi],
-          dateMin: this.matlabDate - lookback,
-          dateMax: this.matlabDate - min_lookback,
-          reqFields: ['comment', 'location']
-        }).subscribe(_transfers => {
-          _transfers.forEach((transfers: {
-            _id: number; // mmsi
-            comment: string[];
-            location: string[];
-            label: string[];
-            date: number[];
-          }) => {
-            transfers.comment.forEach((comment: string, _i) => {
-              if (comment === 'Unassigned') {
-                this.unassignedTransfers.push({
-                  mmsi: transfers._id,
-                  turbine: transfers.location[_i],
-                  vessel: transfers.label[_i],
-                  date: transfers.date[_i],
-                  datestr: this.dateService.MatlabDateToJSDateYMD(transfers.date[_i]),
-                });
-              }
-            });
+    if (!this.vesselInfos) return this.unassignedTransfers = [];
+    this.vesselInfos.forEach((vesselInfo, vidx) => {
+      if (vesselInfo.operationsClass != 'CTV')  return;
+      this.newService.getTransfersForVesselByRange({
+        mmsi: [this.tokenInfo.userBoats[vidx].mmsi],
+        dateMin: this.matlabDate - lookback,
+        dateMax: this.matlabDate - min_lookback,
+        reqFields: ['comment', 'location']
+      }).subscribe(_transfers => {
+        _transfers.forEach((transfers: {
+          _id: number; // mmsi
+          comment: string[];
+          location: string[];
+          label: string[];
+          date: number[];
+        }) => {
+          transfers.comment.forEach((comment: string, _i) => {
+            if (comment === 'Unassigned') {
+              this.unassignedTransfers.push({
+                mmsi: transfers._id,
+                turbine: transfers.location[_i],
+                vessel: transfers.label[_i],
+                date: transfers.date[_i],
+                datestr: this.dateService.matlabDatenumToYmdString(transfers.date[_i]),
+              });
+            }
           });
         });
-      }
+      });
     });
   }
 

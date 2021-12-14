@@ -27,7 +27,7 @@
     }],
     "e2e": {
         "protractor": {
-            "config": "./protractor.conf.js"
+            "config": "src/protractor.conf.js"
         }
     },
     "styles": [

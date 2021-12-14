@@ -7,7 +7,6 @@ import { SovModel } from './models/SovModel';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { SovType } from './models/SovType';
 import { CalculationService } from '@app/supportModules/calculation.service';
-import { isArray } from 'util';
 import { SettingsService } from '@app/supportModules/settings.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { TokenModel } from '@app/models/tokenModel';
@@ -50,7 +49,7 @@ export class SovreportComponent implements OnInit, OnChanges {
   hasDcEvents = false;
   dcInfo: DaughtercraftInfoModel;
 
-  activeTab = 'summary';
+  activeTab: SovDprNavLink = 'sov-summary';
 
   vesselHasWavespectrum = false;
   waveSpectrumAvailable = false;
@@ -99,7 +98,7 @@ export class SovreportComponent implements OnInit, OnChanges {
 
   buildPageWhenRouteLoaded() {
     this.GetAvailableRouteDatesForVessel();
-    forkJoin(
+    forkJoin([
       this.commonService.getSov(this.vesselObject),
       this.commonService.getSovDprInput(this.vesselObject),
       this.commonService.getSovHseDprInput(this.vesselObject),
@@ -112,7 +111,7 @@ export class SovreportComponent implements OnInit, OnChanges {
         this.vesselObject.mmsi,
         this.vesselObject.date
       ),
-    ).subscribe(
+    ]).subscribe(
       ([
         sov,
         dprInput,
@@ -135,10 +134,16 @@ export class SovreportComponent implements OnInit, OnChanges {
 
         this.dprApproval = ( dprSigned && dprSigned.amount) ? dprSigned.amount : 0;
         this.hseDprApproval = (hseSigned && hseSigned.amount) ? hseSigned.amount : 0;
-        if (sovInfo[0]) {
+
+        if (sovInfo[0] && typeof sovInfo[0]?.daughtercraft_nicename != 'object') {
           this.dcInfo = {
-            mmsi: sovInfo[0].daughtercraft_mmsi,
-            nicename: sovInfo[0].daughtercraft_nicename
+            mmsi: sovInfo[0]?.daughtercraft_mmsi,
+            nicename: sovInfo[0]?.daughtercraft_nicename
+          };
+        } else if(sovInfo[0]) {
+          this.dcInfo = {
+            mmsi: 0,
+            nicename: 'N/a'
           };
         }
 
@@ -219,26 +224,17 @@ export class SovreportComponent implements OnInit, OnChanges {
               });
               // Loading wind farm name content
               this.hasDcEvents = false;
-              if (this.sovModel.vessel2vessels.length > 0) {
-                this.sovModel.vessel2vessels[0].CTVactivity.forEach(
-                  v2v => {
-                    if (isArray(v2v.turbineVisits)) {
-                      v2v.turbineVisits.forEach(visit => {
-                        if (
-                          !sovFieldNames.some(
-                            elt =>
-                              elt ===
-                              visit.fieldname
-                          )
-                        ) {
-                          sovFieldNames.push(
-                            visit.fieldname
-                          );
-                        }
-                      });
-                    }
+              if (this.sovModel.vessel2vessels?.length > 0) {
+                this.sovModel.vessel2vessels[0].CTVactivity.forEach( v2v => {
+                  if (Array.isArray(v2v.turbineVisits)) {
+                    v2v.turbineVisits.forEach(visit => {
+                      const is_unique_field = !sovFieldNames.some(elt => elt === visit.fieldname)
+                      if (is_unique_field ) {
+                        sovFieldNames.push( visit.fieldname );
+                      }
+                    });
                   }
-                );
+                });
                 this.hasDcEvents = this.sovModel.vessel2vessels[0].transfers.some(_transfer => {
                   return _transfer.type === 'Daughter-craft departure' || _transfer.type === 'Daughter-craft return';
                 });
@@ -294,26 +290,25 @@ export class SovreportComponent implements OnInit, OnChanges {
     this.commonService.getSpecificPark({
       park: data
     }).subscribe(locdata => {
-      if (locdata.length !== 0) {
-        let transfers: Array<any>;
-        let sovType = 'Unknown';
-        if (this.sovModel.sovType === SovType.Platform) {
-          transfers = this.sovModel.platformTransfers;
-          sovType = 'Platform';
-        } else if (this.sovModel.sovType === SovType.Turbine) {
-          transfers = this.sovModel.turbineTransfers;
-          sovType = 'Turbine';
-        }
-        const locationData = {
-          turbineLocations: locdata,
-          transfers: transfers,
-          type: sovType,
-          vesselType: 'SOV'
-        };
-        this.turbineLocations = locationData.turbineLocations;
-        if (this.turbineLocations[0].SiteName) {
-          this.fieldName = this.turbineLocations[0].SiteName;
-        }
+      if (locdata.length == 0) return;
+      let transfers: Array<any>;
+      let sovType = 'Unknown';
+      if (this.sovModel.sovType === SovType.Platform) {
+        transfers = this.sovModel.platformTransfers;
+        sovType = 'Platform';
+      } else if (this.sovModel.sovType === SovType.Turbine) {
+        transfers = this.sovModel.turbineTransfers;
+        sovType = 'Turbine';
+      }
+      const locationData = {
+        turbineLocations: locdata,
+        transfers: transfers,
+        type: sovType,
+        vesselType: 'SOV'
+      };
+      this.turbineLocations = locationData.turbineLocations;
+      if (this.turbineLocations[0].SiteName) {
+        this.fieldName = this.turbineLocations[0].SiteName;
       }
     });
   }
@@ -343,10 +338,10 @@ export class SovreportComponent implements OnInit, OnChanges {
   }
 
   GetAvailableRouteDatesForVessel() {
-    forkJoin(
+    forkJoin([
       this.commonService.getDatesShipHasSailedForSov(this.vesselObject),
       this.commonService.getDatesWithTransfersForSOV(this.vesselObject),
-    ).subscribe(([genData, transferDates]) => {
+    ]).subscribe(([genData, transferDates]) => {
       this.dateData.general = genData;
       this.dateData.transfer = transferDates;
       this.pushSailingDates();
@@ -358,37 +353,36 @@ export class SovreportComponent implements OnInit, OnChanges {
   }
 
   pushSailingDates() {
-    if (this.dateData.transfer && this.dateData.general) {
-      const transferDates = [];
-      const transitDates = [];
-      const otherDates = [];
-      let formattedDate;
-      let hasTransfers: boolean;
-      this.dateData.general.forEach(generalDataInstance => {
-        formattedDate = this.datetimeService.JSDateYMDToObjectDate(
-          this.datetimeService.MatlabDateToJSDateYMD(
-            generalDataInstance.dayNum
-          )
-        );
-        hasTransfers = this.dateData.transfer.reduce(
-          (acc, val) => acc || val === generalDataInstance.dayNum,
-          false
-        );
-        if (generalDataInstance.distancekm && hasTransfers) {
-          transferDates.push(formattedDate);
-        } else if (generalDataInstance.distancekm) {
-          transitDates.push(formattedDate);
-        } else {
-          otherDates.push(formattedDate);
-        }
-      });
-      const sailInfo = {
-        transfer: transferDates,
-        transit: transitDates,
-        other: otherDates
-      };
-      this.sailDates.emit(sailInfo);
-    }
+    if (!(this.dateData.transfer && this.dateData.general)) return;
+    const transferDates = [];
+    const transitDates = [];
+    const otherDates = [];
+    let formattedDate;
+    let hasTransfers: boolean;
+    this.dateData.general.forEach(generalDataInstance => {
+      formattedDate = this.datetimeService.ymdStringToYMD(
+        this.datetimeService.matlabDatenumToYmdString(
+          generalDataInstance.dayNum
+        )
+      );
+      hasTransfers = this.dateData.transfer.reduce(
+        (acc, val) => acc || val === generalDataInstance.dayNum,
+        false
+      );
+      if (generalDataInstance.distancekm && hasTransfers) {
+        transferDates.push(formattedDate);
+      } else if (generalDataInstance.distancekm) {
+        transitDates.push(formattedDate);
+      } else {
+        otherDates.push(formattedDate);
+      }
+    });
+    const sailInfo = {
+      transfer: transferDates,
+      transit: transitDates,
+      other: otherDates
+    };
+    this.sailDates.emit(sailInfo);
   }
 
   private switchUnit(
@@ -404,17 +398,17 @@ export class SovreportComponent implements OnInit, OnChanges {
   }
 
   GetMatlabDurationToMinutes(serial) {
-    return this.datetimeService.MatlabDurationToMinutes(serial);
+    return this.datetimeService.matlabDurationToMinutes(serial);
   }
 
   // Properly change undefined values to N/a
   // For number resets to decimal, ONLY specify the ones needed, don't reset time objects
   CheckForNullValues() {
     let naCountGangway = 0;
-    this.sovModel.sovInfo = this.calculationService.ReplaceEmptyColumnValues(
+    this.sovModel.sovInfo = this.calculationService.replaceEmptyFields(
       this.sovModel.sovInfo
     );
-    this.sovModel.sovInfo.distancekm = this.calculationService.GetDecimalValueForNumber(
+    this.sovModel.sovInfo.distancekm = this.calculationService.getDecimalValueForNumber(
       this.sovModel.sovInfo.distancekm
     );
     if (this.sovModel.sovType === SovType.Turbine) {
@@ -423,26 +417,26 @@ export class SovreportComponent implements OnInit, OnChanges {
           transfer.gangwayUtilisation === '_NaN_'
           ? naCountGangway++
           : (naCountGangway = naCountGangway);
-        transfer = this.calculationService.ReplaceEmptyColumnValues(
+        transfer = this.calculationService.replaceEmptyFields(
           transfer
         );
         transfer.duration = <any>(
-          this.calculationService.GetDecimalValueForNumber(
+          this.calculationService.getDecimalValueForNumber(
             transfer.duration
           )
         );
         transfer.gangwayDeployedDuration = <any>(
-          this.calculationService.GetDecimalValueForNumber(
+          this.calculationService.getDecimalValueForNumber(
             transfer.gangwayDeployedDuration
           )
         );
         transfer.gangwayReadyDuration = <any>(
-          this.calculationService.GetDecimalValueForNumber(
+          this.calculationService.getDecimalValueForNumber(
             transfer.gangwayReadyDuration
           )
         );
         transfer.gangwayUtilisation = <any>(
-          this.calculationService.GetDecimalValueForNumber(
+          this.calculationService.getDecimalValueForNumber(
             transfer.gangwayUtilisation
           )
         );
@@ -471,22 +465,22 @@ export class SovreportComponent implements OnInit, OnChanges {
           transfer.gangwayUtilisation === '_NaN_'
           ? naCountGangway++
           : (naCountGangway = naCountGangway);
-        transfer = this.calculationService.ReplaceEmptyColumnValues(
+        transfer = this.calculationService.replaceEmptyFields(
           transfer
         );
 
         transfer.totalDuration = <any>(
-          this.calculationService.GetDecimalValueForNumber(
+          this.calculationService.getDecimalValueForNumber(
             transfer.totalDuration
           )
         );
         transfer.gangwayDeployedDuration = <any>(
-          this.calculationService.GetDecimalValueForNumber(
+          this.calculationService.getDecimalValueForNumber(
             transfer.gangwayDeployedDuration
           )
         );
         transfer.gangwayReadyDuration = <any>(
-          this.calculationService.GetDecimalValueForNumber(
+          this.calculationService.getDecimalValueForNumber(
             transfer.gangwayReadyDuration
           )
         );
@@ -505,6 +499,7 @@ export class SovreportComponent implements OnInit, OnChanges {
           )
         );
         transfer.Hs = this.GetDecimalValueForNumber(transfer.Hs, ' m');
+        transfer.Hmax = this.GetDecimalValueForNumber(transfer.Hmax, ' m');
         transfer.gangwayUtilisationLimiter = this.formatGangwayLimiter(
           transfer.gangwayUtilisationLimiter
         );
@@ -515,22 +510,22 @@ export class SovreportComponent implements OnInit, OnChanges {
     }
     if (this.sovModel.transits.length > 0) {
       this.sovModel.transits.forEach(transit => {
-        transit = this.calculationService.ReplaceEmptyColumnValues(
+        transit = this.calculationService.replaceEmptyFields(
           transit
         );
       });
     }
     if (this.sovModel.vessel2vessels.length > 0) {
       this.sovModel.vessel2vessels.forEach(vessel2vessel => {
-        vessel2vessel.CTVactivity = this.calculationService.ReplaceEmptyColumnValues(
+        vessel2vessel.CTVactivity = this.calculationService.replaceEmptyFields(
           vessel2vessel.CTVactivity
         );
         vessel2vessel.transfers.forEach(transfer => {
-          transfer = this.calculationService.ReplaceEmptyColumnValues(
+          transfer = this.calculationService.replaceEmptyFields(
             transfer
           );
           transfer.duration = <any>(
-            this.calculationService.GetDecimalValueForNumber(
+            this.calculationService.getDecimalValueForNumber(
               transfer.duration
             )
           );
@@ -550,38 +545,35 @@ export class SovreportComponent implements OnInit, OnChanges {
   }
 
   setDefaultActiveTab(): void {
+    // ToDo: this should really be a setting
     switch (this.tokenInfo.userPermission) {
       case 'admin':
-        this.activeTab = 'summary';
+        this.activeTab = 'sov-summary';
         break;
       case 'Logistics specialist':
-        this.activeTab = 'summary';
+        this.activeTab = 'sov-summary';
         break;
       case 'Marine controller':
-        this.activeTab = 'sov-dpr-input';
+        this.activeTab = 'sov-summary';
         break;
       case 'Vessel master':
-        this.activeTab = 'sov-dpr-input';
+        this.activeTab = 'sov-input-write';
         break;
       default:
-        this.activeTab = 'summary';
+        this.activeTab = 'sov-summary';
     }
   }
 
-  objectToInt(objectvalue): number {
-    return this.calculationService.objectToInt(objectvalue);
-  }
-
   GetMatlabDateToJSTime(serial) {
-    return this.datetimeService.MatlabDateToJSTime(serial);
+    return this.datetimeService.matlabDatenumToTimeString(serial);
   }
 
   getMatlabDateToCustomJSTime(serial, format) {
-    return this.datetimeService.MatlabDateToCustomJSTime(serial, format);
+    return this.datetimeService.matlabDatenumToFormattedTimeString(serial, format);
   }
 
   GetDecimalValueForNumber(value, endpoint = null) {
-    return this.calculationService.GetDecimalValueForNumber(
+    return this.calculationService.getDecimalValueForNumber(
       value,
       endpoint
     );
@@ -636,4 +628,4 @@ export class SovreportComponent implements OnInit, OnChanges {
 
 type anyTransfer = TurbineTransfer | PlatformTransfer | V2vTransfer;
 
-
+type SovDprNavLink = 'sov-summary' | 'sov-input-read' | 'sov-input-write' | 'sov-commercial' | 'dpr-hse-read' | 'sov-wave-spectrum';

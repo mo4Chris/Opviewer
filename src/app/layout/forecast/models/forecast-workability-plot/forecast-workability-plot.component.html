@@ -1,0 +1,9 @@
+<div [hidden]="!hasData">
+  <h4>Operational utilisation along heading - Maximum: {{MaxWorkability}}</h4>
+  <plotly-plot divId="line-plot" [data]="parsedData" className="plotly-canvas" [layout]='PlotLayout'
+    (initialized)="onPlotlyInit($event)" [useResizeHandler]="true" [config]="config">
+  </plotly-plot>
+</div>
+<div [hidden]="loaded">
+  <app-ng-loading></app-ng-loading>
+</div>

@@ -53,7 +53,7 @@ export class SovSummaryComponent implements OnChanges {
   ngOnChanges() {
     this.hasSummaryData = this.sovModel.sovInfo.mmsi > 0;
     this.CalculateDailySummary();
-    this.summary = this.calculationService.ReplaceEmptyColumnValues(this.summary);
+    this.summary = this.calculationService.replaceEmptyFields(this.summary);
     this.createOperationalStatsChart();
     this.createGangwayLimitationsChart();
     this.setApprovalStatus();
@@ -82,26 +82,26 @@ export class SovSummaryComponent implements OnChanges {
       totalVesselDockingDuration = totalVesselDockingDuration + averageDockingDurationOfVessel2vessel;
     });
     _summary.NrOfVesselTransfers = v2vTransfersTotal;
-    _summary.AvgTimeVesselDocking = this.datetimeService.MatlabDurationToMinutes(totalVesselDockingDuration / this.sovModel.vessel2vessels.length);
+    _summary.AvgTimeVesselDocking = this.datetimeService.matlabDurationToMinutes(totalVesselDockingDuration / this.sovModel.vessel2vessels.length);
 
     _summary.NrOfDaughterCraftLaunches = 0;
     _summary.NrOfHelicopterVisits = 0;
 
     if (this.sovModel.sovType === SovType.Platform && this.sovModel.platformTransfers.length > 0) {
       const transfers = this.sovModel.platformTransfers;
-      const avgTimeInWaitingZone = this.calculationService.getNanMean(transfers.map(x => x.timeInWaitingZone));
-      _summary.AvgTimeInWaitingZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInWaitingZone);
-      const avgTimeInExclusionZone = this.calculationService.getNanMean(transfers.map(x => x.visitDuration));
-      _summary.AvgTimeInExclusionZone = this.datetimeService.MatlabDurationToMinutes(avgTimeInExclusionZone);
-      const avgTimeDocking = this.calculationService.getNanMean(transfers.map(x => parseFloat(<any>x.totalDuration)));
-      _summary.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
-      const avgTimeTravelingToPlatforms = this.calculationService.getNanMean(transfers.map(x => x.approachTime));
-      _summary.AvgTimeTravelingToPlatforms = this.datetimeService.MatlabDurationToMinutes(avgTimeTravelingToPlatforms);
+      const avgTimeInWaitingZone = this.calculationService.nanMean(transfers.map(x => x.timeInWaitingZone));
+      _summary.AvgTimeInWaitingZone = this.datetimeService.matlabDurationToMinutes(avgTimeInWaitingZone);
+      const avgTimeInExclusionZone = this.calculationService.nanMean(transfers.map(x => x.visitDuration));
+      _summary.AvgTimeInExclusionZone = this.datetimeService.matlabDurationToMinutes(avgTimeInExclusionZone);
+      const avgTimeDocking = this.calculationService.nanMean(transfers.map(x => parseFloat(<any>x.totalDuration)));
+      _summary.AvgTimeDocking = this.datetimeService.matlabDurationToMinutes(avgTimeDocking);
+      const avgTimeTravelingToPlatforms = this.calculationService.nanMean(transfers.map(x => x.approachTime));
+      _summary.AvgTimeTravelingToPlatforms = this.datetimeService.matlabDurationToMinutes(avgTimeTravelingToPlatforms);
       _summary = this.GetDailySummary(_summary, transfers);
     } else if (this.sovModel.turbineTransfers.length > 0 && this.sovModel.sovType === SovType.Turbine) {
       const turbineTransfers = this.sovModel.turbineTransfers;
-      const avgTimeDocking = this.calculationService.getNanMean(turbineTransfers.map(x => +x.duration));
-      _summary.AvgTimeDocking = this.datetimeService.MatlabDurationToMinutes(avgTimeDocking);
+      const avgTimeDocking = this.calculationService.nanMean(turbineTransfers.map(x => +x.duration));
+      _summary.AvgTimeDocking = this.datetimeService.matlabDurationToMinutes(avgTimeDocking);
       _summary = this.GetDailySummary(_summary, turbineTransfers);
     } else {
       _summary = this.GetDailySummary(_summary, []);
@@ -111,15 +111,15 @@ export class SovSummaryComponent implements OnChanges {
 
   // ToDo: Common used by platform and turbine
   private GetDailySummary(model: SummaryModel, transfers: any[]) {
-    const maxHs = this.calculationService.getNanMax(transfers.map(_t => parseFloat(<any>_t.Hs)));
-    model.maxSignificantWaveHeightdDuringOperations = this.calculationService.GetDecimalValueForNumber(maxHs, ' m');
-    const maxWindspeed = this.calculationService.getNanMax(transfers.map(_t => parseFloat(<any>_t.peakWindGust)));
+    const maxHs = this.calculationService.nanMax(transfers.map(_t => parseFloat(<any>_t.Hs)));
+    model.maxSignificantWaveHeightdDuringOperations = this.calculationService.getDecimalValueForNumber(maxHs, ' m');
+    const maxWindspeed = this.calculationService.nanMax(transfers.map(_t => parseFloat(<any>_t.peakWindGust)));
     model.maxWindSpeedDuringOperations = this.switchUnit(maxWindspeed, 'km/h', this.settings.unit_speed);
 
     const info = this.sovModel.sovInfo;
     model.TotalSailDistance = this.switchUnit(info.distancekm, 'km', this.settings.unit_distance);
-    model.departureFromHarbour = this.datetimeService.MatlabDateToJSTime(<any>info.departureFromHarbour);
-    model.arrivalAtHarbour = this.datetimeService.MatlabDateToJSTime(<any>info.arrivalAtHarbour);
+    model.departureFromHarbour = this.datetimeService.matlabDatenumToTimeString(<any>info.departureFromHarbour);
+    model.arrivalAtHarbour = this.datetimeService.matlabDatenumToTimeString(<any>info.arrivalAtHarbour);
     return model;
   }
 
@@ -135,6 +135,8 @@ export class SovSummaryComponent implements OnChanges {
       if (sailingDuration > 0 || waitingDuration > 0) {
         this.operationalChartCalculated = true;
         setTimeout(() => {
+          //ToDo: Find nicer way to avoid duplicate graphs when page loads on tab other than summary
+          this?.operationsChart?.destroy();
           this.operationsChart = new Chart('operationalStats', {
             type: 'pie',
             data: {
@@ -182,6 +184,8 @@ export class SovSummaryComponent implements OnChanges {
     if (Object.keys(counter).some((key) => counter[key] > 0)) {
       this.sovHasLimiters = true;
       setTimeout(() => {
+        //ToDo: Find nicer way to avoid duplicate graphs when page loads on tab other than summary
+        this?.gangwayLimitationsChart?.destroy();
         this.gangwayLimitationsChart = new Chart('gangwayLimitations', {
           type: 'pie',
           data: {

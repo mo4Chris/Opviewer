@@ -14,18 +14,21 @@ export class UserService {
   ) { }
 
   getDecodedAccessToken(token: string): TokenModel {
-    const decoded = jwt_decode(token);
-    if (decoded.expires) {
-      const expires = moment.utc(decoded.expires);
-      if (moment().valueOf() > expires.valueOf()) {
-        localStorage.removeItem('token');
-        this.router.navigate(['/login']);
-      }
-    }
-    try {
-      return jwt_decode(token);
-    } catch (Error) {
+    if (token == null) return null;
+    const decoded: TokenModel = jwt_decode(token);
+    if (typeof decoded.expires != 'number') return null;
+    if (moment().valueOf() > decoded.expires) {
+      this.logout();
       return null;
     }
+    return decoded;
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('isLoggedIn');
+    localStorage.clear();
+    this.router.navigate(['/login']);
+    window.location.reload();
   }
 }

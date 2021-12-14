@@ -106,7 +106,7 @@ navigateToDPR(navItem: { mmsi: number, matlabDate: number }) {
 private buildGraphCallback (TimeBreakdowns, breakdownDates: number[], index: number, vesselname: string) {
   const matlabDates: number[] = this.calculationService.linspace(this.vesselObject.dateMin, this.vesselObject.dateMax);
   const dateLabels = matlabDates.map((daynum: number) => {
-    return this.dateTimeService.MatlabDateToUnixEpochViaDate(daynum);
+    return this.dateTimeService.matlabDatenumToDate(daynum);
   });
   let validIdx: number;
   const getDset = (options: object) => {

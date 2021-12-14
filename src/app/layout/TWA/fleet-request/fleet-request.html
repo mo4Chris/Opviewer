@@ -9,7 +9,7 @@
             <div class="col-lg-1 helpDiv">
                 <ng-template #formHelp class="helpContent">
                     Please fill in the form to request a new campaign.
-                    After it is validated by BMO Offshore, it will be added to your list of campaigns.
+                    After it is validated, it will be added to your list of campaigns.
                 </ng-template>
                 <button type="button" class="btn btn-outline-secondary helpBtn addVesselHelp" [autoClose]="true"
                     [ngbPopover]="formHelp" placement="right" popoverClass="helpPopup" container="body">?</button>
@@ -91,7 +91,7 @@
             </div>
             <div class="col-lg-1 helpDiv">
                 <ng-template #limitHsHelp class="helpContent">
-                    This will be used by BMO Offshore to make an estimate for the weather day distribution over the year.
+                    This will be used to make an estimate for the weather day distribution over the year.
                     This may be left empty if it is the same as previous campaigns at this site.
                 </ng-template>
                 <button type="button" class="btn btn-outline-secondary helpBtn addVesselHelp" [autoClose]="true"

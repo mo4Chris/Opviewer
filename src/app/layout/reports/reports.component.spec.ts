@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReportsComponent } from './reports.component';
 import { CommonModule } from '@angular/common';
 import { NgbModule, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
@@ -20,7 +20,7 @@ describe('ReportsComponent', () => {
   let component: ReportsComponent;
   let fixture: ComponentFixture<ReportsComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         CommonModule,
@@ -32,7 +32,6 @@ describe('ReportsComponent', () => {
         AgmCoreModule,
         SharedPipesModule,
         RouterTestingModule,
-
         ReportsRoutingModule,
         ReportsDprModule,
         LongtermModule,

@@ -28,7 +28,7 @@ export class CtvSummaryComponent implements OnChanges {
     'Power washing', 'Daily slinging and craning', 'Fueling substation', 'gearbox oil change', 'servicing small generator', 'Replacing bow fender straps',
     'Main engine oil and filter changed', 'Generator service', 'Craining ops', 'Bunkering at fuel barge', 'New crew'];
   drillOptions = ['Man over board', 'Abandon ship', 'Fire', 'Oil Spill', 'Other drills'];
-  
+
   public fuelConsumedValue = '0 liter';
   public tripEfficiency = 'N/a';
 
@@ -46,7 +46,7 @@ export class CtvSummaryComponent implements OnChanges {
     if (this.engine && this.general && this.general.sailedDistance) {
       this.tripEfficiency = this.calcService.getFuelEcon(this.engine.fuelUsedTotalM3, this.general.sailedDistance, this.settings.unit_distance);
       }
-    this.getValueForFuelConsumed();
+    this.setValueForFuelConsumed();
   }
 
   saveGeneralStats() {
@@ -61,28 +61,27 @@ export class CtvSummaryComponent implements OnChanges {
       })).subscribe();
   }
 
-  getValueForFuelConsumed() {
-    if (this.generalInputStats.fuelConsumption && this.generalInputStats.fuelConsumption > 0) {
-      this.fuelConsumedValue = this.roundNumber(this.generalInputStats.fuelConsumption, 10, ' liter'); 
-    } else if (this.engine.fuelUsedTotalM3) {
-      this.fuelConsumedValue = this.calcService.switchUnitAndMakeString(this.roundNumber(this.engine.fuelUsedTotalM3, 10), 'm3', 'liter');
-    } 
+  setValueForFuelConsumed() {
+    if (this.generalInputStats?.fuelConsumption && this.generalInputStats.fuelConsumption > 0) {
+      this.fuelConsumedValue = this.roundNumber(this.generalInputStats.fuelConsumption, 10, ' liter');
+    } else if (this.engine?.fuelUsedTotalM3) {
+      const val_rnd = this.roundNumber(this.engine.fuelUsedTotalM3, 10)
+      this.fuelConsumedValue = this.calcService.switchUnitAndMakeString(val_rnd, 'm3', 'liter');
+    } else {
+      this.fuelConsumedValue = this.calcService.switchUnitAndMakeString(0, 'm3', 'liter');
+    }
   }
 
-  getMatlabDateToJSTime(serial) {
-    return this.dateService.MatlabDateToJSTime(serial);
+  matlabDatenumToTimeString(serial) {
+    return this.dateService.matlabDatenumToTimeString(serial);
   }
 
-  roundNumber(number, decimal = 10, addString = '') {
+  roundNumber(number: number, decimal = 10, addString = '') {
     return this.calcService.roundNumber(number, decimal = decimal, addString = addString);
   }
 
   switchUnitAndMakeString(value: string | number, oldUnit: string, newUnit: string) {
     return this.calcService.switchUnitAndMakeString(value, oldUnit, newUnit);
-  }
-
-  getMatlabDateToJSTimeDifference(serialEnd, serialBegin) {
-    return this.dateService.MatlabDateToJSTimeDifference(serialEnd, serialBegin);
   }
 }
 

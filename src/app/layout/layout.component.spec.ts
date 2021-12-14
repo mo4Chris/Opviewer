@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LayoutComponent } from './layout.component';
 import { NgbModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -16,7 +16,7 @@ describe('LayoutComponent', () => {
     let fixture: ComponentFixture<LayoutComponent>;
 
     beforeEach(
-        async(() => {
+        waitForAsync(() => {
             TestBed.configureTestingModule({
                 imports: [
                     FormsModule,
@@ -43,3 +43,31 @@ describe('LayoutComponent', () => {
     //     expect(component).toBeTruthy();
     // });
 });
+
+
+export function assertTableEqualRowLength(table: HTMLElement) {
+    expect(table).toBeTruthy('Table not present!')
+    const rows = table.querySelectorAll('tr');
+    expect(rows.length).toBeGreaterThan(0, 'Should have at least 1 row')
+    const row_len = get_num_cells_from_row(rows[0]);
+    expect(row_len).toBeGreaterThan(0, 'Row length should be positive!')
+    rows.forEach((_row, row_index) => {
+      const num_cells = get_num_cells_from_row(_row);
+      expect(num_cells).toEqual(row_len, `Row ${row_index} has length ${num_cells} != ${row_len}`);
+    })
+
+    function get_num_cells_from_row(row: HTMLElement) {
+      let count = 0;
+      const tds = row.querySelectorAll('td');
+      const ths = row.querySelectorAll('th');
+      tds.forEach(td => {
+        const colspan = td.getAttribute('colspan') ?? 1;
+        count += +colspan;
+      })
+      ths.forEach(th => {
+        const colspan = th.getAttribute('colspan') ?? 1;
+        count += +colspan;
+      })
+      return count;
+    }
+  }

@@ -1,14 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { routerTransition } from '../../router.animations';
-import { CommonService } from '../../common.service';
-
-import * as jwt_decode from 'jwt-decode';
-import { ActivatedRoute, Router } from '@angular/router';
-import { map, catchError } from 'rxjs/operators';
-import { UserService } from '../../shared/services/user.service';
-import { TokenModel } from '../../models/tokenModel';
+import { routerTransition } from '@app/router.animations';
+import { CommonService } from '@app/common.service';
+import { ActivatedRoute } from '@angular/router';
+import { UserService } from '@app/shared/services/user.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { AlertService } from '@app/supportModules/alert.service';
+import { RouterService } from '@app/supportModules/router.service';
+import { UserModel } from '@app/models/userModel';
+import { VesselModel, VesselOperationsClass } from '@app/models/vesselModel';
 
 @Component({
   selector: 'app-usermanagement',
@@ -17,89 +16,109 @@ import { AlertService } from '@app/supportModules/alert.service';
   animations: [routerTransition()]
 })
 export class UserManagementComponent implements OnInit {
+  constructor(
+    public router: RouterService,
+    private newService: CommonService,
+    private route: ActivatedRoute,
+    private userService: UserService,
+    public permission: PermissionService,
+    public alert: AlertService,
+  ) { }
 
-    constructor(
-        public router: Router,
-        private newService: CommonService,
-        private route: ActivatedRoute,
-        private userService: UserService,
-        public permission: PermissionService,
-        public alert: AlertService,
-    ) { }
+  username: string;
+  user: UserModel;
+  tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
+  allowed_vessels: UsermanagementVesselModel[] = [];
+  selected_vessels: UsermanagementVesselModel[];
 
-    username = this.getUsernameFromParameter();
-    user;
-    tokenInfo: TokenModel = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
-    boats;
+  multiSelectSettings = {
+    idField: 'vessel_id',
+    textField: 'nicename',
+    allowSearchFilter: true,
+    selectAllText: 'Select All',
+    unSelectAllText: 'UnSelect All',
+    singleSelection: false
+  };
 
-    multiSelectSettings = {
-        idField: 'mmsi',
-        textField: 'nicename',
-        allowSearchFilter: true,
-        selectAllText: 'Select All',
-        unSelectAllText: 'UnSelect All',
-        singleSelection: false
-    };
+  ngOnInit() {
+    this.setUsernameFromParameter()
+    this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
+      this.getUser();
+    });
+  }
 
-    ngOnInit() {
-        this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-            if (userIsActive !== true) {
-                localStorage.removeItem('isLoggedin');
-                localStorage.removeItem('token');
-                this.router.navigate(['login']);
-            } else {
-                this.getUser();
-            }
+  setUsernameFromParameter() {
+    this.route.params.subscribe(param => {
+      this.username = param?.username ?? 'N/a';
+    })
+  }
+
+  getUser() {
+    this.newService.getUserByUsername(this.username).subscribe(userdata => {
+      // Loads the users this person is allowed to edit
+      this.user = userdata[0];
+      const is_admin = this.permission.admin;
+      const is_same_client = this.tokenInfo.userCompany == this.user.client_name;
+      if (!is_admin && !this.permission.userRead) return this.router.routeToAccessDenied();
+      if (!is_admin && !is_same_client) return this.router.routeToAccessDenied();
+
+      const isVesselMaster = this.user.permission.user_type == 'Vessel master';
+      this.multiSelectSettings.singleSelection = isVesselMaster;
+
+      // Requires user has been loaded, as the set of allowed vessels may differ
+      // from own allowed vessels (admin)
+      this.newService.getVesselsForClientByUser(this.user.username).subscribe(vessels => {
+        this.allowed_vessels = vessels;
+        this.selected_vessels = this.user.vessel_ids.map(_id => {
+          return this.allowed_vessels.find(v => v.vessel_id == _id)
+        })
+        this.selected_vessels = this.selected_vessels.filter(v => v!= null)
+      });
+    });
+  }
+
+  saveUserBoats() {
+    const vessels_ids = this.selected_vessels.map(vessel => vessel.vessel_id)
+    this.newService.saveUserVessels(this.user.username, vessels_ids).subscribe({
+      next: (res) => {
+        this.alert.sendAlert({
+          text: res.data,
+          type: 'success'
         });
-    }
-
-    getUsernameFromParameter() {
-        let username;
-        this.route.params.subscribe(params => username = String(params.username));
-        return username;
-    }
-
-    getUser() {
-        this.newService.getUserByUsername({username: this.username}).subscribe(data => {
-            // Loads the users this person is allowed to edit
-            if (!this.permission.admin) {
-                if (!this.permission.userRead) {
-                    this.router.navigate(['/access-denied']);
-                } else {
-                    if (this.tokenInfo.userCompany !== data[0].client) {
-                        this.router.navigate(['/access-denied']);
-                    }
-                }
-            }
-            this.newService.getVesselsForCompany([{
-                client: data[0].client,
-                notHired: 1 }]
-            ).subscribe(vessels => {
-                this.boats = vessels;
-            });
-            this.user = data[0];
-            this.multiSelectSettings.singleSelection = (data[0].permissions === 'Vessel master');
+      },
+      error: error => {
+        this.alert.sendAlert({
+          text: error,
+          type: 'danger'
         });
-    }
+        throw error;
+      }
+    });
+  }
 
-    saveUserBoats() {
-        this.newService.saveUserBoats(this.user).pipe(
-            map(
-                (res) => {
-                    this.alert.sendAlert({
-                        text: res.data,
-                        type: 'success'
-                    });
-                }
-            ),
-            catchError(error => {
-                this.alert.sendAlert({
-                    text: error,
-                    type: 'danger'
-                });
-                throw error;
-            })
-        ).subscribe();
-    }
+  updateUserPermissions() {
+    this.newService.updateUserPermissions(
+      this.user
+    ).subscribe(res => {
+      this.alert.sendAlert({
+        text: res.data,
+        type: 'success'
+      });
+    }, error => {
+      this.alert.sendAlert({
+        text: error,
+        type: 'danger'
+      });
+      throw error;
+    });
+  }
 
+}
+
+export interface UsermanagementVesselModel {
+  mmsi: number,
+  nicename: string,
+  vessel_id:number,
+  active: boolean,
+  operationsClass: VesselOperationsClass
 }

@@ -1,0 +1,9 @@
+<app-weather-overview *ngIf="weather; else loading" [weather]="weather" [source]="source"></app-weather-overview>
+<div>
+  Weather overview on which the motion / workability forecast is based. Click on the legend entries to show or hide any particular
+  weather parameter. Data shown is provided by {{source}}.
+</div>
+
+<ng-template #loading>
+  <app-ng-loading></app-ng-loading>
+</ng-template>

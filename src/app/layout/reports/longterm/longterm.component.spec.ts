@@ -1,5 +1,5 @@
 import { LongtermComponent } from './longterm.component';
-import { ComponentFixture, async, TestBed } from '@angular/core/testing';
+import { ComponentFixture, waitForAsync, TestBed } from '@angular/core/testing';
 import { CommonModule } from '@angular/common';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
@@ -9,7 +9,7 @@ import { LongtermCTVComponent } from './ctv/longtermCTV.component';
 import { MockComponents } from 'ng-mocks';
 import { LongtermSOVComponent } from './sov/longtermSOV.component';
 import { RouterTestingModule } from '@angular/router/testing';
-import {ActivatedRoute} from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { CtvslipgraphComponent } from '../dpr/ctv/models/ctvslipgraph/ctvslipgraph.component';
 import { VesselinfoComponent } from './ctv/models/vesselinfo/vesselinfo.component';
@@ -35,7 +35,7 @@ describe('LongtermComponent', () => {
     let component: LongtermComponent;
     let fixture: ComponentFixture<LongtermComponent>;
 
-    beforeEach(async(() => {
+    beforeEach(waitForAsync(() => {
         TestBed.configureTestingModule({
             imports: [
                 CommonModule,

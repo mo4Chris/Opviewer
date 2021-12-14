@@ -1,7 +1,5 @@
 
 
-
-
 export class VesselModel {
     // Database return array of this template
     Site: string;
@@ -10,9 +8,9 @@ export class VesselModel {
     vesselname: string;
     nicename: string;
     mmsi: number;
-    onHire: boolean;
-
-    operationsClass: 'CTV' | 'OSV' | 'SOV';
+    onHire?: boolean;
+    active?: boolean;
+    operationsClass: VesselOperationsClass;
     vessel_length: number;
     displacement: number;
     dist2bow?: number;
@@ -26,6 +24,7 @@ export class VesselModel {
     videobudget: MongoNumber;
 }
 
+export type VesselOperationsClass = 'CTV' | 'OSV' | 'SOV';
 type MongoString = string | EmptyMatlabObject;
 type MongoNumber = number | EmptyMatlabObject;
 

@@ -1,12 +1,8 @@
 <div class="login-page" [@routerTransition]>
   <div class="row justify-content-md-center">
     <div class="col-md-4">
-      <img src="assets/images/logo.png" width="150px" class="user-avatar" />
-      <h1>BMO Dataviewer</h1>
-      <ngb-alert class="userCreateAlert" type="warning" >The BMO Dataviewer is being phased out. 
-        Please in future use: <br><br>
-        <a href="https://portal.mo4.online">https://portal.mo4.online</a> <br><br>
-      This website will automatically redirect per September 6th 2021</ngb-alert>
+      <img src="assets/images/MO4_Dataviewer_logo_white.png" width="250" />
+      <h1>Dataviewer</h1>
       <form role="form" (keyup.enter)="onLoggedin()" id="login" autocomplete="on">
         <div class="form-content">
           <div class="form-group">
@@ -27,6 +23,9 @@
 
             <button type="button" class="btn btn-outline-secondary form-control helpBtn col-md-2" [autoClose]="true"
               [ngbPopover]="popContent" placement="top" popoverClass="helpPopup">?</button>
+              <br><br>
+                <b>Trial accounts do not require 2FA!</b>
+
             <ng-template #popContent class="helpContent">
               During the set-up of an account, an Authenticator app is required. This authenticator app returns a
               six-digit code every thirty seconds. Input this code in the "2FA response code" field.
@@ -36,7 +35,7 @@
               required to log-in
               <br><br>
               If you are not in the possession of the authenticator app or need assistance you can contact
-              webmaster@bmo-offshore.com
+              webmaster@mo4.online
             </ng-template>
 
           </div>

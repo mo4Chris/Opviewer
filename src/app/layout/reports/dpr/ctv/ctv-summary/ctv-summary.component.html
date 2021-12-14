@@ -3,7 +3,7 @@
 
   <h3 id="generalStatisticsHeader">General statistics
     <button *ngIf="this.tokenInfo.userPermission == 'Vessel master'" class="btn btn-primary submitBtnDate"  (click)="saveGeneralStats()"type="button">Save general stats</button>
-  </h3>  
+  </h3>
   <div class="row">
     <div class="col-lg-4">
       <table class="table table-bordered transitTable">
@@ -14,11 +14,11 @@
         </tr>
         <tr>
           <td>Departure port</td>
-          <td>{{getMatlabDateToJSTime(general?.portDepartureTime)}}</td>
+          <td>{{matlabDatenumToTimeString(general?.portDepartureTime)}}</td>
         </tr>
         <tr>
           <td>Arrival wind farm</td>
-          <td>{{getMatlabDateToJSTime(general?.WindFarmArrivalTime)}}</td>
+          <td>{{matlabDatenumToTimeString(general?.WindFarmArrivalTime)}}</td>
         </tr>
         <tr>
           <td>Visited wind farm(s)</td>
@@ -26,11 +26,11 @@
         </tr>
         <tr>
           <td>Departure wind farm</td>
-          <td>{{getMatlabDateToJSTime(general?.departureWindFarmTime)}}</td>
+          <td>{{matlabDatenumToTimeString(general?.departureWindFarmTime)}}</td>
         </tr>
         <tr>
           <td>Arrival port</td>
-          <td>{{getMatlabDateToJSTime(general?.portArrivalTime)}}</td>
+          <td>{{matlabDatenumToTimeString(general?.portArrivalTime)}}</td>
         </tr>
         <tr>
           <td>Total distance sailed</td>
@@ -98,7 +98,7 @@
           <tr>
               <td><div [ngbTooltip]="helpFuelUsedOther">Fuel consumed other</div></td>
               <td>{{switchUnitAndMakeString(engine?.fuelOther, 'm3', 'liter')}}</td>
-          </tr>  
+          </tr>
           <tr>
               <td><div [ngbTooltip]="helpCo2Explanation">Total CO2 emission</div></td>
               <td>{{roundNumber(engine?.co2TotalKg, 10, ' kg')}}</td>
@@ -169,7 +169,7 @@
         </tr>
         <tr *ngIf="false">
           <td>Amount of unique PAX</td>
-          <td>NEEDS TO BE IMPLEMENTED</td> 
+          <td>NEEDS TO BE IMPLEMENTED</td>
           <!-- ToDo: Chris? -->
         </tr>
       </table>

@@ -33,19 +33,15 @@ export class VesselMasterComponent implements OnInit {
   unassignedTransferLookback = 14;
 
   ngOnInit() {
-    setTimeout(() => {
-      this.newService.getVesselsForCompany([{
-        client: this.tokenInfo.userCompany
-      }]).subscribe(vessels => {
+      this.newService.getVessel().subscribe(vessels => {
         this.vesselInfo = vessels[0]; // Vessel master only gets 1 vessel
         this.setZoomLevel();
         this.getUnassignedTransfers();
       });
-    });
   }
 
   getLocations() {
-    this.newService.getLatestBoatLocationForCompany(this.tokenInfo.userCompany).subscribe( boatLocationData => {
+    this.newService.getLatestBoatLocation().subscribe( boatLocationData => {
       this.locationData.emit(boatLocationData);
     });
   }
@@ -91,7 +87,7 @@ export class VesselMasterComponent implements OnInit {
                 turbine: transfers.location[_i],
                 vessel: transfers.label[_i],
                 date: transfers.date[_i],
-                datestr: this.dateService.MatlabDateToJSDateYMD(transfers.date[_i]),
+                datestr: this.dateService.matlabDatenumToYmdString(transfers.date[_i]),
               });
             }
           });

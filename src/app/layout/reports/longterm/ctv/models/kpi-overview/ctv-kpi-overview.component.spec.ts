@@ -12,8 +12,8 @@ describe('CtvKpiOverviewComponent', () => {
   let transferSpy;
   let dprSpy;
   let engineSpy;
-  
-  beforeEach(async(() => {
+
+  beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [
         NgbModule,
@@ -25,7 +25,7 @@ describe('CtvKpiOverviewComponent', () => {
       ],
     })
     .compileComponents();
-  }));
+  });
 
   beforeEach(() => {
     fixture = TestBed.createComponent(CtvKpiOverviewComponent);
@@ -54,6 +54,7 @@ describe('CtvKpiOverviewComponent', () => {
       totalDistanceSailed: 'N/a',
       cargoDownKg: 1,
       cargoUpKg: 1,
+      amountDockings: 0,
     }]]
     expect(component).toBeTruthy();
   });
@@ -89,9 +90,9 @@ describe('CtvKpiOverviewComponent', () => {
     transferSpy.and.returnValue(mockedObservable(transfers));
     dprSpy.and.returnValue(mockedObservable(dprs));
     engineSpy.and.returnValue(mockedObservable(engines));
-    
+
     fixture.detectChanges();
-    
+
     component.ngOnChanges();
 
     expect(component.kpis[0][0].cargoUpKg).toBe(1);
@@ -102,7 +103,7 @@ describe('CtvKpiOverviewComponent', () => {
     expect(component.kpis[0][0].totalFuelUsed).toBe('0 l');
     expect(component.kpis[0][0].fuelUsedPerWorkingDay).toBe('0 l / NM');
 
-    
+
     expect(component).toBeTruthy();
   });
 
@@ -137,9 +138,9 @@ describe('CtvKpiOverviewComponent', () => {
     transferSpy.and.returnValue(mockedObservable(transfers));
     dprSpy.and.returnValue(mockedObservable(dprs));
     engineSpy.and.returnValue(mockedObservable(engines));
-    
+
     fixture.detectChanges();
-    
+
     component.ngOnChanges();
 
     expect(component.kpis[0][0].cargoUpKg).toBe(1);
@@ -184,9 +185,9 @@ describe('CtvKpiOverviewComponent', () => {
     transferSpy.and.returnValue(mockedObservable(transfers));
     dprSpy.and.returnValue(mockedObservable(dprs));
     engineSpy.and.returnValue(mockedObservable(engines));
-    
+
     fixture.detectChanges();
-    
+
     component.ngOnChanges();
 
     expect(component.kpis[0][0].cargoUpKg).toBe(1);
@@ -199,7 +200,7 @@ describe('CtvKpiOverviewComponent', () => {
 
     expect(component).toBeTruthy();
   });
-  
+
   it('should not show infinite l/NM when range = 0',() => {
     const engines = [{
       _id: 987654321,
@@ -231,9 +232,9 @@ describe('CtvKpiOverviewComponent', () => {
     transferSpy.and.returnValue(mockedObservable(transfers));
     dprSpy.and.returnValue(mockedObservable(dprs));
     engineSpy.and.returnValue(mockedObservable(engines));
-    
+
     fixture.detectChanges();
-    
+
     component.ngOnChanges();
 
     expect(component.kpis[0][0].cargoUpKg).toBe(1);

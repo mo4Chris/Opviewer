@@ -6,54 +6,56 @@ export class CtvLtmPage extends E2ePageObject {
   dp = new LtmDatePicker();
 
   navigateTo() {
-    browser.get('/reports/longterm;mmsi=123456789;vesselName=SOV%20example');
+    return browser.get('/reports/longterm;mmsi=123456789;vesselName=TEST%20BMO');
   }
 
   setDateRange(from: DateYMD, to: DateYMD) {
-    this.dp.setDateRange(from, to);
+    return this.dp.setDateRange(from, to);
   }
-  switchLastMonth() {
-    this.dp.getLastMonthBtn().click();
-    browser.waitForAngular();
+  async switchLastMonth() {
+    await this.dp.getLastMonthBtn().click();
+    await browser.waitForAngular();
   }
-  switchNextMonth() {
-    this.dp.getNextMonthBtn().click();
-    browser.waitForAngular();
+  async switchNextMonth() {
+    await this.dp.getNextMonthBtn().click();
+    await browser.waitForAngular();
   }
   getDateString() {
     return element(by.xpath('//h1/h2/small')).getText();
   }
 
-  getVesselDropdown() {
-    const dropdown =  element(by.xpath('//ng-multiselect-dropdown[@id="selectVessel"]/div'));
-    expect(dropdown.isPresent()).toBe(true, 'Vessel dropdown not found!');
+  async getVesselDropdown(): Promise<ElementFinder> {
+    const dropdown = element(by.xpath('//ng-multiselect-dropdown[@id="selectVessel"]/div'));
+    expect(await dropdown.isPresent()).toBe(true, 'Vessel dropdown not found!');
     return dropdown;
   }
-  getVesselList() {
-    const list = this.getVesselDropdown().element(by.className('dropdown-list'));
-    expect(list.isPresent()).toBe(true, 'Vessel list not found!');
-    return list.all(by.xpath('.//ul/li'));
+  async getVesselList() {
+    const dropdown: ElementFinder = await this.getVesselDropdown();
+    const list = dropdown.element(by.className('dropdown-list'));
+    expect(await list.isPresent()).toBe(true, 'Vessel list not found!');
+    return await list.all(by.xpath('.//ul/li'));
   }
-  getSelectedVessels() {
-    return this.getVesselDropdown().all(by.xpath('.//span[a]'));
+  async getSelectedVessels() {
+    const dropdown: ElementFinder = await this.getVesselDropdown();
+    return dropdown.all(by.xpath('.//span[a]'));
   }
-  getActiveVesselCount() {
-    return this.getSelectedVessels().count();
+  async getActiveVesselCount() {
+    const vessels = await this.getSelectedVessels()
+    return vessels.length
   }
 
   getVesselInfoTable() {
-    return element(by.xpath('//app-vesselinfo/table'));
+    return element(by.css('app-vesselinfo')).element(by.css('table'));
   }
-
   getWaveDropdown() {
-    return element(by.xpath('//ng-multiselect-dropdown[@name="selectField"]/div'));
+    return element(by.xpath('//*[@id="selectField"]/div'));
   }
-  selectWaveSourceByIndex(index = 1) {
-    const btn = this.getWaveDropdown();
-    expect(btn.isPresent()).toBe(true, 'Wave selection dropdown not present!');
-    btn.click();
-    btn.all(by.xpath('.//ul/li')).get(index).click();
-    btn.click();
+  async selectWaveSourceByIndex(index = 1) {
+    const btn = await this.getWaveDropdown();
+    expect(await btn.isPresent()).toBe(true, 'Wave selection dropdown not present!');
+    await btn.click();
+    await btn.all(by.xpath('.//ul/li')).get(index).click();
+    await btn.click();
   }
 
   getGraphContainers() {
@@ -68,53 +70,55 @@ export class LtmDatePicker {
   cancelBtn = this.pickerDiv.element(by.buttonText('Close without changing date'));
   private y = this.pickerDiv.element(by.xpath('//select[@title="Select year"]'));
   private m = this.pickerDiv.element(by.xpath('//select[@title="Select month"]'));
-  private leftMonth = this.pickerDiv.all(by.tagName('ngb-datepicker-month-view')).first();
+  private leftMonth = this.pickerDiv.all(by.css('ngb-datepicker-month')).first();
 
-  open() {
-    this.openBtn.click();
-    browser.waitForAngular();
-  }
   isOpen() {
     return this.pickerDiv.isPresent();
   }
   getYear() {
-      return getValue(this.y);
-  }
-  setYear(year: number) {
-      this.y.click();
-      const btn = this.y.element(by.xpath('./option[@value=' + year + ']'));
-      btn.click();
+    return getValue(this.y);
   }
   getMonth() {
-      return getValue(this.m);
-  }
-  setMonth(month: number) {
-      this.m.click();
-      const btn = this.m.element(by.xpath('./option[@value=' + month + ']'));
-      btn.click();
+    return getValue(this.m);
   }
   getDay() {
-      const btn = this.leftMonth.element(by.className('custom-day'));
-      return btn.getText();
+    const btn = this.leftMonth.element(by.className('custom-day'));
+    return btn.getText();
   }
-  setDay(day: number) {
-      this.getDayCell(day).click();
+  async open() {
+    await this.openBtn.click();
+    await browser.waitForAngular();
   }
-  setDate(ymd: DateYMD) {
-    this.setYear(ymd.year);
-    this.setMonth(ymd.month);
-    this.setDay(ymd.day);
+  async setYear(year: number) {
+    await this.y.click();
+    const btn = this.y.element(by.xpath('./option[@value=' + year + ']'));
+    await btn.click();
   }
-  setDateRange(from: DateYMD, to: DateYMD) {
-    this.isOpen().then(_open => {
-      if (!_open) {
-        this.open();
-      }
-      this.setDate(from);
-      this.setDate(to);
-      this.confirmBtn.click();
-      browser.waitForAngular();
-    });
+  async setMonth(month: number) {
+    await this.m.click();
+    const btn = this.m.element(by.xpath('./option[@value=' + month + ']'));
+    await btn.click();
+  }
+  async setDay(day: number) {
+    const cell = await this.getDayCell(day);
+    expect(await cell.isPresent()).toBeTruthy(`Could not find day cell ${day}`)
+    await cell.click();
+  }
+
+  async setDate(ymd: DateYMD) {
+    await this.setYear(ymd.year);
+    await this.setMonth(ymd.month);
+    await this.setDay(ymd.day);
+  }
+  async setDateRange(from: DateYMD, to: DateYMD) {
+    const _open = await this.isOpen()
+    if (!_open) {
+      await this.open();
+    }
+    await this.setDate(from);
+    await this.setDate(to);
+    await this.confirmBtn.click();
+    await browser.waitForAngular();
   }
 
   getLastMonthBtn() {
@@ -124,8 +128,10 @@ export class LtmDatePicker {
     return element(by.id('nextMonthButton'));
   }
 
-  private getDayCell(day: number) {
-      return this.leftMonth.element(by.xpath('.//span[text()=" ' + day + ' "]'));
+  private async getDayCell(day: number) {
+    const left = await this.leftMonth;
+    expect(await left.isPresent()).toBeTruthy('Left month div not found!')
+    return left.element(by.xpath(`.//span[text()=" ${day} "]`));
   }
 }
 

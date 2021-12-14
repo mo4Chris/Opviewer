@@ -53,19 +53,19 @@ export class SovV2vTransfersComponent implements OnChanges {
   }
 
   GetMatlabDateToJSTime(serial) {
-      return this.datetimeService.MatlabDateToJSTime(serial);
+      return this.datetimeService.matlabDatenumToTimeString(serial);
   }
 
   getMatlabDateToCustomJSTime(serial, format) {
-      return this.datetimeService.MatlabDateToCustomJSTime(serial, format);
+      return this.datetimeService.matlabDatenumToFormattedTimeString(serial, format);
   }
 
   GetDecimalValueForNumber(value, endpoint = null) {
-      return this.calculationService.GetDecimalValueForNumber(value, endpoint);
+      return this.calculationService.getDecimalValueForNumber(value, endpoint);
   }
 
   GetMatlabDurationToMinutes(serial) {
-    return this.datetimeService.MatlabDurationToMinutes(serial);
+    return this.datetimeService.matlabDurationToMinutes(serial);
   }
 
 

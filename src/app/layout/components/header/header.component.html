@@ -3,7 +3,9 @@
                 <!-- <span class="navbar-toggler-icon"></span> -->
                 <i class="fa fa-bars text-muted" aria-hidden="true"></i>
             </button>
-    <a class="navbar-brand" routerLink="/dashboard">BMO Dataviewer </a>
+    <a class="navbar-brand" routerLink="/dashboard">
+        <img class="logoImage" src="/assets/images/MO4_Dataviewer_logo.png" />
+    </a>
     <ng-template #content let-modal>
         <div class="modal-header">
             <h4 class="modal-title">Feedback form</h4>
@@ -34,11 +36,33 @@
         Please switch over to:
         <a href="https://portal.mo4.online">https://portal.mo4.online</a></ngb-alert>
 
+    <ng-template #requestUser let-modal>
+        <div class="modal-header">
+            <h4 class="modal-title">Request full account</h4>
+            <button type="button" class="close" aria-label="Close" (click)="closeModal()">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <b>Are you sure you want to request a full account?</b> <br><br>
+            When you request a full account, a MO4 employee will contact you on the email address or phone number used to register your demo account.
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeModal()">Dismiss</button>
+            <button type="button" class="btn btn-success" id="requestFullAccountButton" (click)="requestFullAccount()">Request full account</button>
+        </div>
+    </ng-template>
+
     <div class="collapse navbar-collapse">
         <!-- <form class="form-inline my-2 my-lg-0">
             <input class="form-control mr-sm-2" type="text" placeholder="{{ 'Search' | translate }}" >
         </form> -->
         <ul class="navbar-nav ml-auto">
+            <li *ngIf="permission.demo" class="nav-item dropdown">
+                <a (click)="openRequestFullAccessAccountModal(requestUser)" id="requestFullAccountModal" href="javascript:void(0)" class="nav-link">
+                    <i class="fa fa-user-plus"></i> Request full account <b class="caret"></b>
+                </a>
+            </li>
                 <li class="nav-item dropdown">
                     <a (click)="openModal(content)" href="javascript:void(0)" class="nav-link">
                         <i class="fa fa-comment"></i> Give feedback <b class="caret"></b>
@@ -51,7 +75,7 @@
             </li>
             <li class="nav-item dropdown" ngbDropdown>
                 <a href="javascript:void(0)" class="nav-link" ngbDropdownToggle>
-                        <i class="fa fa-user"></i> {{(!tokenInfo.userCompany) ? "BMO Offshore" : (tokenInfo.userCompany != "Orsted")? tokenInfo.userCompany : "Ørsted"}} <b class="caret"></b>
+                        <i class="fa fa-user"></i> {{(!tokenInfo.userCompany) ? "MO4" : (tokenInfo.userCompany != "Orsted")? tokenInfo.userCompany : "Ørsted"}} <b class="caret"></b>
                 </a>
                 <div class="dropdown-menu-right" ngbDropdownMenu>
                     <!-- <a class="dropdown-item" href="javascript:void(0)">

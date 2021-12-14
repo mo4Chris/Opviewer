@@ -1,0 +1,302 @@
+<div class="row default-margin">
+  <ngb-alert *ngIf="is_sample_project" type="warning">
+    This is a sample project aimed at showing a working version of MO4-light before any simulation has run.
+    Use the other, newly created, project to experiment with all the settings yourself!
+  </ngb-alert>
+  <div class="col-lg-12 col-xl-6 max-card">
+    <div class='card mb-3'>
+      <div class='card-header'>
+        Project description
+      </div>
+      <div class='card-body table-responsive'>
+        <table class='table table-hover table-striped'>
+          <tbody class='sep-row'>
+            <tr>
+              <td>Name</td>
+              <td colspan="2" *ngIf="true">
+                <input *ngIf="project" [(ngModel)]="project.nicename">
+              </td>
+              <!-- <td colspan="2" *ngIf="!permission.forecastCreateProject">{{project?.name}}</td> -->
+            </tr>
+            <tr *ngIf="permission.admin">
+              <td>Client</td>
+              <td colspan="2">{{project?.client_id || 'N/a'}} (admin)</td>
+            </tr>
+            <tr>
+              <td><div [ngbTooltip]="helpDateSpan">Span</div></td>
+              <td colspan="2">{{contractStartDateString}} - {{contractEndDateString}}</td>
+            </tr>
+            <tr>
+              <td><div [ngbTooltip]="helpLat">Latitude</div></td>
+              <td>
+                <input class="form-control form-control-sm"
+                  [(ngModel)]="project.latitude"  type="number" step=0.00001 maxlength="6"
+                  (change)="onUpdateLat()" min="-90" max="90">
+              </td>
+              <td>
+                <input class="form-control form-control-sm" [(ngModel)]="Lattitude"
+                  placeholder="N/a" disabled>
+              </td>
+            </tr>
+            <tr>
+              <td><div [ngbTooltip]="helpLon">Longitude</div></td>
+              <td>
+                <input class="form-control form-control-sm"
+                [(ngModel)]="project.longitude"  type="number" step=0.00001
+                (change)="onUpdateLon()" min="-180" max="180">
+              </td>
+              <td>
+                <input class="form-control form-control-sm" [(ngModel)]="Longitude"
+                  placeholder="N/a" disabled>
+              </td>
+            </tr>
+            <tr>
+              <td><div [ngbTooltip]="helpWaterDepth">Water depth</div></td>
+              <td colspan="2">
+                <div class="input-group">
+                  <input class="form-control form-control-sm" type="number" [(ngModel)]="project.water_depth"
+                    [min]="0" placeholder="Depth">
+                  <div class="input-group-append">
+                    <span class="input-group-text">m</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><div [ngbTooltip]="helpWaterDepth">Weather provider</div></td>
+              <td colspan="2">
+                <select name="metocean-select" [(ngModel)]="project.metocean_provider" required
+                  placeholder="Please select" class="form-control form-control-md">
+                  <option *ngFor="let _provider of providers" [ngValue]="_provider">{{_provider.display_name}}</option>
+                </select>
+              </td>
+            </tr>
+
+            <tr *ngIf="hasCtvSlipSettings && ctv_slip_settings" id="setPushDuration">
+              <td><div [ngbTooltip]="helpCtvSlipDuration">Push on duration</div></td>
+              <td colspan="2">
+                <div class="input-group">
+                  <input class="form-control form-control-sm" type="number" [(ngModel)]="ctv_slip_settings.Window_Length_Seconds"
+                    [min]="0" placeholder="Slip window" [max]="180">
+                  <div class="input-group-append">
+                    <span class="input-group-text">s</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="hasCtvSlipSettings && ctv_slip_settings" id="setMaxSlip">
+              <td><div [ngbTooltip]="helpCtvMaxSlip">Max allowed slip</div></td>
+              <td colspan="2">
+                <div class="input-group">
+                  <input class="form-control form-control-sm" type="number" [(ngModel)]="ctv_slip_settings.Max_Allowed_Slip_Meter"
+                    [min]="0" placeholder="Slip window" [step]="0.1">
+                  <div class="input-group-append">
+                    <span class="input-group-text">m</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <agm-map *ngIf="projectLoaded" id='googleMap' #gm [scaleControl]="true" [latitude]="project.latitude"
+      [longitude]="project.longitude" [zoom]="8" mapTypeId="roadmap" [scrollwheel]="null"
+      [streetViewControl]="false" gestureHandling="cooperative" (mapReady)="onMapReady($event)"
+    ></agm-map>
+
+    <app-vessel-location-indicator [X]="POI.X.Value" [Y]="POI.Y.Value" [Z]="POI.Z.Value"
+      [Height]="SelectedVessel?.draft" [Width]="SelectedVessel?.width" [Length]="SelectedVessel?.length">
+    </app-vessel-location-indicator>
+  </div>
+
+  <div class="col-lg-12 col-xl-6 max-card">
+    <div class='card mb-3'>
+      <div class='card-header'>
+        Vessel properties
+      </div>
+      <div class='card-body table-responsive'>
+        <table class='table table-hover table-striped'>
+          <thead>
+            <tr>
+              <th>Vessel type</th>
+              <th>
+                <select name="vessel-select" [(ngModel)]="SelectedVessel" required placeholder="Please select"
+                  class="form-control form-control-md" [disabled]="!projectLoaded" (change)="onSelectedVesselChange($event)">
+                  <option disabled  selected [value]="0">Please select a vessel</option>
+                  <option disabled  [ngValue]="NewVessel">Request a new vessel</option>
+                  <option *ngFor="let _vessel of vessels" [ngValue]="_vessel">{{_vessel.nicename}}</option>
+                </select>
+              </th>
+            </tr>
+            <tr *ngIf="SelectedVessel?.analysis_types && project?.analysis_types" >
+              <td>Analysis types</td>
+              <td colspan="3">
+                <ng-multiselect-dropdown name="selectAnlysisTypes" class="multiSelectDiv"
+                  placeholder="Select analysis types" [settings]="thisNeedsToBeHere"
+                  [data]="SelectedVessel.analysis_types" [(ngModel)]="project.analysis_types">
+                </ng-multiselect-dropdown>
+              </td>
+            </tr>
+          </thead>
+          <tbody class='sep-row'>
+            <tr>
+              <td><div [ngbTooltip]="helpLength">Length</div></td>
+              <td>{{roundNumber(SelectedVessel?.length, 10, ' m')}}</td>
+            </tr>
+            <tr>
+              <td><div [ngbTooltip]="helpBreadth">Breadth</div></td>
+              <td>{{roundNumber(SelectedVessel?.width, 10, ' m')}}</td>
+            </tr>
+            <tr>
+              <td><div [ngbTooltip]="helpDraft">Draft</div></td>
+              <td>{{roundNumber(SelectedVessel?.draft, 10, ' m')}}</td>
+            </tr>
+            <tr>
+              <td><div [ngbTooltip]="helpGM">GM</div></td>
+              <td>{{roundNumber(SelectedVessel?.gm, 10, ' m')}}</td>
+            </tr>
+            <tr *ngIf="SelectedVessel.type == 'NEW'">
+              <td></td>
+              <td>
+                <!-- [ngbTooltip]="helpRequestNewVessel" is currently swapped out by unavailable just to be sure -->
+                <span [ngbTooltip]="currentlyUnavailable">
+                   <button disabled (click)="onRequestNewVessel()" class="btn btn-primary"
+                  *ngIf="SelectedVessel">
+                  Request new vessel</button>
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class='card mb-3 max-card'>
+      <div class='card-header'>
+        Point of interest
+      </div>
+      <div class='card-body table-responsive'>
+        <table class='table table-hover table-striped'>
+          <thead>
+            <tr>
+              <th>Axis</th>
+              <th>Offset</th>
+            </tr>
+          </thead>
+          <tbody class='sep-row'>
+            <tr>
+              <td><div [ngbTooltip]="helpX">X</div></td>
+              <td>
+                <div class="input-group">
+                  <input class="form-control form-control-md" type="number" step="0.5" [(ngModel)]="POI.X.Value"
+                    [min]="0" placeholder="Distance from aft">
+                  <div class="input-group-append">
+                    <span class="input-group-text">{{POI.X.Unit || "-"}}</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><div [ngbTooltip]="helpY">Y</div></td>
+              <td>
+                <div class="input-group">
+                  <input class="form-control form-control-md" type="number" step="0.5" [(ngModel)]="POI.Y.Value"
+                    placeholder="Sideways distance">
+                  <div class="input-group-append">
+                    <span class="input-group-text">{{POI.Y.Unit || "-"}}</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><div [ngbTooltip]="helpZ">Z</div></td>
+              <td>
+                <div class="input-group">
+                  <input class="form-control form-control-md" type="number" step="0.5" [(ngModel)]="POI.Z.Value"
+                    [min]="0" placeholder="Height from keel">
+                  <div class="input-group-append">
+                    <span class="input-group-text">{{POI.Z.Unit || "-"}}</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class='card mb-3 max-card'>
+      <div class='card-header'>
+        Advanced options
+      </div>
+      <div class='card-body table-responsive'>
+        <table class='table table-hover table-striped'>
+          <tbody class='sep-row'>
+            <tr>
+              <td colspan=2>Coming soon...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <button *ngIf="!is_sample_project" class="btn btn-primary" (click)="onConfirm()">Confirm</button>
+  </div>
+</div>
+
+
+<ng-template #helpLength>
+  Length of the vessel
+</ng-template>
+<ng-template #helpBreadth>
+  Breadth/width of the vessel
+</ng-template>
+<ng-template #helpDraft>
+  Distance between waterline and keel
+</ng-template>
+<ng-template #helpGM>
+  Metacentric height, which is the distance between the center of gravity and the vessels metacentere.
+  A larger height indicates greater stability.
+</ng-template>
+
+<ng-template #helpX>
+  Distance from the aft/rear of the vessel to the point of interest. This can never be nagative or greater than the vessel length.
+</ng-template>
+<ng-template #helpY>
+  Distance from the roll axis to the point of interest. Locations on port side are negative.
+</ng-template>
+<ng-template #helpZ>
+  Distance from the keel to the point of interest.
+</ng-template>
+
+<ng-template #currentlyUnavailable>
+  This functionality is currently unavailable. We are looking to implement this in the upcoming version of MO4 light.
+</ng-template>
+
+<ng-template #helpCtvSlipDuration>
+  Amount of time a push on transfer is expected to take. Longer periods increase the probability of a slip
+  event in the period.
+</ng-template>
+<ng-template #helpCtvMaxSlip>
+  Amount of distance the tip of the CTV is allowed to slip during a push on transfer, before it is considered a slip event.
+</ng-template>
+
+<ng-template #helpDateSpan>
+  Project start - project end. Please contact MO4
+  if this is not correct.
+</ng-template>
+<ng-template #helpLon>
+  Fractional input for longitude in degrees.
+</ng-template>
+<ng-template #helpLat>
+  Fractional input for latitude in degrees.
+</ng-template>
+<ng-template #helpWaterDepth>
+  Approximate depth at the project location. Only used during simulations if RAOs are available
+  for multiple water depths.
+</ng-template>
+<ng-template #helpRequestNewVessel>
+  Navigates the user to a request form for adding a specific vessel type. Note: this requires 3D hull lines!
+</ng-template>

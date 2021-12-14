@@ -66,19 +66,19 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
         },
         {
             x: 'date', y: 'A8', graph: 'scatter', xLabel: 'Time', yLabel: 'WBV inbound', dataType: 'transitIn', info:
-            'WBV scores per day. This graph displays the inbound WBV only. This is a figure indicating motion induced fatigue.',
+            'Whole Body Vibration scores per day (ISO 2631-1:1997). This graph displays the inbound WBV only. This is a figure indicating motion induced fatigue.',
             annotation: () => this.parser.drawMultipleHorizontalLines(
                 [{yVal: 0.5, label:'Comfortable threshold', borderColor: 'rgb(255, 94, 19)'},
                 {yVal: 1.15, label:'Unworkable threshold', borderColor: 'rgb(255, 0, 0)'}]
-                ), 
+                ),
         },
         {
             x: 'date', y: 'A8', graph: 'scatter', xLabel: 'Time', yLabel: 'WBV outbound', dataType: 'transitOut', info:
-            'WBV scores per day. This graph displays the outbound WBV only. This is a figure indicating motion induced fatigue.',
+            'Whole Body Vibration scores per day (ISO 2631-1:1997). This graph displays the outbound WBV only. This is a figure indicating motion induced fatigue.',
             annotation: () => this.parser.drawMultipleHorizontalLines(
                 [{yVal: 0.5, label:'Comfortable threshold', borderColor: 'rgb(255, 94, 19)'},
                 {yVal: 1.15, label:'Unworkable threshold', borderColor: 'rgb(255, 0, 0)'}]
-                ), 
+                ),
         },
         {
             x: 'startTime', y: 'impactForceNmax', graph: 'scatter', xLabel: 'Time', yLabel: 'Peak impact force [kN]', dataType: 'transfer', info:
@@ -198,7 +198,7 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
             } else {
                 monthLabels.push(DatetimeService.shortMonths[month.month - 1]);
             }
-            matlabStartDate = this.dateTimeService.objectToMatlabDate(month);
+            matlabStartDate = this.dateTimeService.ngbDateToMatlabDatenum(month);
             // Getting the next month
             if (month.month > 11) {
                 month.year += 1;
@@ -206,7 +206,7 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
             } else {
                 month.month += 1;
             }
-            matlabStopDate = this.dateTimeService.objectToMatlabDate(month);
+            matlabStopDate = this.dateTimeService.ngbDateToMatlabDatenum(month);
             // Actually sorting the data
             const dataInMonth = data.date.map(dateElt => dateElt >= matlabStartDate && dateElt < matlabStopDate);
             dataPerMonth.push({
@@ -249,11 +249,11 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
     }
     loadWavedata() {
         this.newService.getWavedataForRange({
-            startDate: this.dateTimeService.objectToMatlabDate(this.fromDate),
-            stopDate: this.dateTimeService.objectToMatlabDate(this.toDate),
+            startDate: this.dateTimeService.ngbDateToMatlabDatenum(this.fromDate),
+            stopDate: this.dateTimeService.ngbDateToMatlabDatenum(this.toDate),
             source: this.fieldname,
         }).subscribe(wavedata => {
-            this.wavedataArray = wavedata;
+            this.wavedataArray = <any> wavedata;
             this.mergedWavedata = WavedataModel.mergeWavedataArray(wavedata);
             this.wavedataAvailabe = true;
         });
@@ -264,22 +264,22 @@ export class LongtermCTVComponent implements OnInit, OnChanges {
         return this.dateTimeService.getMatlabDateYesterday();
     }
     getMatlabDateLastMonth() {
-        return this.dateTimeService.getMatlabDateLastMonth();
+        return this.dateTimeService.getMatlabDatenumLastMonth();
     }
     getJSDateYesterdayYMD() {
-        return this.dateTimeService.getJSDateYesterdayYMD();
+        return this.dateTimeService.getYmdStringYesterday();
     }
     getJSDateLastMonthYMD() {
-        return this.dateTimeService.getJSDateLastMonthYMD();
+        return this.dateTimeService.getYmdStringLastMonth();
     }
     MatlabDateToJSDateYMD(serial) {
-        return this.dateTimeService.MatlabDateToJSDateYMD(serial);
+        return this.dateTimeService.matlabDatenumToYmdString(serial);
     }
     unixEpochtoMatlabDate(epochDate) {
-        return this.dateTimeService.unixEpochtoMatlabDate(epochDate);
+        return this.dateTimeService.unixEpochtoMatlabDatenum(epochDate);
     }
     MatlabDateToUnixEpochViaDate(serial) {
-        return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
+        return this.dateTimeService.matlabDatenumToDate(serial);
     }
 }
 

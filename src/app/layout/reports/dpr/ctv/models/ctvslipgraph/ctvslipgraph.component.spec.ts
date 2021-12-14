@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { CtvslipgraphComponent } from './ctvslipgraph.component';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
@@ -8,7 +8,7 @@ describe('CtvslipgraphComponent', () => {
   let component: CtvslipgraphComponent;
   let fixture: ComponentFixture<CtvslipgraphComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ CtvslipgraphComponent ],
       providers: [

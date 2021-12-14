@@ -27,6 +27,18 @@
             ],
             "scripts": [
               "node_modules/chart.js/dist/Chart.js"
+            ],
+            "allowedCommonJsDependencies": [
+              "util",
+              "moment-timezone",
+              "jwt-decode",
+              "chartjs-plugin-annotation",
+              "chart.js",
+              "qrcode",
+              "node-2fa",
+              "bcryptjs",
+              "hi-base32",
+              "@agm/snazzy-info-window"
             ]
           },
           "configurations": {
@@ -148,6 +160,9 @@
             },
             "vm-sov": {
               "protractorConfig": "e2e/conf.vm.sov.js"
+            },
+            "demo": {
+              "protractorConfig": "e2e/conf.demo.js"
             }
           }
         },

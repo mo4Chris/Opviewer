@@ -5,7 +5,7 @@ export class V2vCtvActivity {
     date: number;
 }
 
-interface v2vTurbineTransfer {
+export interface v2vTurbineTransfer {
     startTime: number;
     stopTime: number;
     durationMinutes: number;

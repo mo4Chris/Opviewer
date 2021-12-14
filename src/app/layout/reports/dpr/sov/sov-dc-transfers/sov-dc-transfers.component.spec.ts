@@ -1,5 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { SovDcTransfersComponent } from './sov-dc-transfers.component';
 import { CommonModule } from '@angular/common';
 import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
@@ -7,12 +6,13 @@ import { MockedUserServiceProvider, UserTestService } from '@app/shared/services
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { mockedObservable } from '@app/models/testObservable';
+import { assertTableEqualRowLength } from '@app/layout/layout.component.spec';
 
 describe('SovDcTransfersComponent', () => {
   let component: SovDcTransfersComponent;
   let fixture: ComponentFixture<SovDcTransfersComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ SovDcTransfersComponent ],
       imports: [
@@ -33,10 +33,49 @@ describe('SovDcTransfersComponent', () => {
     component = fixture.componentInstance;
     component.readonly = true;
     component.vessel2vessels = [{
-      transfers: [],
-      CTVactivity: [],
+      transfers: [{
+        mmsi: 987654321,
+        vesselname: 'Test SOV',
+        startTime: 737700.2,
+        stopTime: 737700.3,
+        toMMSI: 123456789,
+        toVesselname: 'Test DC',
+        duration: 60,
+        peakWindGust: "50 m/s",
+        peakWindAvg: '40 m/s',
+        peakHeave: '1.5m',
+        DPutilisation: '20%',
+        current: 'N/a',
+        type: 'Transfer',
+        Hs: '1.2m',
+        Ts: 'N/a',
+        turbineActivity: 'Shopping',
+
+        paxIn: 6,
+        paxOut: 5,
+        cargoIn: 4,
+        cargoOut: 3,
+        default_paxIn: 2,
+        default_paxOut: 1,
+      }],
+      CTVactivity: [{
+        date: 737700,
+        mmsi: 123456789,
+        map: null,
+        turbineVisits: [{
+          fieldname: 'Test field',
+          location: 'Turbine 1',
+          startTime: 737700.4,
+          stopTime: 737700.5,
+          durationMinutes: 150,
+          paxIn: 1,
+          paxOut: 2,
+          cargoIn: 3,
+          cargoOut: 5,
+        }]
+      }],
       date: 737700,
-      mmsi: 987654321
+      mmsi: 123456789
     }];
     component.sovInfo = [];
     component.vesselObject = {
@@ -51,6 +90,13 @@ describe('SovDcTransfersComponent', () => {
     };
     fixture.detectChanges();
   });
+
+  it('should create', () => {
+    component.ngOnChanges();
+    fixture.detectChanges()
+    expect(component).toBeTruthy();
+    expect(component.transfers.length).toBeGreaterThan(0);
+  })
 
   it('should create empty', () => {
     component.vessel2vessels = [];
@@ -90,6 +136,36 @@ describe('SovDcTransfersComponent', () => {
     component.saveTransfers();
     expect(saveSpy).toHaveBeenCalled();
   });
+
+  it('should have equal row length - readonly', () => {
+    component.ngOnChanges();
+    fixture.detectChanges();
+    const table = document.querySelector('table');
+    assertTableEqualRowLength(table as HTMLElement)
+  })
+
+  it('should have equal row length - edit', () => {
+    component.readonly = false;
+    component.ngOnChanges();
+    fixture.detectChanges();
+    const table = document.querySelector('table');
+    assertTableEqualRowLength(table as HTMLElement)
+  })
+
+  it('should have equal row length - readonly (no transfers)', () => {
+    component.transfers = [];
+    fixture.detectChanges();
+    const table = document.querySelector('table');
+    assertTableEqualRowLength(table as HTMLElement)
+  })
+
+  it('should have equal row length - edit (no tranfers)', () => {
+    component.transfers = [];
+    component.readonly = false;
+    fixture.detectChanges();
+    const table = document.querySelector('table');
+    assertTableEqualRowLength(table as HTMLElement)
+  })
 });
 
 function setV2V(component: SovDcTransfersComponent) {

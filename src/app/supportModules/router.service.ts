@@ -1,4 +1,4 @@
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Injectable } from '@angular/core';
 
 
@@ -19,6 +19,12 @@ export class RouterService {
     }
 
     // Actual routes go below here
+    routeToDashboard() {
+        this.route('Dashboard');
+    }
+    routeToManageUser(username: string) {
+        this.route(['usermanagement', { username }])
+    }
     routeToDPR(route: {mmsi?: number, date?: number}) {
         if (! route.mmsi) {
             this.route(['reports']);
@@ -33,7 +39,6 @@ export class RouterService {
             }]);
         }
     }
-
     routeToLTM(route: {mmsi: number, name?: string}) {
         if (!route.name) {
             route.name = 'placeholder';
@@ -46,7 +51,6 @@ export class RouterService {
             }]);
         }
     }
-
     routeToCampaign(route: {name: string, windField: string, startDate: number}) {
         this.route(['fleetavailability', {
             campaignName: route.name,
@@ -54,19 +58,18 @@ export class RouterService {
             startDate: route.startDate
         }]);
     }
-
-    routeToDashboard() {
-        this.route('Dashboard');
-    }
-
     routeToLogin() {
         this.route('login');
     }
-
+    routeToSignup() {
+        this.route('signup');
+    }
     routeToNotFound() {
         this.route('not-found');
     }
-
+    routeToAccessDenied() {
+        this.route('access-denied');
+    }
     routeSecundary() {
         this.route([{
             outlets: {
@@ -74,5 +77,26 @@ export class RouterService {
                 reports: ['reports', 'dpr'],
             }
         }]);
+    }
+    routeToForecast(project_id?: number) {
+        if (project_id) {
+            this.route(['forecast', 'project', {
+                project_id: project_id
+            }]);
+        } else {
+            this.route(['forecast']);
+        }
+    }
+    routeToForecastProjectOverview(project_name: string) {
+        this.route(['forecast', 'project-overview', {
+          project_name
+        }]);
+    }
+    routeToForecastNewVesselRequest() {
+        this.route(['forecast', 'new-vessel']);
+    }
+
+    switchFragment(fragment: string) {
+        this._router.navigate([], {fragment})
     }
 }

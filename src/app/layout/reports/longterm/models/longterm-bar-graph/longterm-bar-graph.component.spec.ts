@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { LongtermBarGraphComponent } from './longterm-bar-graph.component';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
@@ -9,7 +9,7 @@ describe('LongtermBarGraphComponent', () => {
   let component: LongtermBarGraphComponent;
   let fixture: ComponentFixture<LongtermBarGraphComponent>;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ LongtermBarGraphComponent ],
       providers: [

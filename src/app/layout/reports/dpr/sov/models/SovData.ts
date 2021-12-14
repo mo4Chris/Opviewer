@@ -6,12 +6,12 @@ export class SovData {
     weatherConditions: weatherConditionModel;
     timeBreakdown: any;
     seCoverageHours: string;
-    distancekm: string;
+    distancekm: number | string;
     arrivalAtHarbour: string;
     departureFromHarbour: string;
-    time: number[];
-    lon: any[];
-    lat: any[];
+    time: number[] | number[][];
+    lon: any[] | number[][];
+    lat: any[] | number [][];
 
     constructor() {
         this.lon = [];

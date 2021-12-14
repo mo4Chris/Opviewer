@@ -13,6 +13,7 @@
               <th>Safety zone entry</th>
               <th>Safety zone exit</th>
               <th [ngbTooltip]="helpDurationSafetyZone" placement="top" container="body">
+
                 Duration at asset</th>
               <th [ngbTooltip]="helpGangwayUtil" placement="top" container="body">Gangway
                 capacity [%]</th>
@@ -98,8 +99,7 @@
                   (ngModelChange)="updatePaxCargoTotal()">
                lift off
               </td>
-              <td></td>
-              <td></td>
+              <td colspan="3"></td>
             </tr>
 
             <tr name='helicopter'>
@@ -120,7 +120,8 @@
               </td>
             </tr>
             <tr name="helicopter" *ngFor="let transfer of helicopterPaxCargo">
-              <th></th>
+              <td><input type="text" min="0" class="form-control-sm col-sm-8" [(ngModel)]="transfer.location"
+                [value]="transfer?.location" (ngModelChange)="updatePaxCargoTotal()" placeholder="flight nr"></td>
               <td><input type="text" min="0" class="form-control-sm col-sm-3" [(ngModel)]="transfer.from.hour"
                   [value]="transfer.from.hour" (ngModelChange)="updatePaxCargoTotal()" placeholder="HH">:
                 <input type="text" min="0" class="form-control-sm col-sm-3" [(ngModel)]="transfer.from.minutes"
@@ -148,9 +149,9 @@
                   (ngModelChange)="updatePaxCargoTotal()">
                 lift off
               </td>
-              <td colspan="2"></td>
+              <td colspan="3"></td>
             </tr>
-            
+
             <tr *ngIf="v2vPaxCargoTotals" class="tableTotal">
               <th>V2V transfers total</th>
               <td colspan="4"></td>
@@ -162,7 +163,7 @@
                 {{v2vPaxCargoTotals.cargoIn}} lift on <br>
                 {{v2vPaxCargoTotals.cargoOut}} lift off
               </td>
-              <td colspan="3"></td>
+              <td colspan="5"></td>
             </tr>
             <tr class="tableTotal">
               <th>Total amount</th>
@@ -247,7 +248,7 @@
               <td>{{transfer.location}}</td>
               <td>{{transfer.from.hour}}:{{transfer.from.minutes}}</td>
               <td>{{transfer.to.hour}}:{{transfer.to.minutes}}</td>
-              <td colspan="4"></td>
+              <td colspan="2"></td>
               <td>
                 {{transfer.paxIn || 0}} incoming <br>
                 {{transfer.paxOut || 0}} outgoing
@@ -256,8 +257,7 @@
                 {{transfer.cargoIn || 0}} lift on <br>
                 {{transfer.cargoOut || 0}} lift off
               </td>
-              <td></td>
-              <td></td>
+              <td colspan="3"></td>
             </tr>
             <tr name="helicopter">
               <th>Helicopter transfers</th>
@@ -268,7 +268,7 @@
               <td colspan="7"></td>
             </tr>
             <tr name="helicopter" *ngFor="let transfer of helicopterPaxCargo">
-              <th>AYAY</th>
+              <td>{{transfer?.location}}</td>
               <td>{{transfer.from.hour}}:{{transfer.from.minutes}}</td>
               <td>{{transfer.to.hour}}:{{transfer.to.minutes}}</td>
               <td colspan="4"></td>
@@ -307,8 +307,7 @@
                 {{totalCargoIn}} lift on <br>
                 {{totalCargoOut}} lift off
               </td>
-              <td></td>
-              <td></td>
+              <td colspan="3"></td>
             </tr>
           </tbody>
         </table>

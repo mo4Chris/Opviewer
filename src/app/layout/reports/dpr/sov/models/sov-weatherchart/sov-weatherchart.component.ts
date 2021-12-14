@@ -2,7 +2,6 @@ import { Component, Input, OnChanges, ChangeDetectionStrategy, NgZone, } from '@
 import { WeatherOverviewChart } from '../../../models/weatherChart';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { SovModel } from '../SovModel';
-import { isArray } from 'util';
 import * as Chart from 'chart.js';
 import { SettingsService } from '@app/supportModules/settings.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
@@ -49,11 +48,11 @@ export class SovWeatherchartComponent implements OnChanges {
     const weather = this.sovModel.sovInfo.weatherConditions;
     this.utcOffset = this.settings.getTimeOffset(this.vesselUtcOffset) || 0;
     const offset = this.utcOffset / 24;
-    if (weather !== undefined && isArray(weather.time)) {
+    if (weather !== undefined && Array.isArray(weather.time)) {
       this.weatherOverviewChartCalculated = true;
       const timeStamps = weather.time.map(matlabTime => {
         return this.datetimeService
-          .MatlabDateToUnixEpoch(matlabTime + offset)
+          .matlabDatenumToMoment(matlabTime + offset)
           .toISOString(false);
       });
       const dsets = [];
@@ -97,10 +96,10 @@ export class SovWeatherchartComponent implements OnChanges {
       let start: any;
       let stop: any;
       this.sovModel.platformTransfers.forEach(transfer => {
-        start = this.datetimeService.MatlabDateToUnixEpoch(
+        start = this.datetimeService.matlabDatenumToMoment(
           transfer.arrivalTimePlatform + offset
         );
-        stop = this.datetimeService.MatlabDateToUnixEpoch(
+        stop = this.datetimeService.matlabDatenumToMoment(
           transfer.departureTimePlatform + offset
         );
         dockingData.push({ x: start, y: 1});
@@ -115,10 +114,10 @@ export class SovWeatherchartComponent implements OnChanges {
       // Turbine operations
       dockingData = new Array();
       this.sovModel.turbineTransfers.forEach(transfer => {
-        start = this.datetimeService.MatlabDateToUnixEpoch(
+        start = this.datetimeService.matlabDatenumToMoment(
           transfer.startTime + offset
         );
-        stop = this.datetimeService.MatlabDateToUnixEpoch(
+        stop = this.datetimeService.matlabDatenumToMoment(
           transfer.stopTime + offset
         );
         dockingData.push({ x: start, y: 1});
@@ -134,10 +133,10 @@ export class SovWeatherchartComponent implements OnChanges {
       dockingData = new Array();
       this.sovModel.vessel2vessels.forEach(vessel => {
         vessel.transfers.forEach(transfer => {
-          start = this.datetimeService.MatlabDateToUnixEpoch(
+          start = this.datetimeService.matlabDatenumToMoment(
             transfer.startTime + offset
           );
-          stop = this.datetimeService.MatlabDateToUnixEpoch(
+          stop = this.datetimeService.matlabDatenumToMoment(
             transfer.stopTime + offset
           );
           dockingData.push({ x: start, y: 1});
@@ -153,10 +152,10 @@ export class SovWeatherchartComponent implements OnChanges {
       // Transit
       dockingData = new Array();
       this.sovModel.transits.forEach(_transit => {
-        start = this.datetimeService.MatlabDateToUnixEpoch(
+        start = this.datetimeService.matlabDatenumToMoment(
           _transit.dayNum + offset
         );
-        stop = this.datetimeService.MatlabDateToUnixEpoch(
+        stop = this.datetimeService.matlabDatenumToMoment(
           _transit.dayNum + _transit.transitTimeMinutes / 60 / 24 + offset
         );
         dockingData.push({ x: start, y: 1});

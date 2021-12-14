@@ -1,0 +1,22 @@
+<tr class="center-content">
+  <td class="tight">
+    <select class="form-control form-control-md" [(ngModel)]="MotionType" (change)="onMotionChange()">
+      <option value='Acc'>Acceleration</option>
+      <option value='Vel'>Velocity</option>
+      <option value='Disp'>Displacement</option>
+    </select>
+  </td>
+  <td class="tight">
+    <select class="form-control form-control-md" [(ngModel)]="Dof" (change)="onMotionChange()">
+      <option value="Surge">Surge</option>
+      <option value="Sway">Sway</option>
+      <option value="Heave">Heave</option>
+      <option value="Roll">Roll</option>
+      <option value="Pitch">Pitch</option>
+      <option value="Yaw">Yaw</option>
+    </select>
+  </td>
+</tr>
+<app-surface-plot [xLabel]="" yLabel="Heading (deg)" title="Motion overview"
+  [xData]="time" [yData]="headings" [zData]="motion">
+</app-surface-plot>

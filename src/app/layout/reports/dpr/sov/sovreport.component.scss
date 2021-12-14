@@ -71,8 +71,9 @@ agm-map {
     border-radius: 13px;
     width: 26px;
     height: 26px;
-    color: #427ded;
-    border-color: #427ded;
+    color: white;
+    border-color: white;
+    background-color: #009fe3;
     &::active,
     &::hover {
         background-color: #427ded;
@@ -102,12 +103,14 @@ textarea {
         display: none;
     }
     .tableSummarySpecial {
-        background: gray;
-        color: white;
+        background: rgba(0, 159, 227, 0.25);
+        color: #4a4949;
+        font-weight: 700;
     }
     .tableSummary td:nth-child(1) {
-        background: gray;
-        color: white;
+        background: rgba(0, 159, 227, 0.25);
+        color: #4a4949;
+        font-weight: 700;
     }
 }
 
@@ -141,6 +144,7 @@ textarea {
     
     .card-header {
         border: 1px solid #ddd;
+        background-color: rgba(24, 7, 58, 0.9);
     }
     .card {
         border: 0;

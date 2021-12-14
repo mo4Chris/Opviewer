@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { EventManager } from '@angular/platform-browser';import { DOCUMENT } from "@angular/common";
+import { EventManager } from '@angular/platform-browser'; import { DOCUMENT } from '@angular/common';
 
 interface Options {
     keys: string;  // Keys on which the shortcut triggers
@@ -25,7 +25,6 @@ export class Hotkeys {
     addShortcut(options: Partial<Options>): Observable<KeyboardEvent> {
         const merged = { ...this.defaults, ...options };
         const event = `keydown.${merged.keys}`;
-
         return new Observable (observer => {
             const handler = (e) => {
                 if (merged.preventDefault) {
@@ -33,11 +32,9 @@ export class Hotkeys {
                 }
                 observer.next(e);
             };
-
             const dispose = this.eventManager.addEventListener(
                 merged.element, event, handler
             );
-
             return () => {
                 dispose();
             };

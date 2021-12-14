@@ -5,7 +5,7 @@ import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import * as Chart from 'chart.js';
 import { Component, Input, OnInit, Output, EventEmitter, ChangeDetectorRef, OnChanges, ChangeDetectionStrategy } from '@angular/core';
-import { now } from 'moment';
+import { now } from 'moment-timezone';
 import { LongtermParsedWavedata } from '../../../models/longterm-processing-service.service';
 import { LongtermVesselObjectModel } from '../../../longterm.component';
 
@@ -151,7 +151,7 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
         this.getChartData((sailingHoursPerDay: number[][]) => {
             const matlabDates = this.calculationService.linspace(this.vesselObject.dateMin, this.vesselObject.dateMax);
             const dateLabels = matlabDates.map((daynum: number) => {
-                return this.dateTimeService.MatlabDateToUnixEpochViaDate(daynum);
+                return this.dateTimeService.matlabDatenumToDate(daynum);
             });
             const goodSailingDays = matlabDates.map(date => this.checkGoodSailingDay(date));
             const dsets = {
@@ -163,7 +163,7 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
                 type: 'line',
                 data: this.wavedata.Hs.map((elt, _idx) => {
                     return {
-                        x: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.wavedata.timeStamp[_idx]),
+                        x: this.dateTimeService.matlabDatenumToDate(this.wavedata.timeStamp[_idx]),
                         y: elt
                     };
                 }),
@@ -224,9 +224,10 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
             });
             if (this.Chart) {
                 // Update the chart
+                const lastDateLabel = dateLabels.length - 1;
                 this.Chart.data = dsets;
                 this.Chart.scales['x-axis-time'].options.time.min = dateLabels[0];
-                this.Chart.scales['x-axis-time'].options.time.max = dateLabels[-1];
+                this.Chart.scales['x-axis-time'].options.time.max = dateLabels[lastDateLabel];
                 this.Chart.update();
             } else {
                 this.constructNewChart(dsets);
@@ -329,7 +330,7 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
                     callbacks: {
                         beforeLabel: function (tooltipItem, data) {
                             const curr_date: Date = data.labels[tooltipItem.index];
-                            const curr_date_string = curr_date ? dateService.jsDateToDMYString(curr_date) : 'N/a';
+                            const curr_date_string = curr_date ? dateService.dateToDateString(curr_date) : 'N/a';
                             return [
                                 data.datasets[tooltipItem.datasetIndex].label,
                                 curr_date_string
@@ -371,8 +372,8 @@ export class DeploymentGraphComponent implements OnInit, OnChanges {
                             unit: 'day',
                         },
                         ticks: {
-                            min: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMin),
-                            max: this.dateTimeService.MatlabDateToUnixEpochViaDate(this.vesselObject.dateMax),
+                            min: this.dateTimeService.matlabDatenumToDate(this.vesselObject.dateMin),
+                            max: this.dateTimeService.matlabDatenumToDate(this.vesselObject.dateMax),
                             maxTicksLimit: 21,
                         }
                     }],

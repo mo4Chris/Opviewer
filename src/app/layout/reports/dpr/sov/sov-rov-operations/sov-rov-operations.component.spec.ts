@@ -1,5 +1,5 @@
 import { SovRovOperationsComponent } from './sov-rov-operations.component';
-import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -13,7 +13,7 @@ describe('Sov Rov transfer component', () => {
     let fixture: ComponentFixture<SovRovOperationsComponent>;
 
 
-    beforeEach(async(() => {
+    beforeEach(waitForAsync(() => {
       TestBed.configureTestingModule({
         imports: [
           NgbModule,

@@ -11,7 +11,7 @@ export class CalculationService {
     return parseFloat(objectvalue);
   }
 
-  roundNumber(number, decimal = 10, addString: string = '') {
+  roundNumber(number: string | String | number, decimal = 10, addString: string = '') {
     if (addString) {
       switch (addString) {
         case 'm2': case ' m2':
@@ -33,32 +33,28 @@ export class CalculationService {
     return (Math.round(number * decimal) / decimal) + addString;
   }
 
-  GetDecimalValueForNumber(value: any, endpoint: string = null): string {
-      const type = typeof (value);
-      if (type === 'number' && !isNaN(value)) {
-          value = Math.round(value * 10) / 10;
-          if (value - Math.floor(value) === 0 ) {
-            value = value + '.0';
-          }
-          if (endpoint != null) {
-              value = value + endpoint;
-          }
-      } else if (type === 'string' && value !== 'NaN' && value !== 'N/a' && value !== '_NaN_') {
-          const num = +value;
-          value = num.toFixed(1);
-          if (endpoint != null) {
-              value = value + endpoint;
-          }
-      } else if (type === 'undefined') {
-          value = 'N/a';
-      } else {
-        value = 'N/a';
+  getDecimalValueForNumber(value: any, endpoint: string = null): string {
+    if (value == null) return 'N/a';
+    const type = typeof value;
+    if (type == 'number') {
+      if (isNaN(value)) return 'N/a';
+      value = Math.round(value * 10) / 10;
+      if (value - Math.floor(value) == 0 ) {
+        value = value + '.0';
       }
-
+      if (endpoint != null) value = value + endpoint;
+    } else if (type === 'string' && value !== 'NaN' && value !== 'N/a' && value !== '_NaN_') {
+      const num = +value;
+      if (isNaN(num)) return 'N/a';
+      value = num.toFixed(1);
+      if (endpoint != null)  value = value + endpoint;
+    } else {
+      value = 'N/a';
+    }
     return value;
   }
 
-  ReplaceEmptyColumnValues(resetObject: any) {
+  replaceEmptyFields(resetObject: any) {
     const keys = Object.keys(resetObject);
     keys.forEach(key => {
         if (typeof(resetObject[key]) === typeof('')) {
@@ -68,18 +64,26 @@ export class CalculationService {
     return resetObject;
   }
 
-  GetMaxValueInMultipleDimensionArray(array) {
-    if (array._ArrayType_ || array.length === 0) {
+  maxInNdArray(array: any[]) {
+    if (typeof array == 'number') {
+      return array;
+    } else if (!Array.isArray(array) || array.length === 0) {
       return NaN;
     }
-    return Math.max(...array.map(e => Array.isArray(e) ? this.GetMaxValueInMultipleDimensionArray(e) : e));
+    const copy = array.map(e => Array.isArray(e) ? this.maxInNdArray(e) : e)
+      .filter(e => !isNaN(e));
+    return copy.length > 0 ? Math.max(...copy) : NaN;
   }
 
-  GetMinValueInMultipleDimensionArray(array) {
-    if (array._ArrayType_ || array.length === 0) {
+  minInNdArray(array: any[]) {
+    if (typeof array == 'number') {
+      return array;
+    } else if (!Array.isArray(array) || array.length === 0) {
       return NaN;
     }
-    return Math.min(...array.map(e => Array.isArray(e) ? this.GetMinValueInMultipleDimensionArray(e) : e));
+    const copy = array.map(e => Array.isArray(e) ? this.minInNdArray(e) : e)
+      .filter(e => !isNaN(e));
+    return copy.length > 0 ? Math.min(...copy) : NaN;
   }
 
   getFuelEcon(fuelUsedTotalM3 = 0, sailedDistance, distance_unit_type){
@@ -88,7 +92,8 @@ export class CalculationService {
       , 10, ' liter/'+ distance_unit_type);
   }
 
-  GetPropertiesForMap(mapPixelWidth: number, latitudes: number[], longitudes: number[]) {
+  calcPropertiesForMap(mapPixelWidth: number, latitudes: number[], longitudes: number[]) {
+  // GetPropertiesForMap(mapPixelWidth: number, latitudes: number[], longitudes: number[]) {
     function latRad(lat: number) {
       const sin = Math.sin(lat * Math.PI / 180);
       const radX2 = Math.log((1 + sin) / (1 - sin)) / 2;
@@ -98,10 +103,10 @@ export class CalculationService {
         return Math.floor(Math.log(mapPx / worldPx / fraction) / Math.LN2);
     }
 
-    const maxLatitude = this.GetMaxValueInMultipleDimensionArray(latitudes);
-    const maxLongitude = this.GetMaxValueInMultipleDimensionArray(longitudes);
-    const minLatitude = this.GetMinValueInMultipleDimensionArray(latitudes);
-    const minLongitude = this.GetMinValueInMultipleDimensionArray(longitudes);
+    const maxLatitude = this.maxInNdArray(latitudes);
+    const maxLongitude = this.maxInNdArray(longitudes);
+    const minLatitude = this.minInNdArray(latitudes);
+    const minLongitude = this.minInNdArray(longitudes);
 
     const WORLD_DIM = { height: 256, width: 256 };
     const ZOOM_MAX = 15;
@@ -127,7 +132,20 @@ export class CalculationService {
     };
   }
 
-  getNanMean(X: number[], removeNaNs = true) {
+  findNearest(arr: number[], val: number) {
+    const distances = arr.map(_dist => Math.abs(_dist - val));
+    let min_dist  = distances[0];
+    let min_idx   = 0;
+    distances.forEach((_dist, _i) => {
+      if (_dist < min_dist) {
+        min_dist = _dist;
+        min_idx = _i;
+      }
+    })
+    return arr[min_idx];
+  }
+
+  nanMean(X: number[], removeNaNs = true) {
     if (removeNaNs) {
       X = X.filter(elt => !isNaN(elt));
     }
@@ -136,7 +154,7 @@ export class CalculationService {
     return avg;
   }
 
-  getNanStd(X: number[], removeNaNs = true) {
+  nanStd(X: number[], removeNaNs = true) {
     // Returns rms(X - mean(X))
     if (removeNaNs) {
       X = X.filter(elt => !isNaN(elt));
@@ -148,7 +166,7 @@ export class CalculationService {
     return std;
   }
 
-  getNanMax(X: number[], removeNaNs = true) {
+  nanMax(X: number[], removeNaNs = true) {
     if (removeNaNs) {
       X = X.filter(elt => !isNaN(elt));
     }
@@ -157,7 +175,7 @@ export class CalculationService {
     return max;
   }
 
-  getNanMin(X: number[], removeNaNs = true) {
+  nanMin(X: number[], removeNaNs = true) {
     if (removeNaNs) {
       X = X.filter(elt => !isNaN(elt));
     }
@@ -182,7 +200,9 @@ export class CalculationService {
   }
 
   linspace(start: number, stop: number, step: number = 1) {
-    const linspace = start <= stop ? new Array(Math.floor((stop - start) / step) + 1) : [];
+    if (!(step>0)) return [];
+    const len = Math.floor((stop - start) / step) + 1;
+    const linspace = start <= stop ? new Array(len) : [];
     let curr = start;
     for (let _i = 0; _i < linspace.length; _i++) {
       linspace[_i] = curr;
@@ -217,19 +237,24 @@ export class CalculationService {
   }
 
   switchUnitAndMakeString(value: number | string, oldUnit: string, newUnit: string): string {
-    const newValues = this.switchUnits([+value], oldUnit, newUnit);
-    if (newValues && newValues[0] && !isNaN(newValues[0])) {
-      return this.GetDecimalValueForNumber(newValues[0], ' ' + newUnit);
+    const is_valid = typeof(value) == "number" || typeof(value) == "string";
+    const newValues = is_valid ? this.switchUnits(+value, oldUnit, newUnit) : null;
+    if (newValues > 0) {
+      return this.getDecimalValueForNumber(newValues, ' ' + newUnit);
+    } else if (newValues == 0) {
+        return '0 ' + newUnit;
     } else {
       return 'N/a';
     }
   }
 
-  switchUnits(vals: number | number[], from: string, to: string) {
-    if (from === to) {
-      return vals;
-    }
+  switchUnits(vals: number, from: string, to: string): number;
+  switchUnits(vals: number[], from: string, to: string): number[]
+  switchUnits(vals: any, from: string, to: string): any {
+    if (from == to) return vals;
     switch (from) {
+      case 'm/s2': case 'm/s²':
+        return this.switchAccelerationUnits(vals, from, to);
       case 'km/h': case 'm/s': case 'knots': case 'knt': case 'mph': case 'knot': case 'mp/h':
         return this.switchSpeedUnits(vals, from, to);
       case 'km': case 'm': case 'cm': case 'mile': case 'NM':
@@ -242,13 +267,21 @@ export class CalculationService {
         return this.switchWeightUnits(vals, from, to);
       case 'liter': case 'm3':
         return this.switchVolumeUnits(vals, from, to);
+      case 'N': case 'kN':
+        return this.switchForceUnits(vals, from, to);
+      case 'deg/s':
+        return vals;
+      case 'deg/s2': case 'deg/s²': case 'deg\/s2':
+        return vals;
       default:
         console.error('Invalid unit "' + from + '"!');
         return vals;
     }
   }
 
-  switchDistanceUnits(vals: number | number[], from: string, to: string) {
+  switchDistanceUnits(vals: number, from: string, to: string): number;
+  switchDistanceUnits(vals: number[], from: string, to: string): number[]
+  switchDistanceUnits(vals: any, from: string, to: string) {
     const getFactor = (type: string) => {
       switch (type) {
         case 'm':
@@ -274,7 +307,29 @@ export class CalculationService {
     }
   }
 
-  switchSpeedUnits(vals: number | number[], from: string, to: string) {
+  switchAccelerationUnits(vals: number, from: string, to: string): number;
+  switchAccelerationUnits(vals: number[], from: string, to: string): number[]
+  switchAccelerationUnits(vals: any, from: string, to: string) {
+    const getFactor = (type: string) => {
+      switch (type) {
+        case 'm/s2': case 'm/s²':
+          return 1;
+        default:
+          console.error('Invalid unit "' + type + '"!');
+          return 1;
+      }
+    };
+    const Q = getFactor(from) / getFactor(to);
+    if (Array.isArray(vals)) {
+      return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+    } else {
+      return typeof(vals) === 'number' ? vals * Q : vals;
+    }
+  }
+
+  switchSpeedUnits(vals: number, from: string, to: string): number;
+  switchSpeedUnits(vals: number[], from: string, to: string): number[]
+  switchSpeedUnits(vals: any, from: string, to: string) {
     const getFactor = (type: string) => {
       switch (type) {
         case 'm/s':
@@ -302,7 +357,9 @@ export class CalculationService {
     }
   }
 
-  switchDurationUnits(vals: number|number[], from: string, to: string) {
+  switchDurationUnits(vals: number, from: string, to: string): number;
+  switchDurationUnits(vals: number[], from: string, to: string): number[]
+  switchDurationUnits(vals: any, from: string, to: string) {
     // For now this function does NOT accept time objects!
     const getFactor = (type: string) => {
       switch (type) {
@@ -329,7 +386,9 @@ export class CalculationService {
     }
   }
 
-  switchDirectionUnits(vals: number | number[], from: string, to: string) {
+  switchDirectionUnits(vals: number, from: string, to: string): number;
+  switchDirectionUnits(vals: number[], from: string, to: string): number[]
+  switchDirectionUnits(vals: any, from: string, to: string) {
     // For now this function does NOT accept time objects!
     const getFactor = (type: string) => {
       switch (type) {
@@ -350,7 +409,9 @@ export class CalculationService {
     }
   }
 
-  switchVolumeUnits(vals: number |  number[], from: string, to: string) {
+  switchVolumeUnits(vals: number, from: string, to: string): number;
+  switchVolumeUnits(vals: number[], from: string, to: string): number[]
+  switchVolumeUnits(vals: any, from: string, to: string) {
     // For now this function does NOT accept time objects!
     const getFactor = (type: string) => {
       switch (type) {
@@ -373,7 +434,9 @@ export class CalculationService {
     }
   }
 
-  switchWeightUnits(vals: number | number[], from: string, to: string) {
+  switchWeightUnits(vals: number, from: string, to: string): number;
+  switchWeightUnits(vals: number[], from: string, to: string): number[]
+  switchWeightUnits(vals: any, from: string, to: string) {
     // For now this function does NOT accept time objects!
     const getFactor = (type: string) => {
       switch (type) {
@@ -382,6 +445,29 @@ export class CalculationService {
         case 'gram':
           return 0.001;
         case 'ton': case 'tons':
+          return 1000;
+        default:
+          console.error('Invalid unit "' + type + '"!');
+          return 1;
+      }
+    };
+    const Q = getFactor(from) / getFactor(to);
+    if (Array.isArray(vals)) {
+      return vals.map(elt => typeof(elt) === 'number' ? elt * Q : elt);
+    } else {
+      return typeof(vals) === 'number' ? vals * Q : vals;
+    }
+  }
+
+  switchForceUnits(vals: number, from: string, to: string): number;
+  switchForceUnits(vals: number[], from: string, to: string): number[]
+  switchForceUnits(vals: any, from: string, to: string) {
+    // For now this function does NOT accept time objects!
+    const getFactor = (type: string) => {
+      switch (type) {
+        case 'N': case 'newton':
+          return 1;
+        case 'kN':
           return 1000;
         default:
           console.error('Invalid unit "' + type + '"!');

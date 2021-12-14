@@ -31,6 +31,7 @@ export interface PlatformTransfer {
     positionalStabilityRadius: string;
     current: string;
     Hs: string;
+    Hmax: string;
     angleToAsset: number;
     distanceToAsset: number;
     lon: number;

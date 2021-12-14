@@ -1,0 +1,27 @@
+.plotly-container {
+  height: 300px;
+}
+.flex-container{
+  display: flex;
+}
+
+.vert-align{
+  // align-items: center;
+  display: table-cell;
+  vertical-align: middle;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+.headingInput { 
+  min-width: 60px;
+}

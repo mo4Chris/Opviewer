@@ -97,15 +97,15 @@ export class FleetLogComponent implements OnInit {
     }
 
     valueToDate(date) {
-        return this.dateTimeService.valueToDate(date);
+        return this.dateTimeService.unixEpochToDmyString(date);
     }
 
     getMatlabDateToJSDate(serial) {
-        return this.dateTimeService.MatlabDateToJSDate(serial);
+        return this.dateTimeService.matlabDatenumToDmyString(serial);
     }
 
     MatLabDateToMoment(serial) {
-        return this.dateTimeService.MatlabDateToUnixEpoch(serial);
+        return this.dateTimeService.matlabDatenumToMoment(serial);
     }
 
     changeToNicename(name) {
@@ -114,7 +114,7 @@ export class FleetLogComponent implements OnInit {
 
     getUsername(id) {
         if (this.users) {
-            const user = this.users.find(x => x._id === id);
+            const user = this.users.find(x => x.userID === id);
             return user.username;
         } else {
             return id;

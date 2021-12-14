@@ -1,8 +1,9 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { LongtermVesselObjectModel } from '../../../longterm.component';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
 import { DeploymentGraphComponent } from './deploymentGraph.component';
+import { assertTableEqualRowLength } from '@app/layout/layout.component.spec';
 
 describe('DeploymentGraphComponent', () => {
   let component: DeploymentGraphComponent;
@@ -16,7 +17,7 @@ describe('DeploymentGraphComponent', () => {
   }];
   let dataSpy;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ DeploymentGraphComponent ],
       providers: [
@@ -57,6 +58,12 @@ describe('DeploymentGraphComponent', () => {
     expect(component).toBeTruthy();
     expect(dataSpy).toHaveBeenCalled();
   });
+
+
+  it('should have equal row length', () => {
+    const table = document.querySelector('table');
+    assertTableEqualRowLength(table as HTMLElement)
+  })
 });
 
 

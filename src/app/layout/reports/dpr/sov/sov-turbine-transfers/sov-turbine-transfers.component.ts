@@ -23,8 +23,8 @@ export class SovTurbineTransfersComponent implements OnChanges {
   @Input() cycleTimes: CycleTime[] = [];
   @Input() v2vPaxCargoTotals: V2vPaxTotalModel;
 
-  @Input() missedPaxCargo = [];
-  @Input() helicopterPaxCargo = [];
+  @Input() missedPaxCargo: MissedPaxCargo[] = [];
+  @Input() helicopterPaxCargo: HelicopterTransfer[] = [];
 
   gangwayActive = true;
 
@@ -163,16 +163,30 @@ export class SovTurbineTransfersComponent implements OnChanges {
 
   // Data formatting
   GetDecimalValueForNumber(num, endpoint) {
-    return this.calcService.GetDecimalValueForNumber(num, endpoint);
+    return this.calcService.getDecimalValueForNumber(num, endpoint);
   }
   GetMatlabDateToJSTime(serial) {
-      return this.datetimeService.MatlabDateToJSTime(serial);
+      return this.datetimeService.matlabDatenumToTimeString(serial);
   }
   getMatlabDateToCustomJSTime(serial, format) {
-      return this.datetimeService.MatlabDateToCustomJSTime(serial, format);
+      return this.datetimeService.matlabDatenumToFormattedTimeString(serial, format);
   }
   GetMatlabDurationToMinutes(serial) {
-    return this.datetimeService.MatlabDurationToMinutes(serial);
+    return this.datetimeService.matlabDurationToMinutes(serial);
   }
 
+}
+
+interface MissedPaxCargo {
+  location: string;
+  from: {hour: string, minutes: string};
+  to: {hour: string, minutes: string};
+  paxIn: number; paxOut: number;
+  cargoIn: number; cargoOut: number;
+}
+interface HelicopterTransfer {
+  from: {hour: string, minutes: string};
+  to: {hour: string, minutes: string};
+  paxIn: number, paxOut: number;
+  cargoIn: number, cargoOut: number;
 }

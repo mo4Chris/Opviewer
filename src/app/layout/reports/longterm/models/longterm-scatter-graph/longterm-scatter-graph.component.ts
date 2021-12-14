@@ -68,7 +68,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
     this.parser.load(query, this.data.dataType,  this.vesselType).pipe(map(
       (rawScatterData: RawScatterData[]) => this.parseRawData(rawScatterData)
     ), catchError(error => {
-      console.log('error: ' + error);
+      console.error('error: ' + error);
       throw error;
     })).subscribe(parsedData => {
       const dsets = parsedData.map((_data, _i) =>
@@ -139,7 +139,6 @@ export class LongtermScatterGraphComponent implements OnChanges {
   applyFilters(xVals: number[], yVals: number[], mmsi: number): boolean[] {
     const keep: boolean[] = xVals.map(_ => true);
     this.filters.forEach(filter => {
-      console.log(`Applying filter "${filter.name}"`);
       if (filter.active || filter.active == undefined) {
         filter.active = true;
         xVals.forEach((x, i) => {
@@ -176,7 +175,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
             label: function (tooltipItem, data) {
               switch (args.axisType.x) {
                 case 'date':
-                  return dateService.jsDateToMDHMString(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].x);
+                  return dateService.dateToDayTimeString(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].x);
                 case 'numeric':
                   return 'Value: ' + Math.round(tooltipItem.xLabel * 100) / 100;
                 default:
@@ -185,7 +184,7 @@ export class LongtermScatterGraphComponent implements OnChanges {
             },
             afterLabel: function (tooltipItem, data) {
               if (args.axisType.y === 'date') {
-                return dateService.jsDateToMDHMString(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y);
+                return dateService.dateToDayTimeString(data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index].y);
               } else {
                 return 'Value: ' + Math.round(tooltipItem.yLabel * 100) / 100;
               }

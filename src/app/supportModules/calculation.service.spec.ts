@@ -12,11 +12,11 @@ describe('CalculationService', () => {
     expect(service).toBeTruthy();
   });
   it('should get correct nan filters', () => {
-    expect(service.getNanMax([-2, NaN, 1, 0])).toEqual(1, 'NanMax');
-    expect(service.getNanMax([NaN])).toEqual(NaN, 'nanMax');
-    expect(service.getNanMin([3, NaN, 1])).toEqual(1, 'nanMin');
-    expect(service.getNanMean([3, NaN, 1])).toEqual(2, 'nanMean');
-    expect(service.getNanStd([2, NaN, 4])).toEqual(1, 'nanStd');
+    expect(service.nanMax([-2, NaN, 1, 0])).toEqual(1, 'NanMax');
+    expect(service.nanMax([NaN])).toEqual(NaN, 'nanMax');
+    expect(service.nanMin([3, NaN, 1])).toEqual(1, 'nanMin');
+    expect(service.nanMean([3, NaN, 1])).toEqual(2, 'nanMean');
+    expect(service.nanStd([2, NaN, 4])).toEqual(1, 'nanStd');
   });
   it('should create correct linspaces', () => {
     expect(service.linspace(1, 5)).toEqual([1, 2, 3, 4, 5]);
@@ -59,16 +59,56 @@ describe('CalculationService', () => {
   });
 
   it('should format and round numbers', () => {
-    expect(service.roundNumber(12, 10)).toEqual('12')
-    expect(service.roundNumber(1.2, 10)).toEqual('1.2')
-    expect(service.roundNumber(12, 10, ' appels')).toEqual('12 appels')
-    expect(service.roundNumber({}, 10)).toEqual('N/a')
-    expect(service.roundNumber([], 10)).toEqual('N/a')
-    expect(service.roundNumber(NaN, 10, 'berries')).toEqual('N/a')
-    expect(service.roundNumber(1.12, 10, 'm3')).toEqual('1.1 m\u00B3')
-    expect(service.roundNumber('_NaN_', 10, 'm3')).toEqual('N/a')
-    expect(service.roundNumber('10', 10)).toEqual('10')
-    expect(service.roundNumber('10', 10, '%')).toEqual('10%')
+    expect(service.roundNumber(12, 10)).toEqual('12');
+    expect(service.roundNumber(1.2, 10)).toEqual('1.2');
+    expect(service.roundNumber(12, 10, ' appels')).toEqual('12 appels');
+    expect(service.roundNumber(<any> {}, 10)).toEqual('N/a');
+    expect(service.roundNumber(<any> [], 10)).toEqual('N/a');
+    expect(service.roundNumber(NaN, 10, 'berries')).toEqual('N/a');
+    expect(service.roundNumber(1.12, 10, 'm3')).toEqual('1.1 m\u00B3');
+    expect(service.roundNumber('_NaN_', 10, 'm3')).toEqual('N/a');
+    expect(service.roundNumber('10', 10)).toEqual('10');
+    expect(service.roundNumber('10', 10, '%')).toEqual('10%');
+  });
+
+  it('should properly get maxima', () => {
+    const m1 = service.maxInNdArray(<any> 1);
+    const m2 = service.maxInNdArray([1, 4, 2]);
+    const m3 = service.maxInNdArray([[1, 4, 2]]);
+    const m4 = service.maxInNdArray([[{}]]);
+    const m5 = service.maxInNdArray([1, NaN]);
+    expect(m1).toBe(1);
+    expect(m2).toBe(4);
+    expect(m3).toBe(4);
+    expect(m4).toBeFalsy();
+    expect(m5).toBe(1);
+  });
+
+  it('should properly get minima', () => {
+    const m1 = service.minInNdArray(<any> 1);
+    const m2 = service.minInNdArray([1, -4, 2]);
+    const m3 = service.minInNdArray([[1, -4, 2]]);
+    const m4 = service.minInNdArray([[{}]]);
+    const m5 = service.minInNdArray([1, NaN]);
+    const m6 = service.minInNdArray([NaN, NaN]);
+    expect(m1).toBe(1);
+    expect(m2).toBe(-4);
+    expect(m3).toBe(-4);
+    expect(m4).toBeFalsy();
+    expect(m5).toBe(1);
+    expect(isNaN(m6)).toBe(true);
+  });
+
+  it('getDecimalValueForNumber', () => {
+    expect(service.getDecimalValueForNumber('N/a', '%')).toEqual('N/a')
+  })
+
+  it('should correctly format edge cases for switchUnitAndMakeString', () => {
+    expect(service.switchUnitAndMakeString(5, 'm', 'm')).toEqual('5.0 m')
+    expect(service.switchUnitAndMakeString(NaN, 'm', 'm')).toEqual('N/a')
+    expect(service.switchUnitAndMakeString(null, 'm', 'm')).toEqual('N/a')
+    expect(service.switchUnitAndMakeString(0, 'm', 'm')).toEqual('0 m')
+    // expect(service.switchUnitAndMakeString(-5, 'm', 'm')).toEqual('-5 m')
   })
 });
 

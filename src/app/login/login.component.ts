@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { routerTransition } from '../router.animations';
-import { AuthService } from '../auth.service';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { AuthService, UserLoginData } from '../auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AlertService } from '@app/supportModules/alert.service';
 
@@ -13,7 +12,7 @@ import { AlertService } from '@app/supportModules/alert.service';
     animations: [routerTransition()]
 })
 export class LoginComponent implements OnInit {
-  loginUserData = {
+  loginUserData: UserLoginData = {
     username: '',
     password: '',
     confirm2fa: ''
@@ -21,8 +20,8 @@ export class LoginComponent implements OnInit {
 
   constructor(
     public router: Router,
-    private _auth: AuthService,
     public alert: AlertService,
+    private _auth: AuthService,
   ) {}
 
 
@@ -36,17 +35,15 @@ export class LoginComponent implements OnInit {
       },
       err => {
         if (err instanceof HttpErrorResponse) {
-          if (err.status === 401) {
-            console.log(err);
-            this.alert.sendAlert({
-              text: err.error,
-              type: 'danger'
-            });
-            this.router.navigate(['/login']);
-          }
+          console.error(err);
+          this.alert.sendAlert({
+            text: err.error,
+            type: 'danger'
+          });
+          this.router.navigate(['/login']);
         } else {
           this.alert.sendAlert({
-            text: 'Something is wrong, contact BMO Offshore',
+            text: 'Something is wrong, contact MO4',
             type: 'danger'
           });
         }
@@ -54,3 +51,4 @@ export class LoginComponent implements OnInit {
     );
   }
 }
+

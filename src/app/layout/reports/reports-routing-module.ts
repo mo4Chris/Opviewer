@@ -1,9 +1,6 @@
 import { ReportsComponent } from './reports.component';
 import { Routes, RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
-import { LongtermComponent } from './longterm/longterm.component';
-import { ReportsDprComponent } from './dpr/reports-dpr.component';
-import { TablesComponent } from './tables/tables.component';
 
 const routes: Routes = [
     { path: '', component: ReportsComponent },

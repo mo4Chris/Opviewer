@@ -312,10 +312,10 @@ export class CtvreportComponent implements OnInit, OnChanges {
   }
   private getDatesShipHasSailed(date: VesselObjectModel) {
     const mmsi = this.vesselObject.mmsi;
-    forkJoin(
+    forkJoin([
       this.newService.getDatesWithValues(date),
       this.newService.getDatesWithValuesFromGeneralStats(date)
-    ).subscribe(([transfers, genData]) => {
+    ]).subscribe(([transfers, genData]) => {
       this.dateData.mmsi = mmsi;
       this.dateData.transfer = transfers;
       this.dateData.general = genData.data;
@@ -373,10 +373,10 @@ export class CtvreportComponent implements OnInit, OnChanges {
       const transferDates = [];
       const transitDates = [];
       const otherDates = [];
-      let formattedDate: {year: string, month: string, day: string};
+      let formattedDate: {year: number, month: number, day: number};
       let hasTransfers: boolean;
       this.dateData.general.forEach(elt => {
-        formattedDate = this.dateTimeService.JSDateYMDToObjectDate(this.dateTimeService.MatlabDateToJSDateYMD(elt.date));
+        formattedDate = this.dateTimeService.ymdStringToYMD(this.dateTimeService.matlabDatenumToYmdString(elt.date));
         hasTransfers = this.dateData.transfer.reduce((acc, val) => acc || +val === elt.date, false);
         if (elt.distancekm && hasTransfers) {
           transferDates.push(formattedDate);
@@ -430,7 +430,7 @@ export class CtvreportComponent implements OnInit, OnChanges {
     const wavedata = this.wavedata.wavedata;
     if (wavedata) {
       const timeStamps = wavedata.timeStamp.map(
-        matlabTime => this.dateTimeService.MatlabDateToUnixEpoch(matlabTime).toISOString(false)
+        matlabTime => this.dateTimeService.matlabDatenumToMoment(matlabTime).toISOString(false)
       );
       const validLabels = this.wavedata.availableWaveParameters();
       // Parsing the main datasets
@@ -455,8 +455,8 @@ export class CtvreportComponent implements OnInit, OnChanges {
       // Adding the grey transfer boxes
       const addTransfer = (start, stop) => {
         if (typeof start == 'number' && start > 0) {
-          start = this.dateTimeService.MatlabDateToUnixEpoch(start);
-          stop = this.dateTimeService.MatlabDateToUnixEpoch(stop);
+          start = this.dateTimeService.matlabDatenumToMoment(start);
+          stop = this.dateTimeService.matlabDatenumToMoment(stop);
           transferDatas.push({ x: start, y: 1 });
           transferDatas.push({ x: stop, y: 1 });
           transferDatas.push({ x: stop, y: NaN });
@@ -564,13 +564,13 @@ export class CtvreportComponent implements OnInit, OnChanges {
     return this.calculationService.switchUnitAndMakeString(value, oldUnit, newUnit);
   }
   public getMatlabDateToJSTime(serial) {
-    return this.dateTimeService.MatlabDateToJSTime(serial);
+    return this.dateTimeService.matlabDatenumToTimeString(serial);
   }
   public roundNumber(number, decimal = 10, addString = '') {
     return this.calculationService.roundNumber(number, decimal = decimal, addString = addString);
   }
   public getMatlabDateToJSTimeDifference(serialEnd, serialBegin) {
-    return this.dateTimeService.MatlabDateToJSTimeDifference(serialEnd, serialBegin);
+    return this.dateTimeService.getMatlabDatenumDifferenceString(serialEnd, serialBegin);
   }
 }
 

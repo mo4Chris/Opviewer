@@ -4,20 +4,18 @@ import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import { CommonService } from '@app/common.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
-import { isArray } from 'util';
-import { routerTransition } from '@app/router.animations';
 
 
 @Component({
-  selector: 'app-wave-spectrum-component',
-  templateUrl: './wave-spectrum-component.component.html',
-  styleUrls: ['./wave-spectrum-component.component.scss', '../../sovreport.component.scss'],
+  selector: 'app-sov-wave-spectrum',
+  templateUrl: './sov-wave-spectrum-component.html',
+  styleUrls: ['./sov-wave-spectrum-component.scss', '../../sovreport.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 
-export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
+export class WaveSpectrumComponent implements OnInit, OnChanges {
   @Input() vesselObject: VesselObjectModel;
-  
+
   waveSpectrum: SovWaveSpectum;
   loaded = false;
   data: PlotlyJS.Data[] = [];
@@ -27,9 +25,9 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
   smoothFactor = 2;
   Kmax = 2.096; // Size of outer circle
   Kmin = 0.127; // Size of inner circle
- 
+
   plotLayout = {
-   
+
     // General settings for the graph
     height: 600,
     width: 600,
@@ -47,7 +45,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
       showgrid: false,
       zeroline: false,
     },
-    
+
     // All the annotations for the plot go here (ie. the north east south west signs)
     annotations: [{
       text: 'N',
@@ -87,7 +85,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
       yanchor: 'top',
       name: 'source'
     }],
-    
+
     // Supportings shapes (ie. outer edge to hide the interpolation) go here
     shapes: [{
       type: 'circle',
@@ -118,7 +116,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
       y1: 0,
       line: { width: 1 },
     }],
-    
+
     // Add images, menus or sliders if desired (eg. a ship in the middle?)
     // images: [],
     updatemenus: [{
@@ -186,7 +184,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
     // Setting the source name
     this.loaded = false;
     this.newService.getSovWaveSpectrum(this.vesselObject).subscribe((spectrums: SovWaveSpectum[]) => {
-      if (isArray(spectrums) && spectrums.length > 0) {
+      if (Array.isArray(spectrums) && spectrums.length > 0) {
         this.waveSpectrum = spectrums[0];
         this.parseSpectrum();
         this.loaded = true;
@@ -222,7 +220,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
         _spectrum = this.calcService.interp2(x, y, _spectrum, _x, _y);
       }
       _spectrum = this.limitByRadius(_x, _y, _spectrum, this.Kmax);
-      const timeString = this.dateService.MatlabDateToCustomJSTime(this.waveSpectrum.time[_i], 'HH:mm');
+      const timeString = this.dateService.matlabDatenumToFormattedTimeString(this.waveSpectrum.time[_i], 'HH:mm');
       const heading_radians = headings && headings[_i] ? headings[_i] * Math.PI / 180 : 0;
       const dset: PlotlyJS.Frame = {
         data: [{
@@ -313,7 +311,7 @@ export class WaveSpectrumComponentComponent implements OnInit, OnChanges {
 
   onError(event) {
     console.error('An error occured during SVG plot generation');
-    console.log(event);
+    console.error(event);
   }
 
   // startAnimation() {

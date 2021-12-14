@@ -9,7 +9,7 @@ import { Observable, forkJoin } from 'rxjs';
 import { LongtermColorScheme } from './color_scheme';
 import { LongtermVesselObjectModel } from '../longterm.component';
 import { map } from 'rxjs/operators';
-import { now } from 'moment';
+import { now } from 'moment-timezone';
 
 @Injectable({
   providedIn: 'root'
@@ -149,7 +149,7 @@ export class LongtermProcessingService {
 
   createTimeLabels(timeElt: number) {
     if (timeElt !== null && typeof timeElt !== 'object') {
-      return this.dateTimeService.MatlabDateToUnixEpochViaDate(timeElt);
+      return this.dateTimeService.matlabDatenumToDate(timeElt);
     } else {
       return NaN;
     }
@@ -332,22 +332,22 @@ export class LongtermProcessingService {
     return this.dateTimeService.getMatlabDateYesterday();
   }
   getMatlabDateLastMonth() {
-    return this.dateTimeService.getMatlabDateLastMonth();
+    return this.dateTimeService.getMatlabDatenumLastMonth();
   }
   getJSDateYesterdayYMD() {
-    return this.dateTimeService.getJSDateYesterdayYMD();
+    return this.dateTimeService.getYmdStringYesterday();
   }
   getJSDateLastMonthYMD() {
-    return this.dateTimeService.getJSDateLastMonthYMD();
+    return this.dateTimeService.getYmdStringLastMonth();
   }
   MatlabDateToJSDateYMD(serial: number) {
-    return this.dateTimeService.MatlabDateToJSDateYMD(serial);
+    return this.dateTimeService.matlabDatenumToYmdString(serial);
   }
   unixEpochtoMatlabDate(epochDate: number) {
-    return this.dateTimeService.unixEpochtoMatlabDate(epochDate);
+    return this.dateTimeService.unixEpochtoMatlabDatenum(epochDate);
   }
   MatlabDateToUnixEpochViaDate(serial: number) {
-    return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
+    return this.dateTimeService.matlabDatenumToDate(serial);
   }
   parseScatterDate(t: number) {
     return new Date(this.MatlabDateToUnixEpochViaDate(t).getTime());
@@ -380,7 +380,7 @@ export class LongtermProcessingService {
         return false;
       });
       if (content) {
-        content.groups = this.dateTimeService.groupDataByMonth(content);
+        content.groups = this.dateTimeService.groupMatlabDatenumsByMonth(content);
       }
       return content;
     };

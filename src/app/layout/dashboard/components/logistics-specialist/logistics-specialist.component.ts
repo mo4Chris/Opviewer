@@ -39,9 +39,7 @@ export class LogisticsSpecialistComponent implements OnInit {
 
   ngOnInit() {
     setTimeout(() => {
-      this.newService.getVesselsForCompany([{
-        client: this.tokenInfo.userCompany
-      }]).subscribe(vessels => {
+      this.newService.getVessel().subscribe(vessels => {
         this.vesselInfos = vessels;
         this.setZoomLevel();
         this.getVesselInfo();
@@ -51,7 +49,7 @@ export class LogisticsSpecialistComponent implements OnInit {
   }
 
   getLocations() {
-    this.newService.getLatestBoatLocationForCompany(this.tokenInfo.userCompany).subscribe( boatLocationData => {
+    this.newService.getLatestBoatLocation().subscribe( boatLocationData => {
       this.locationData.emit(boatLocationData);
     });
   }
@@ -73,7 +71,7 @@ export class LogisticsSpecialistComponent implements OnInit {
           lons.push(field.centroid.lon);
         });
 
-        const props = this.calcService.GetPropertiesForMap(400, lats, lons);
+        const props = this.calcService.calcPropertiesForMap(400, lats, lons);
         this.zoominfo.emit({
           zoomlvl: Math.min(props.zoomLevel, 8.5),
           latitude: props.avgLatitude,
@@ -103,8 +101,8 @@ export class LogisticsSpecialistComponent implements OnInit {
   }
 
   getVesselInfo() {
-    const startDate = this.dateService.getMatlabDateLastMonth();
-    this.lastMonth = this.dateService.MatlabDateToJSDate(startDate);
+    const startDate = this.dateService.getMatlabDatenumLastMonth();
+    this.lastMonth = this.dateService.matlabDatenumToDmyString(startDate);
     const stopDate = this.dateService.getMatlabDateYesterday();
     const numDays = stopDate - startDate + 1;
     this.vesselInfos.forEach(vInfo => {
@@ -136,7 +134,7 @@ export class LogisticsSpecialistComponent implements OnInit {
         this.activeVessels.push({
           Name: vInfo.nicename,
           mmsi: vInfo.mmsi,
-          LastSailed: lastSailed > 0 ? this.dateService.MatlabDateToJSDate(lastSailed) : '-',
+          LastSailed: lastSailed > 0 ? this.dateService.matlabDatenumToDmyString(lastSailed) : '-',
           Site: typeof(vInfo.Site) === 'string' ? vInfo.Site : 'N/a',
           Type: vInfo.operationsClass,
           Budget: vInfo.videobudget > 0 ? <number> vInfo.videobudget : null,
@@ -176,20 +174,10 @@ export class LogisticsSpecialistComponent implements OnInit {
   }
 
   routeToLtmFromVesselInfo(vesselInfo: VesselInfo) {
-    let rawVesselName = '';
-    this.vesselInfos.some(info => {
-      if (info.mmsi === vesselInfo.mmsi) {
-        rawVesselName = info.vesselname;
-        return true;
-      }
-      return false;
-    });
-    this.routerService.routeToDPR({
-      mmsi: vesselInfo.mmsi
-    });
+    const info = this.vesselInfos.find(info => info.mmsi == vesselInfo.mmsi);
     this.routerService.routeToLTM({
       mmsi: vesselInfo.mmsi,
-      name: rawVesselName
+      name: info.nicename ?? 'Vessel'
     });
   }
 

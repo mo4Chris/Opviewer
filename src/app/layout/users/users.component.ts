@@ -1,120 +1,113 @@
 import { Component, OnInit } from '@angular/core';
-import { routerTransition } from '../../router.animations';
-import { CommonService } from '../../common.service';
-import { Router } from '../../../../node_modules/@angular/router';
+import { routerTransition } from '@app/router.animations';
+import { CommonService } from '@app/common.service';
+import { Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
-import { UserService } from '../../shared/services/user.service';
-import { StringMutationService } from '../../shared/services/stringMutation.service';
+import { UserService } from '@app/shared/services/user.service';
+import { StringMutationService } from '@app/shared/services/stringMutation.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { AlertService } from '@app/supportModules/alert.service';
+import { UserModel } from '@app/models/userModel';
+import { RouterService } from '@app/supportModules/router.service';
 
 @Component({
-    selector: 'app-users',
-    templateUrl: './users.component.html',
-    styleUrls: ['./users.component.scss'],
-    animations: [routerTransition()]
+  selector: 'app-users',
+  templateUrl: './users.component.html',
+  styleUrls: ['./users.component.scss'],
+  animations: [routerTransition()]
 })
 export class UsersComponent implements OnInit {
-    constructor(
-        private newService: CommonService,
-        private _router: Router,
-        private userService: UserService,
-        private stringMutationService: StringMutationService,
-        public permission: PermissionService,
-        private alert: AlertService
-    ) { }
-    errData;
-    userData;
-    tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
-    showAlert = false;
-    sortedData;
-    sort = { active: '', isAsc: true };
+  constructor(
+    public permission: PermissionService,
+    private newService: CommonService,
+    private userService: UserService,
+    private stringMutationService: StringMutationService,
+    private alert: AlertService,
+    private routerService: RouterService,
+  ) { }
 
-    ngOnInit() {
-        this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-            if (userIsActive === true) {
-                if (!this.permission.admin) {
-                    if (!this.permission.userRead) {
-                        this._router.navigate(['/access-denied']);
-                    } else {
-                        this.newService.getUsersForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => this.userData = data, err => this.errData = err);
-                    }
-                } else {
-                    this.newService.getUsers().subscribe(data => this.userData = data, err => this.errData = err);
-                }
-            } else {
-                localStorage.removeItem('isLoggedin');
-                localStorage.removeItem('token');
-                this._router.navigate(['login']);
-            }
-        });
-    }
+  userData: UserModel[];
+  sortedData: UserModel[];
+  tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
+  showAlert = false;
+  sort = { active: '', isAsc: true };
 
-    redirectManageBoats(username) {
-        this._router.navigate(['usermanagement', { username: username }]);
-    }
+  ngOnInit() {
+    this.newService.checkUserActive(
+      this.tokenInfo.username
+    ).subscribe(userIsActive => {
+      if (userIsActive !== true) return this.userService.logout();
+      if (!this.permission.admin && !this.permission.userRead) return this.routerService.routeToAccessDenied()
+      this.newService.getUsers().subscribe(
+        data => {
+          this.userData = data
+        },
+        // err => this.errData = err
+        err => this.alert.sendAlert({text: err})
+      );
+    });
+  }
 
-    resetPassword(id) {
-        this.newService.resetPassword({ _id: id, client: this.tokenInfo.userCompany }).pipe(
-            map(
-                (res) => {
-                    this.alert.sendAlert({text: res.data, type: 'success'});
-                }
-            ),
-            catchError(error => {
-                this.alert.sendAlert({text: error, type: 'danger'});
-                throw error;
-            })
-        ).subscribe();
-    }
+  redirectManageBoats(username: string) {
+    // this._router.navigate(['usermanagement', { username: username }]);
+    this.routerService.routeToManageUser(username)
+  }
 
-    setActive(user: any) {
-      this.newService.setActive({ _id: user._id, user: this.tokenInfo.username, client: this.tokenInfo.userCompany }).pipe(
-        map(
-              (res) => {
-                  this.alert.sendAlert({text: res.data, type: 'success'});
-                  user.active = 1;
-              }
-          ),
-          catchError(error => {
-              this.alert.sendAlert({text: error, type: 'danger'});
-              throw error;
-          })
-      ).subscribe();
-    }
+  resetPassword(username: string) {
+    this.newService.resetPassword(username).subscribe(res => {
+      this.alert.sendAlert({text: res.data, type: 'success'});
+    }, error => {
+      this.alert.sendAlert({text: error, type: 'danger'});
+      throw error;
+    });
+  }
 
-    setInactive(user) {
-        this.newService.setInactive({ _id: user._id, user: this.tokenInfo.username, client: this.tokenInfo.userCompany }).pipe(
-            map(
-              (res) => {
-                  this.alert.sendAlert({text: res.data, type: 'success'});
-                  user.active = 0;
-              }
-          ),
-          catchError(error => {
-              this.alert.sendAlert({text: error, type: 'danger'});
-              throw error;
-          })
-      ).subscribe();
-    }
+  setActive(user: UserModel) {
+    this.newService.setActive({
+      username: user.username,
+    }).subscribe(res => {
+      this.alert.sendAlert({text: res.data, type: 'success'});
+      user.active = true;
+    }, error => {
+      this.alert.sendAlert({text: error, type: 'danger'});
+      throw error;
+    })
+  }
 
-    sortData(sort) {
-        this.sort = sort;
-        const data = this.userData.slice();
-        if (!sort.active || sort.isAsc === '') {
-            this.sortedData = data;
-            return;
+  setInactive(user: UserModel) {
+    this.newService.setInactive({
+      username: user.username,
+    }).pipe(
+      map(
+        (res) => {
+          this.alert.sendAlert({text: res.data, type: 'success'});
+          user.active = false;
         }
+      ),
+      catchError(error => {
+        this.alert.sendAlert({text: error, type: 'danger'});
+        throw error;
+      })
+    ).subscribe();
+  }
 
-        this.sortedData = data.sort((a, b) => {
-            const isAsc = sort.isAsc;
-            switch (sort.active) {
-                case 'permissions': return this.stringMutationService.compare(a.permissions, b.permissions, isAsc);
-                case 'client': return this.stringMutationService.compare(a.client, b.client, isAsc);
-                case 'username': return this.stringMutationService.compare(a.username, b.username, isAsc);
-                default: return 0;
-            }
-        });
-        this.userData = this.sortedData;
+  sortData(sort: { active: any, isAsc: any}) {
+    this.sort = sort;
+    const data = this.userData.slice();
+    if (!sort.active || sort.isAsc === '') {
+      this.sortedData = data;
+      return;
     }
+
+    this.sortedData = data.sort((a, b) => {
+      const isAsc = sort.isAsc;
+      switch (sort.active) {
+        case 'permissions': return this.stringMutationService.compare(a.permission.user_type, b.permission.user_type, isAsc);
+        case 'client': return this.stringMutationService.compare(a.client_name, b.client_name, isAsc);
+        case 'username': return this.stringMutationService.compare(a.username, b.username, isAsc);
+        default: return 0;
+      }
+    });
+    this.userData = this.sortedData;
+  }
 }

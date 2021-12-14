@@ -16,7 +16,7 @@ describe('CtvSummaryComponent', () => {
   let general: CTVGeneralStatsModel;
 
 
-  beforeEach(async(() => {
+  beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [ CtvSummaryComponent ],
       providers: [
@@ -30,7 +30,7 @@ describe('CtvSummaryComponent', () => {
         NgMultiSelectDropDownModule,
       ]
     }).compileComponents();
-  }));
+  });
 
   describe('should', () => {
     beforeAll((done) => {
@@ -48,7 +48,7 @@ describe('CtvSummaryComponent', () => {
     beforeEach(() => {
       fixture = TestBed.createComponent(CtvSummaryComponent);
       component = fixture.componentInstance;
-      component.tokenInfo = UserTestService.getMockedAccessToken(); 
+      component.tokenInfo = UserTestService.getMockedAccessToken();
       component.general = general;
       component.generalInputStats = {
         date: general.date,
@@ -72,7 +72,7 @@ describe('CtvSummaryComponent', () => {
         fuelOther: 0,
         fuelPerHour: 1,
       };
-      
+
       fixture.detectChanges();
     });
 
@@ -120,7 +120,7 @@ describe('CtvSummaryComponent', () => {
       component = fixture.componentInstance;
       component.tokenInfo = UserTestService.getMockedAccessToken();
 
-      component.fuelConsumedValue = '0 m³';  
+      component.fuelConsumedValue = '0 m³';
       component.general = general;
       component.generalInputStats = {
         date: general.date,
@@ -151,8 +151,8 @@ describe('CtvSummaryComponent', () => {
       fixture.detectChanges();
       component.generalInputStats.fuelConsumption = 0;
       component.engine.fuelUsedTotalM3 = 2;
-      component.getValueForFuelConsumed();
-      
+      component.setValueForFuelConsumed();
+
       expect(component.fuelConsumedValue).toBe("2000.0 liter");
       expect(component).toBeTruthy;
     })
@@ -162,8 +162,8 @@ describe('CtvSummaryComponent', () => {
       fixture.detectChanges();
       component.generalInputStats.fuelConsumption = 3;
       component.engine.fuelUsedTotalM3 = 0;
-      component.getValueForFuelConsumed();
-      
+      component.setValueForFuelConsumed();
+
       expect(component.fuelConsumedValue).toBe("3 liter");
       expect(component).toBeTruthy;
     })
@@ -172,8 +172,8 @@ describe('CtvSummaryComponent', () => {
       fixture.detectChanges();
       component.generalInputStats.fuelConsumption = 3;
       component.engine.fuelUsedTotalM3 = 5;
-      component.getValueForFuelConsumed();
-      
+      component.setValueForFuelConsumed();
+
       expect(component.fuelConsumedValue).toBe("3 liter");
       expect(component).toBeTruthy;
     })
@@ -182,9 +182,9 @@ describe('CtvSummaryComponent', () => {
       fixture.detectChanges();
       component.generalInputStats.fuelConsumption = 0;
       component.engine.fuelUsedTotalM3 = 0;
-      component.getValueForFuelConsumed();
-      
-      expect(component.fuelConsumedValue).toBe("0 m³");
+      component.setValueForFuelConsumed();
+
+      expect(component.fuelConsumedValue).toBe("0 liter");
       expect(component).toBeTruthy;
     })
 
@@ -192,9 +192,9 @@ describe('CtvSummaryComponent', () => {
       fixture.detectChanges();
       component.generalInputStats.fuelConsumption = null;
       component.engine.fuelUsedTotalM3 = null;
-      component.getValueForFuelConsumed();
-      
-      expect(component.fuelConsumedValue).toBe("0 m³");
+      component.setValueForFuelConsumed();
+
+      expect(component.fuelConsumedValue).toBe("0 liter");
       expect(component).toBeTruthy;
     })
 

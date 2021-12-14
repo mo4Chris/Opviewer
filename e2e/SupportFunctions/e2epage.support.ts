@@ -36,9 +36,9 @@ export abstract class E2ePageObject {
   getActiveTooltips() {
     return element.all(by.xpath('//ngb-tooltip-window/div[contains(@class, "tooltip-inner")]'));
   }
-  getTooltipForElt(elt: ElementFinder) {
-    browser.actions().mouseMove(elt).perform();
-    browser.waitForAngular();
+  async getTooltipForElt(elt: ElementFinder) {
+    await browser.actions().mouseMove(elt).perform();
+    await browser.waitForAngular();
     return this.getActiveTooltips().first();
   }
   getInputByPlaceholder(txt: string, elt?: ElementFinder) {
@@ -49,25 +49,45 @@ export abstract class E2ePageObject {
     }
   }
 
-  validateNoConsoleLogs() {
-    browser.manage().logs().get('browser').then(logs => {
-      if (logs && Array.isArray(logs)) {
-        const errorLogs = logs.filter(log => {
-          let tf = log.level.name === 'OFF' || log.level.name === 'SEVERE';
-          if (tf) {
-            const match = log.message.match('maps\.googleapis');
-            if (match && match.length > 0) {
-              tf = false;
-            } else {
-              console.log(log);
-            }
-          }
-          return tf;
-        });
-        expect(errorLogs.length).toBe(0, 'Console errors were detected!');
-      } else {
-        throw(new Error('Failed to get logs from browser'));
+  async getButtonByName(rootObj: ElementFinder, name: string) {
+    const btns = await rootObj.all(by.css('button'));
+    const names = await this.asyncForEach(btns, async (e) => await e.getText());
+    const idx = names.findIndex(n => n == name);
+    if (idx == -1) return null;
+    return btns[idx];
+  }
+
+  async validateNoConsoleErrors() {
+    const logs = await browser.manage().logs().get('browser')
+
+    expect(Array.isArray(logs)).toBeTruthy('Failed to get logs from browser');
+    if (logs.length == 0) return;
+
+    const errorLogs = logs.filter(log => {
+      if (log.level.value < 1000) return false
+      const match = log.message.match('maps\.googleapis');
+      if (match && match.length > 0) {
+        return false;
       }
+      console.log(log)
+      return true;
     });
+    expect(errorLogs.length).toBe(0, 'Console errors were detected!');
+  }
+
+  async asyncForEach(objects: ElementFinder[], callback: (e: ElementFinder, index?: number) => any): Promise<any[]> {
+    const n = objects.length;
+    const out = [];
+    for (let i=0; i<n; i++) {
+      const data = await callback(objects[i], i);
+      out.push(data);
+    }
+    return out;
+  }
+  async asyncFind(objects: ElementFinder[], callback: (e: ElementFinder) => Promise<boolean>): Promise<any> {
+    const valid = await this.asyncForEach(objects, callback);
+    const idx = valid.findIndex(v => v!= null);
+    if (idx == -1) return null;
+    return objects[idx];
   }
 }

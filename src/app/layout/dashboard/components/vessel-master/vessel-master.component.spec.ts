@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { VesselMasterComponent } from './vessel-master.component';
 import { RouterTestingModule } from '@angular/router/testing';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
@@ -10,7 +10,7 @@ describe('VesselMasterComponent', () => {
   let fixture: ComponentFixture<VesselMasterComponent>;
   const token = UserTestService.getMockedAccessToken({});
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [ VesselMasterComponent ],
       imports: [

@@ -8,8 +8,9 @@ import { CommonService } from '../common.service';
 import * as base32 from 'hi-base32';
 import * as bCrypt from 'bcryptjs';
 import * as twoFactor from 'node-2fa';
-import { UserType } from '@app/shared/enums/UserType';
 import { AlertService } from '@app/supportModules/alert.service';
+import { Observable } from 'rxjs';
+import { RouterService } from '@app/supportModules/router.service';
 
 @Component({
   selector: 'app-set-password',
@@ -18,147 +19,137 @@ import { AlertService } from '@app/supportModules/alert.service';
   animations: [routerTransition()]
 })
 export class SetPasswordComponent implements OnInit {
-    passwords = { password: '', confirmPassword: '', confirm2fa: '' };
-    user = '';
-    userCompany;
-    userPermissions: UserType;
-    token = this.getTokenFromParameter();
-    noUser = false;
-    showAfterscreen = false;
-    QRCode;
-    QRCodeShort;
-    secretAsBase32;
-    initiate2fa;
-    modalReference: NgbModalRef;
+  passwords = { password: '', confirmPassword: '', confirm2fa: '' };
+  username = '';
+  token = '';
 
-    constructor(
-        public router: Router,
-        private newService: CommonService,
-        private route: ActivatedRoute,
-        private modalService: NgbModal,
-        private _auth: AuthService,
-        private alert: AlertService,
-    ) { }
+  noUser = false;
+  showAfterscreen = false;
 
-    getTokenFromParameter() {
-        let _token;
-        this.route.params.subscribe(params => _token = String(params.token));
-        return _token;
-    }
+  QRCode: string;
+  secretAsBase32: string;
+  modalReference: NgbModalRef;
+  initiate2fa: boolean;
+  public requires2fa: boolean;
 
-    getUsernameFromParameter() {
-        let _username;
-        this.route.params.subscribe(params => _username = String(params.user));
-        return _username;
-    }
+  constructor(
+    public router: RouterService,
+    private route: ActivatedRoute,
+    private modalService: NgbModal,
+    private _auth: AuthService,
+    private alert: AlertService,
+  ) { }
 
-    getUserByToken(token) {
-        this._auth.getUserByToken({ passwordToken: token, user: this.getUsernameFromParameter() }).subscribe(data => {
-            if (data.username) {
-                this.user = data.username;
-                this.userCompany = data.userCompany;
-                this.userPermissions = data.permissions;
-            } else {
-                this.noUser = true;
-            }
-        });
-    }
+  initParameters(): Observable<void> {
+    return this.route.params.pipe(map(params => {
+      this.token = String(params.token)
+      this.username = String(params.user)
+    }));
+  }
 
-    ngOnInit() {
-        this.checkIf2faSecretExists();
-
-        if (this.token && this.token !== 'undefined') {
-            this.getUserByToken(this.token);
-        } else {
-            this.noUser = true;
+  ngOnInit() {
+    this.initParameters().subscribe(() => {
+      if (!this.token || this.token == 'undefined') return this.noUser = true;
+      this._auth.getRegistrationInformation({
+        registration_token: this.token,
+        username: this.username
+      }).subscribe(data => {
+        if (!data.username) return this.noUser = true;
+        this.username = data.username;
+        this.requires2fa = data.requires2fa;
+        this.set2faExistence(data.secret2fa);
+      }, err => {
+        this.noUser = true;
+        if (err.status == 400) {
+          return this.alert.sendAlert({
+            type: 'danger',
+            text: 'Registration token invalid - please contact your supervisor',
+            timeout: null})
         }
-    }
+        this.alert.sendAlert({
+          type: 'danger',
+          text: 'Failed to load registration information - please try to reload the page',
+          timeout: null})
+      });
+    })
+  }
 
-    createBase32SecretCode() {
-        const secretString = bCrypt.hashSync(Math.random().toString(18).substring(2), 10);
-        const secretStringAsBase32 = base32.encode(secretString);
-        this.secretAsBase32 = secretStringAsBase32;
-        this.createQrCode();
-    }
+  createBase32SecretCode() {
+    const secretString = bCrypt.hashSync(Math.random().toString(18).substring(2), 10);
+    const secretStringAsBase32 = base32.encode(secretString);
+    this.secretAsBase32 = secretStringAsBase32;
+    this.createQrCode();
+  }
 
-    checkIf2faSecretExists() {
-        this.newService.get2faExistence({userEmail: this.getUsernameFromParameter()}).subscribe(data => {
-            if ( data.secret2fa === '' ) {
-                this.initiate2fa = true;
-                this.createBase32SecretCode();
-            } else {
-                this.initiate2fa = false;
-                this.secretAsBase32 = data.secret2fa;
-            }
+  set2faExistence(secret2faResponse: string) {
+    if ( secret2faResponse == '' || secret2faResponse == null ) {
+      this.initiate2fa = true;
+      this.createBase32SecretCode();
+    } else {
+      this.initiate2fa = false;
+      this.secretAsBase32 = secret2faResponse;
+    }
+  }
+
+  createQrCode() {
+    this.QRCode = `otpauth://totp/${this.username}?secret=${this.secretAsBase32}&issuer=MO4%20Dataviewer`;
+  }
+
+
+  setUserPassword() {
+    this.alert.clear();
+    if (this.passwords.password.length < 7) return this.alert.sendAlert({
+      text: 'Your password does not meet the minimum length of 7 characters',
+      type: 'danger'
+    });
+    if (this.passwords.password !== this.passwords.confirmPassword) return this.alert.sendAlert({
+      text: 'Password and confirmation do not match!',
+      type: 'danger'
+    });
+
+    if (!this.requires2fa) this._setPassword(null, null);
+    if (!this.initiate2fa) this._setPassword(null, this.passwords.confirm2fa);
+
+    if (twoFactor.verifyToken(this.secretAsBase32, this.passwords.confirm2fa) == null) {
+      return this.alert.sendAlert({
+        text: 'Your two factor authentication code is incorrect or has expired. Please try again',
+        type: 'danger'
+      });
+    }
+    this._setPassword(this.secretAsBase32, this.passwords.confirm2fa);
+  }
+
+  private _setPassword(secret2fa: string, confirm2fa: string) {
+    const request_body = {
+      passwordToken: this.token,
+      password: this.passwords.password,
+      confirmPassword: this.passwords.confirmPassword
+    };
+    if (secret2fa) request_body['secret2fa'] = secret2fa;
+    if (confirm2fa) request_body['confirm2fa'] = confirm2fa;
+    this._auth.setUserPassword(request_body).subscribe({
+      next: () => {
+        this.alert.clear();
+        this.showAfterscreen = true;
+        setTimeout(() => {
+          this.router.routeToLogin();
+        }, 3000);
+      },
+      error: (error) => {
+        this.alert.sendAlert({
+          text: error,
+          type: 'danger'
         });
-    }
+        throw error;
+      }
+    })
+  }
 
-    createQrCode() {
-        this.QRCode = 'otpauth://totp/' + this.getUsernameFromParameter() + '?secret=' + this.secretAsBase32 + '&issuer=BMO%20Dataviewer';
-    }
 
-    openModal(content) {
-
-        this.modalReference = this.modalService.open(content, { centered: true, size: 'lg' });
-    }
-
-    closeModal() {
-        this.modalReference.close();
-    }
-
-    setUserPassword() {
-        if (this.passwords.password.length < 7) {
-            this.alert.sendAlert({
-              text: 'Your password does not meet the minimum length of 7 characters',
-              type: 'danger'
-            });
-        } else if (this.passwords.password !== this.passwords.confirmPassword) {
-          this.alert.sendAlert({
-            text: 'Password and confirmation are not equal!',
-            type: 'danger'
-          });
-        } else {
-            // TO DO: Make sure that bibby fixes their stuff and then re-activate 2fa for them
-            if (this.userCompany === 'Bibby Marine' && this.userPermissions === 'Vessel master') {
-                this._auth.setUserPassword({ passwordToken: this.token, password: this.passwords.password, confirmPassword: this.passwords.confirmPassword }).pipe(
-                    map(
-                        (res) => {
-                            this.showAfterscreen = true;
-                            setTimeout(() => this.router.navigate(['/login']), 3000);
-                        }
-                    ),
-                    catchError(error => {
-                        this.alert.sendAlert({
-                          text: error._body,
-                          type: 'danger'
-                        });
-                        throw error;
-                    })
-                ).subscribe();
-            } else {
-                if (twoFactor.verifyToken(this.secretAsBase32, this.passwords.confirm2fa) !== null) {
-                    this._auth.setUserPassword({ passwordToken: this.token, password: this.passwords.password, confirmPassword: this.passwords.confirmPassword, secret2fa: this.secretAsBase32 }).pipe(
-                        map(
-                            (res) => {
-                                this.showAfterscreen = true;
-                                setTimeout(() => this.router.navigate(['/login']), 3000);
-                            }
-                        ),
-                        catchError(error => {
-                          this.alert.sendAlert({
-                            text: error._body,
-                            type: 'danger'
-                          });
-                          throw error;
-                        })
-                    ).subscribe();
-                } else {
-                    this.alert.sendAlert({
-                      text: 'Your two factor authentication code is incorrect or has expired. Please try again',
-                      type: 'danger'
-                    });
-                }
-            }
-        }
-    }
+  openModal(content) {
+    this.modalReference = this.modalService.open(content, { centered: true, size: 'lg' });
+  }
+  closeModal() {
+    this.modalReference.close();
+  }
 }

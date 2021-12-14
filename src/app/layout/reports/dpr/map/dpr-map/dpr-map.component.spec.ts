@@ -1,12 +1,11 @@
-import { AgmCoreModule } from '@agm/core';
+import { AgmMap } from '@agm/core';
 import { CommonModule } from '@angular/common';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { waitForAsync, ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
-import { MockedMapStoreProvider } from '@app/stores/map.store';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { MockComponents } from 'ng-mocks';
 import { AutosizeModule } from 'ngx-autosize';
-
 import { DprMapComponent } from './dpr-map.component';
 
 describe('DprMapComponent', () => {
@@ -23,18 +22,21 @@ describe('DprMapComponent', () => {
     platformTransfers: [],
     v2vs: [],
   };
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
         CommonModule,
-        AgmCoreModule.forRoot(),
         AutosizeModule,
         NgbModule,
       ],
-      declarations: [ DprMapComponent ],
+      declarations: [
+        DprMapComponent,
+        MockComponents(
+          AgmMap,
+        )
+      ],
       providers: [
         MockedCommonServiceProvider,
-        MockedMapStoreProvider,
         MockedUserServiceProvider,
       ]
     })
@@ -54,18 +56,21 @@ describe('DprMapComponent', () => {
       fixture.detectChanges();
     });
 
-    it('should create', (done) => {
+    it('should create', fakeAsync(async () => {
       expect(component).toBeTruthy();
       expect(component.hidden).toBe(true);
       expect(component.hasValidVesselTrace).toBe(true);
+
+      const onAllReadySpy = spyOn<any>(component, 'buildGoogleMap')
+      await fixture.whenStable();
       component.ngOnChanges();
       expect(component.hidden).toBe(false);
       expect(component).toBeTruthy();
-      component.onLoaded.subscribe((map) => {
-        expect(consoleSpy).toHaveBeenCalledTimes(0);
-        done();
-      });
-    });
+      component.onGmapReady(null);
+      tick(100000)
+      expect(onAllReadySpy).toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledTimes(0);
+    }));
   });
 });
 

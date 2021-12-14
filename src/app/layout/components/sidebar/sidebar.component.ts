@@ -15,13 +15,17 @@ export class SidebarComponent {
     isActive = false;
     showMenu = '';
     pushRightClass = 'push-right';
+    usertoken;
 
     constructor(
       private translate: TranslateService,
       public router: Router,
       public eventService: EventService,
       public permission: PermissionService,
+      public userService: UserService
       ) {
+        let token = userService.getDecodedAccessToken(localStorage.getItem('token'));
+        this.usertoken = token.permission;
         this.translate.addLangs(['en', 'fr', 'ur', 'es', 'it', 'fa', 'de']);
         this.translate.setDefaultLang('en');
         const browserLang = this.translate.getBrowserLang();
@@ -71,7 +75,6 @@ export class SidebarComponent {
 
     onLoggedout() {
         this.eventService.closeLatestAgmInfoWindow();
-        localStorage.removeItem('isLoggedin');
-        localStorage.removeItem('token');
+        this.userService.logout();
     }
 }

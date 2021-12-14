@@ -16,6 +16,7 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
 import { Hotkeys } from '@app/supportModules/hotkey.service';
 import { VesselObjectModel } from '@app/supportModules/mocked.common.service';
 import { RouterService } from '@app/supportModules/router.service';
+import { StringMutationService } from '@app/shared/services/stringMutation.service';
 
 @Component({
   selector: 'app-reports-dpr',
@@ -32,11 +33,11 @@ export class ReportsDprComponent implements OnInit {
     private dateTimeService: DatetimeService,
     private userService: UserService,
     private eventService: EventService,
-    private permission: PermissionService,
+    public permission: PermissionService,
     private hotkeys: Hotkeys,
     private ref: ChangeDetectorRef,
+    private stringMutationService: StringMutationService,
     ) {
-
   }
 
   startDate = this.getInitialDateObject();
@@ -51,7 +52,7 @@ export class ReportsDprComponent implements OnInit {
   };
 
   datePickerValue = this.startDate;
-  sailDates: {transfer: object[], transit: object[], other: object[]};
+  sailDates: SailDates;
   vessels: VesselModel[];
 
   tokenInfo: TokenModel = TokenModel.load(this.userService);
@@ -65,29 +66,34 @@ export class ReportsDprComponent implements OnInit {
   };
   printMode = 0;
 
+  private get isMaxDate() {
+    const day_matched = this.datePickerValue.day === this.maxDate.day;
+    const month_matched = this.datePickerValue.month === this.maxDate.month
+    const year_matched = this.datePickerValue.year === this.maxDate.year
+    return year_matched && month_matched && day_matched;
+  }
+
+  public get isCtvDpr() {
+    return this.vesselObject.vesselType == 'CTV';
+  }
+  public get isSovDpr() {
+    return this.vesselObject.vesselType == 'SOV' || this.vesselObject.vesselType == 'OSV';
+  }
+
   // Initial load
   ngOnInit() {
     this.hotkeys.addShortcut({keys: 'control.p'}).subscribe(_ => {
       this.printPage(1);
     });
-    this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-      if (userIsActive === true) {
-        if (this.permission.admin) {
-          this.newService.getVessel().subscribe(_vessels => {
-            this.vessels = _vessels;
-            this.buildPageWithCurrentInformation();
-          });
-        } else {
-          this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }]).subscribe(data => {
-            this.vessels = data;
-            this.buildPageWithCurrentInformation();
-          });
-        }
-      } else {
-        localStorage.removeItem('isLoggedin');
-        localStorage.removeItem('token');
-        this.routeService.routeToLogin();
-      }
+    this.newService.checkUserActive(this.tokenInfo.username).subscribe(async userIsActive => {
+      if (!userIsActive) return this.userService.logout();
+
+      this.newService.getVessel().subscribe(_vessels => {
+        this.vessels = _vessels.sort((a, b) => {
+          return this.stringMutationService.compare(a.nicename.toLowerCase(), b.nicename.toLowerCase(), true);
+        });
+        this.buildPageWithCurrentInformation();
+      });
     });
   }
 
@@ -97,7 +103,7 @@ export class ReportsDprComponent implements OnInit {
     this.eventService.closeLatestAgmInfoWindow();
     const dateAsMatlab = this.getDateAsMatlab();
     this.vesselObject.date = dateAsMatlab;
-    this.vesselObject.dateNormal = this.dateTimeService.MatlabDateToJSDateYMD(dateAsMatlab);
+    this.vesselObject.dateNormal = this.dateTimeService.matlabDatenumToYmdString(dateAsMatlab);
 
     this.buildPageWithCurrentInformation();
   }
@@ -110,11 +116,8 @@ export class ReportsDprComponent implements OnInit {
   // TODO: make complient with the newly added usertypes
   buildPageWithCurrentInformation() {
     const htmlButton = <HTMLInputElement> document.getElementById('nextDayButton');
-    if (this.datePickerValue.day === this.maxDate.day && this.datePickerValue.month === this.maxDate.month && this.datePickerValue.year === this.maxDate.year) {
-      htmlButton.disabled = true;
-    } else {
-      htmlButton.disabled = false;
-    }
+    htmlButton.disabled = this.isMaxDate;
+
     this.noPermissionForData = false;
     this.newService.validatePermissionToViewData({
       mmsi: this.vesselObject.mmsi
@@ -123,7 +126,7 @@ export class ReportsDprComponent implements OnInit {
         // We overwrite the vesselObject to trigger the reload of subcomponents
         this.vesselObject = {
           date: this.vesselObject.date,
-          dateNormal: this.dateTimeService.MatlabDateToJSDateYMD(this.vesselObject.date),
+          dateNormal: this.dateTimeService.matlabDatenumToYmdString(this.vesselObject.date),
           vesselType: validatedValue[0].operationsClass,
           mmsi: validatedValue[0].mmsi,
           vesselName: validatedValue[0].nicename,
@@ -134,8 +137,15 @@ export class ReportsDprComponent implements OnInit {
     });
   }
 
-  printPage(printtype) {
-    if (this.vesselObject.vesselType === 'OSV' || this.vesselObject.vesselType === 'SOV') {
+  routeToLtmFromVesselInfo() {
+    this.routeService.routeToLTM({
+      mmsi: this.vesselObject.mmsi,
+      name: this.vesselObject.vesselName ?? 'Vessel'
+    });
+  }
+
+  printPage(printtype: number) {
+    if (this.isSovDpr) {
       this.printMode = printtype;
       setTimeout(() => {
         this._doPrint(true);
@@ -163,21 +173,24 @@ export class ReportsDprComponent implements OnInit {
 
   ///////////////////////////////////////////////////
   hasSailedTransfer(date: NgbDateStruct) {
+    if (!this.sailDates?.transfer) return false;
     return this.dateTimeService.dateHasSailed(date, this.sailDates.transfer);
   }
   hasSailedTransit(date: NgbDateStruct) {
+    if (!this.sailDates?.transfer) return false;
     return this.dateTimeService.dateHasSailed(date, this.sailDates.transit);
   }
   hasSailedOther(date: NgbDateStruct) {
+    if (!this.sailDates?.transfer) return false;
     return this.dateTimeService.dateHasSailed(date, this.sailDates.other);
   }
   getMatlabDateToJSDate(serial) {
-    return this.dateTimeService.MatlabDateToJSDate(serial);
+    return this.dateTimeService.matlabDatenumToDmyString(serial);
   }
   getMMSIFromParameter() {
     let mmsi: number;
     this.route.params.subscribe(params => mmsi = parseFloat(params.mmsi));
-    return mmsi;
+    return mmsi; // This is so not ok...
   }
   getDateFromParameter() {
     let matlabDate: number;
@@ -186,21 +199,14 @@ export class ReportsDprComponent implements OnInit {
   }
   getInitialDate() {
     const matlabDate = this.getDateFromParameter();
-    if (isNaN(matlabDate)) {
-      return this.dateTimeService.getMatlabDateYesterday();
-    } else {
-      return matlabDate;
-    }
+    if (isNaN(matlabDate)) return this.dateTimeService.getMatlabDateYesterday();
+    return matlabDate;
   }
   getDateAsMatlab(): any {
-    const datepickerValueAsMomentDate = moment.utc(this.datePickerValue.day + '-' + this.datePickerValue.month + '-' + this.datePickerValue.year, 'DD-MM-YYYY');
-    datepickerValueAsMomentDate.set({ hour: 0, minute: 0, second: 0, millisecond: 0 });
-    datepickerValueAsMomentDate.format();
-    const momentDateAsIso = moment.utc(datepickerValueAsMomentDate).unix();
-    return this.dateTimeService.unixEpochtoMatlabDate(momentDateAsIso);
+    return this.dateTimeService.ngbDateToMatlabDatenum(this.datePickerValue);
   }
   getInitialDateObject() {
-    return this.dateTimeService.MatlabDateToObject(this.getInitialDate());
+    return this.dateTimeService.matlabDatenumToYMD(this.getInitialDate());
   }
   initMaxDate() {
     const curr = moment().add(-1, 'days');
@@ -212,29 +218,40 @@ export class ReportsDprComponent implements OnInit {
   }
   getInitialDateNormal() {
     const paramDate = this.getDateFromParameter();
-    if (isNaN(paramDate)) {
-      return this.dateTimeService.getJSDateYesterdayYMD();
-    } else {
-      return this.getMatlabDateToCustomJSTime(paramDate, 'YYYY-MM-DD');
-    }
+    if (isNaN(paramDate)) return this.dateTimeService.getYmdStringYesterday();
+    return this.getMatlabDateToCustomJSTime(paramDate, 'YYYY-MM-DD');
   }
   changeDay(changedDayCount: number) {
-    const oldDate = this.dateTimeService.convertObjectToMoment(this.datePickerValue.year, this.datePickerValue.month, this.datePickerValue.day);
+    // For moment, junari is month 0
+    const oldDate = this.dateTimeService.moment(this.datePickerValue.year, this.datePickerValue.month - 1, this.datePickerValue.day);
     const newDate = oldDate.add(changedDayCount, 'day');
-    this.datePickerValue = this.dateTimeService.convertMomentToObject(newDate);
+    this.datePickerValue = this.dateTimeService.momentToYMD(newDate);
     this.onChange();
   }
-  getDatesHasSailed(sailDates: {transfer: object[], transit: object[], other: object[]}): void {
+  public setDatesHasSailed(sailDates: SailDates): void {
     this.sailDates = sailDates;
   }
-
-  objectToInt(objectvalue) {
-    return this.calculationService.objectToInt(objectvalue);
-  }
-  getMatlabDateToCustomJSTime(serial, format) {
-    return this.dateTimeService.MatlabDateToCustomJSTime(serial, format);
+  getMatlabDateToCustomJSTime(serial: number, format: string) {
+    return this.dateTimeService.matlabDatenumToFormattedTimeString(serial, format);
   }
   GetDecimalValueForNumber(value: any, endpoint: string): string {
-    return this.calculationService.GetDecimalValueForNumber(value, endpoint);
+    return this.calculationService.getDecimalValueForNumber(value, endpoint);
   }
+
+}
+
+interface SailDates {
+  transfer: object[],
+  transit: object[],
+  other: object[]
+}
+
+interface VesselInfo {
+  Name: string;
+  mmsi: number;
+  LastSailed: string;
+  Site: string;
+  Budget: number;
+  Type: 'CTV' | 'SOV' | 'OSV';
+  Usage: string;
 }

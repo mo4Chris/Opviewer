@@ -14,6 +14,7 @@ import { PermissionService } from '@app/shared/permissions/permission.service';
 import { RouterService } from '@app/supportModules/router.service';
 // tslint:disable-next-line:import-blacklist
 import { forkJoin } from 'rxjs';
+import { AlertService } from '@app/supportModules/alert.service';
 
 @Component({
   selector: 'app-reports-longterm',
@@ -32,6 +33,7 @@ export class LongtermComponent implements OnInit {
     private userService: UserService,
     private dateTimeService: DatetimeService,
     private settings: SettingsService,
+    private alertService: AlertService,
     private permission: PermissionService,
   ) {}
 
@@ -52,11 +54,11 @@ export class LongtermComponent implements OnInit {
     singleSelection: false,
   };
   public fieldSelectSettings = {
+    idField: '_id',
     allowSearchFilter: true,
     singleSelection: true,
     closeDropDownOnSelection: true,
     textFields: 'text',
-    idField: '_id',
   };
 
   public fromDate = this.getLastMonthObject();
@@ -69,16 +71,27 @@ export class LongtermComponent implements OnInit {
   modalReference: NgbModalRef;
   datePickerValue = this.maxDate;
   Vessels: VesselModel[] = [];
-  fieldsWithWavedata: { _id: string, site: string, name: string, text?: string }[] = [];
+  fieldsWithWavedata = new Array<{ _id: string, site: string, name: string, text?: string }>()
   selectedField = '';
 
   noPermissionForData = false;
   dropdownValues = [{ mmsi: this.getMMSIFromParameter(), nicename: this.getVesselNameFromParameter() }];
   tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
 
+  public get hasValidWaveData() {
+    return this.fieldsWithWavedata?.length>0 && this.vesselType=='CTV';
+  }
+
   // onInit
   ngOnInit() {
-
+    if (!this.permission.longterm) {
+      this.alertService.sendAlert({
+        text: 'User not autorized to view longterm module!',
+        type: 'danger'
+      })
+      this.routerService.routeToDashboard();
+      return
+    }
     this.route.params.subscribe(params => {
       if (Object.keys(params).length === 0 || params.mmsi === undefined || params.vesselName === undefined) {
         this.routerService.route(['reports']);
@@ -86,31 +99,24 @@ export class LongtermComponent implements OnInit {
     });
 
     this.newService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
-      if (userIsActive === true) {
-        this.noPermissionForData = false;
-        Chart.pluginService.register(ChartAnnotation);
-        forkJoin([
-          this.newService.getFieldsWithWaveSourcesByCompany(),
-          (this.permission.admin ? this.newService.getVessel() : this.newService.getVesselsForCompany([{ client: this.tokenInfo.userCompany }])),
-          this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi[0] })
-        ]).subscribe(([fields, vessels, validatedValue]) => {
-          if (validatedValue.length === 1) {
-            this.vesselType = validatedValue[0].operationsClass;
-            this.fieldsWithWavedata = fields;
-            this.fieldsWithWavedata.forEach(elt => {
-              elt.text = elt.site + ' - ' + elt.name;
-            });
-            this.Vessels = vessels.filter(elt => elt.operationsClass === this.vesselType);
-            this.buildPageWithCurrentInformation();
-          } else {
-            this.noPermissionForData = true;
-          }
+      if (userIsActive != true) return this.userService.logout();
+
+      this.noPermissionForData = false;
+      Chart.pluginService.register(ChartAnnotation);
+      forkJoin([
+        this.newService.getFieldsWithWaveSourcesByCompany(),
+        this.newService.getVessel(),
+        this.newService.validatePermissionToViewData({ mmsi: this.vesselObject.mmsi[0] })
+      ]).subscribe(([fields, vessels, validatedValue]) => {
+        if (validatedValue.length != 1) return this.noPermissionForData = true;
+        this.vesselType = validatedValue[0]?.operationsClass;
+        this.fieldsWithWavedata = fields;
+        this.fieldsWithWavedata.forEach(elt => {
+          elt.text = elt.site + ' - ' + elt.name;
         });
-      } else {
-        localStorage.removeItem('isLoggedin');
-        localStorage.removeItem('token');
-        this.routerService.routeToLogin();
-      }
+        this.Vessels = vessels.filter(elt => elt.operationsClass === this.vesselType);
+        this.buildPageWithCurrentInformation();
+      });
     });
   }
 
@@ -126,6 +132,7 @@ export class LongtermComponent implements OnInit {
         vesselName: this.dropdownValues.map(x => x.nicename),
       }};
     }
+
     this.buildPageWithCurrentInformation();
   }
 
@@ -184,6 +191,7 @@ export class LongtermComponent implements OnInit {
   onDateCancel() {
     this._fromDate = copyNgbDate(this.fromDate);
     this._toDate = copyNgbDate(this.toDate);
+    this.closeModal();
   }
   onDateConfirm() {
     this.closeModal();
@@ -308,22 +316,22 @@ export class LongtermComponent implements OnInit {
     return this.dateTimeService.getMatlabDateYesterday();
   }
   getMatlabDateLastMonth() {
-    return this.dateTimeService.getMatlabDateLastMonth();
+    return this.dateTimeService.getMatlabDatenumLastMonth();
   }
   getJSDateYesterdayYMD() {
-    return this.dateTimeService.getJSDateYesterdayYMD();
+    return this.dateTimeService.getYmdStringYesterday();
   }
   getJSDateLastMonthYMD() {
-    return this.dateTimeService.getJSDateLastMonthYMD();
+    return this.dateTimeService.getYmdStringLastMonth();
   }
   MatlabDateToJSDateYMD(serial: number) {
-    return this.dateTimeService.MatlabDateToJSDateYMD(serial);
+    return this.dateTimeService.matlabDatenumToYmdString(serial);
   }
   unixEpochtoMatlabDate(epochDate) {
-    return this.dateTimeService.unixEpochtoMatlabDate(epochDate);
+    return this.dateTimeService.unixEpochtoMatlabDatenum(epochDate);
   }
   MatlabDateToUnixEpochViaDate(serial) {
-    return this.dateTimeService.MatlabDateToUnixEpochViaDate(serial);
+    return this.dateTimeService.matlabDatenumToDate(serial);
   }
   getMMSIFromParameter() {
     let mmsi: number;

@@ -1,21 +1,24 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { WaveSpectrumComponentComponent } from './wave-spectrum-component.component';
-import { PlotlyViaCDNModule } from 'angular-plotly.js';
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
+import { WaveSpectrumComponent } from './sov-wave-spectrum-component';
 import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { SupportModelModule } from '@app/models/support-model.module';
 import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
+import * as PlotlyJS from 'plotly.js/dist/plotly.js';
+import { PlotlyModule } from 'angular-plotly.js';
 
-describe('WaveSpectrumComponent', () => {
-  let component: WaveSpectrumComponentComponent;
-  let fixture: ComponentFixture<WaveSpectrumComponentComponent>;
+PlotlyModule.plotlyjs = PlotlyJS;
 
-  beforeEach(async(() => {
+describe('SOV WaveSpectrumComponent', () => {
+  let component: WaveSpectrumComponent;
+  let fixture: ComponentFixture<WaveSpectrumComponent>;
+
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       imports: [
-        PlotlyViaCDNModule,
+        PlotlyModule,
         SupportModelModule,
       ],
-      declarations: [ WaveSpectrumComponentComponent ],
+      declarations: [ WaveSpectrumComponent ],
       providers: [
         MockedCommonServiceProvider,
         MockedUserServiceProvider,
@@ -25,7 +28,7 @@ describe('WaveSpectrumComponent', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(WaveSpectrumComponentComponent);
+    fixture = TestBed.createComponent(WaveSpectrumComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
 
@@ -42,9 +45,8 @@ describe('WaveSpectrumComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('Should run ngOnChanges', (done) => {
+  it('Should run ngOnChanges', () => {
     component.ngOnChanges();
     expect(component).toBeTruthy();
-    done();
   });
 });
