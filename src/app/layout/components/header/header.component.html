@@ -6,7 +6,6 @@
     <a class="navbar-brand" routerLink="/dashboard">
         <img class="logoImage" src="/assets/images/MO4_Dataviewer_logo.png" />
     </a>
-    
     <ng-template #content let-modal>
         <div class="modal-header">
             <h4 class="modal-title">Feedback form</h4>
@@ -33,6 +32,9 @@
             <button type="button" class="btn btn-primary" (click)="sendFeedback()">Submit feedback</button>
         </div>
     </ng-template>
+    <ngb-alert class="alertMessage" type="warning" [dismissible]="false">BMO Dataviewer is becoming MO4 Portal per September 6th 2021. 
+        Please switch over to:
+        <a href="https://portal.mo4.online">https://portal.mo4.online</a></ngb-alert>
 
     <ng-template #requestUser let-modal>
         <div class="modal-header">
