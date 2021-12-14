@@ -1,25 +1,27 @@
 :host {
   // Colors
   --sidebar-background-color: var(--primary-container, rgba(24, 7, 58, 0.9));
-  --sidebar-color: var(--on-primary-container, #FFF);
-  --sidebar-icon-color: var(--on-primary-container, #FFF);
+  --sidebar-color: var(--on-primary-container, #fff);
+  --sidebar-icon-color: var(--on-primary-container, #fff);
   --sidebar-icon-active-color: var(--on-secondary-container, #007bff);
 
   // Typography
-  --sidebar-font-family: var(--font-body, "MontSerrat", "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol");
+  --sidebar-font-family: var(--font-body);
 
-  // State
-  // TODO: Rename this to surface to stay consistent with the Material 3 colour role names
-  --sidebar-icon-state-opacity: 0;
-  --sidebar-icon-state-color: var(--secondary-container);
-  --sidebar-icon-state-hover-opacity: 0.4;
-  --sidebar-icon-state-focus-opacity: 0.6;
-  --sidebar-icon-state-active-opacity: 0.8;
-  --sidebar-icon-state-active-link-opacity: 0.9;
+  // State (surface)
+  --sidebar-icon-surface-opacity: 0;
+  --sidebar-icon-surface-color: var(--secondary-container);
+  --sidebar-icon-surface-hover-opacity: 0.4;
+  --sidebar-icon-surface-focus-opacity: 0.6;
+  --sidebar-icon-surface-active-opacity: 0.8;
+  --sidebar-icon-surface-active-link-opacity: 0.9;
 
   // Overlay
   --sidebar-overlay-color: var(--primary-container, rgba(24, 7, 58, 0.9));
   --sidebar-overlay-opacity: 0.4;
+
+  // Scaling
+  --sidebar-size-adjust: 0rem;
 }
 
 .portal-sidebar {
@@ -38,35 +40,26 @@
 
 // Exception for classic theme
 .theme-classic :host {
-  --sidebar-icon-state-color: var(--secondary);
+  --sidebar-icon-surface-color: var(--secondary);
   --sidebar-icon-active-color: var(--secondary-container);
 }
 
 // Exception for light theme (insufficient contrast)
 .theme-light :host {
-  --sidebar-icon-state-color: var(--secondary);
+  --sidebar-icon-surface-color: var(--secondary);
   --sidebar-icon-active-color: var(--secondary-container);
 }
 
 :host {
-  --sidebar-space-top: var(--size-1);
-  --sidebar-space-bottom: var(--size-1);
+  --sidebar-size-adjust: CLAMP(-0.75rem, -0.75rem + 0.6349vh, 0rem);
+  --sidebar-space-top: calc(var(--size-4) + var(--sidebar-size-adjust));
+  --sidebar-space-bottom: calc(var(--size-4) + var(--sidebar-size-adjust));
 }
 
 @media screen and (min-height: 630px) {
   :host {
-    --sidebar-space-top: var(--size-2);
-    --sidebar-space-bottom: var(--size-2);
+    --sidebar-size-adjust: CLAMP(-0.5rem, -2.3529rem + 4.7059vh, 0rem);
   }
-
-}
-
-@media screen and (min-height: 800px) {
-  :host {
-     --sidebar-space-top: var(--size-4);
-    --sidebar-space-bottom: var(--size-4);
-  }
-
 }
 
 .portal-sidebar--hide .portal-sidebar__icons .portal-sidebar__label {
@@ -89,7 +82,14 @@
 }
 
 .portal-sidebar__spacer {
-  flex: 1 0;
+  display: none;
+}
+
+@media screen and (min-height: 800px) {
+  .portal-sidebar__spacer {
+    display: block;
+    flex: 1 0;
+  }
 }
 
 .portal-sidebar__logo {
@@ -134,28 +134,43 @@
       left: 0;
       width: 100%;
       height: 100%;
-      opacity: var(--sidebar-icon-state-opacity);
-      background: var(--sidebar-icon-state-color);
+      opacity: var(--sidebar-icon-surface-opacity);
+      background: var(--sidebar-icon-surface-color);
       z-index: -1;
       transition: opacity 0.15s var(--transition-out);
     }
 
     &:hover {
       text-decoration: none;
-      --sidebar-icon-state-opacity: var(--sidebar-icon-state-hover-opacity);
+      --sidebar-icon-surface-opacity: var(--sidebar-icon-surface-hover-opacity);
     }
 
     &:focus {
-      --sidebar-icon-state-opacity: var(--sidebar-icon-state-focus-opacity);
+      --sidebar-icon-surface-opacity: var(--sidebar-icon-surface-focus-opacity);
+      // It's safe to remove the default outline since we're providing a custom style here.
+      outline: none;
     }
 
     &:active {
-      --sidebar-icon-state-opacity: var(--sidebar-icon-state-active-opacity);
+      --sidebar-icon-surface-opacity: var(
+        --sidebar-icon-surface-active-opacity
+      );
     }
 
     &.router-link-active {
-      --sidebar-icon-state-opacity: var(--sidebar-icon-state-active-link-opacity);
+      --sidebar-icon-surface-opacity: var(
+        --sidebar-icon-surface-active-link-opacity
+      );
       color: var(--sidebar-icon-active-color);
+    }
+
+    // Exceptions for specific icons
+    & .fa-history {
+      transform: scaleX(-1) scale(1.2);
+    }
+
+    & .fa-home {
+      transform: scale(1.2);
     }
   }
 
@@ -167,7 +182,8 @@
     opacity: 1;
     overflow: hidden;
     white-space: nowrap;
-    transition: width 0.2s var(--transition-out), margin-left 0.3s var(--transition-out), opacity 0.2s var(--transition-out);
+    transition: width 0.2s var(--transition-out),
+      margin-left 0.3s var(--transition-out), opacity 0.2s var(--transition-out);
   }
 
   button {
@@ -189,20 +205,13 @@
   transition: opacity 0.4s var(--transition-out);
 }
 
-.portal-sidebar-horizontal-flip-and-upscale { 
-  -moz-transform: scaleX(-1);
-  -o-transform: scaleX(-1);
-  -webkit-transform: scaleX(-1);
-  transform: scaleX(-1) scale(1.2);
-  filter: FlipH;
-  -ms-filter: "FlipH";
-}
-
-.portal-sidebar-small-icon-upscale {
-  transform: scale(1.2)
-}
-
 .portal-sidebar__overlay--hide {
   pointer-events: none;
   opacity: 0;
+}
+
+@media print {
+  .portal-sidebar {
+    display: none;
+  }
 }
