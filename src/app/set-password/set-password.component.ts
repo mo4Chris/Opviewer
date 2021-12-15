@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { routerTransition } from '../router.animations';
 import { AuthService } from '../auth.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
-import { map, catchError } from 'rxjs/operators';
-import { CommonService } from '../common.service';
+import { map } from 'rxjs/operators';
 import * as base32 from 'hi-base32';
 import * as bCrypt from 'bcryptjs';
 import * as twoFactor from 'node-2fa';

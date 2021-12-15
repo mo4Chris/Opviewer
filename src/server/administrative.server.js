@@ -3,9 +3,9 @@ var bcrypt = require("bcryptjs");
 var twoFactor = require('node-2fa');
 const { body, validationResult, checkSchema, matchedData } = require('express-validator');
 const models = require('./models/administrative.js');
-const user_helper = require('./helper/user')
-const hydro_helper = require('./helper/hydro')
-const connections = require('./helper/connections')
+const user_helper = require('./helper/user');
+const hydro_helper = require('./helper/hydro');
+const connections = require('./helper/connections');
 
 
 // #################### Actual API ####################
@@ -70,6 +70,7 @@ module.exports = function (
     const requires2fa = req.body.requires2fa;
     const vessel_ids = req.body.vessel_ids; // Always empty?
     const user_type = req.body.user_type ?? 'demo'; // Shouldn't this always be demo?
+    const tokenHash = bcrypt.hashSync(username, 10)
 
     const phoneNumber = req.body.phoneNumber;
     const full_name = req.body.full_name;
@@ -113,6 +114,7 @@ module.exports = function (
         user_type,
         password,
         demo_project_id,
+        tokenHash
       })
     } catch (err) {
       if (err.constraint == 'Unique usernames') return res.onUnauthorized('User already exists')
@@ -125,12 +127,22 @@ module.exports = function (
     Full name: ${full_name}<br>
     Company: ${company}<br>
     Function: ${job_title}<br>
-    Phone number: ${phoneNumber}
+    Phone number: ${phoneNumber}<br>
+    <br>
+    https://portal.mo4.online/activateDemoUser?token=${tokenHash}
     `;
 
     mailTo('Registered demo user', html, 'webmaster@mo4.online');
     logger.info({ msg: 'Succesfully created user ', username })
     return res.send({ data: `User ${username} succesfully added!` });
+  });
+
+  app.post('/api/activateDemoUser',
+  async (req, res) => {
+    const token = req.body.token;
+    const userValidationResponse = await user_helper.activateDemoUserViaToken(token)
+
+    return res.send(userValidationResponse)
   });
 
   app.post('/api/setPassword', checkSchema(models.setPasswordModel), function (req, res) {

@@ -282,6 +282,46 @@ async function createUser({
 }
 module.exports.createUser = createUser;
 
+/**
+ * Activates a demo user if token is correct
+ * @param {
+ * token: string
+ * } param0 
+ * @returns {
+ * status: string,
+ * statusMessage: string
+ * }
+ */
+
+async function activateDemoUserViaToken(
+  token
+) {
+  //Deze wordt ook gebruikt in de functie hieronder. universeel toegankelijk maken in toekomst.
+  const currentDate = new Date();
+  const addExtraMonthToCurrentDate = currentDate.setMonth(currentDate.getMonth() + 1)
+  const DateNextMonth = new Date(addExtraMonthToCurrentDate);
+  const formattedExpireDate = toIso8601(DateNextMonth)
+
+
+  const query = `UPDATE "userTable"
+  SET 
+    "active"=$1,
+    "demo_expiration_date"=$2,
+    "token"=$3
+  WHERE
+    "token"=$4
+  `
+  const values = [true, formattedExpireDate, null, token]
+
+  const result = await connections.admin.query(query, values).then((sql_response) => {
+    if (sql_response.rowCount > 0) return { status: 'success', statusMessage: 'Demo user has been activated'};
+    if (sql_response.rowCount <= 0) return { status: 'danger', statusMessage: 'This token is invalid or has already been activated' }
+  })
+
+   return result;
+}
+
+module.exports.activateDemoUserViaToken = activateDemoUserViaToken;
 
 /**
  * Creates a new demo user
@@ -303,7 +343,8 @@ async function createDemoUser({
   vessel_ids = [],
   user_type = 'demo',
   password = null,
-  demo_project_id = null
+  demo_project_id = null,
+  tokenHash = null
 }) {
   const expireDate = new Date();
   const formattedExpireDate = toIso8601(new Date(expireDate.setMonth(expireDate.getMonth() + 1)))
@@ -311,7 +352,6 @@ async function createDemoUser({
   if (!(username?.length > 0)) { throw Error('Invalid username!') }
 
   logger.info(`Creating new user ${username}`)
-  const password_setup_token = null;
   if (password !== null && password !== '') password = bcrypt.hashSync(password, 10)
   const valid_vessel_ids = Array.isArray(vessel_ids); // && (vessel_ids.length > 0);
   const query = `INSERT INTO public."userTable"(
@@ -330,10 +370,10 @@ async function createDemoUser({
     username,
     Boolean(requires2fa) ?? true,
     null,
-    true,
+    false,
     valid_vessel_ids ? vessel_ids : null,
     password,
-    password_setup_token,
+    tokenHash,
     client_id,
     demo_project_id,
     formattedExpireDate

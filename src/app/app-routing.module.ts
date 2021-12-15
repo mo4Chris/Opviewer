@@ -8,6 +8,7 @@ const routes: Routes = [
     { path: 'signup', loadChildren: () => import('./signup/signup.module').then(m => m.SignupModule) },
     { path: 'registration', loadChildren: () => import('./registration/registration.module').then(m => m.RegistrationModule) },
     { path: 'set-password', loadChildren: () => import('./set-password/set-password.module').then(m => m.SetPasswordModule)  },
+    { path: 'activate-demo-user', loadChildren: () => import('./activate-demo-user/activate-demo-user.module').then(m => m.ActivateDemoUserModule)  },
     { path: '**', redirectTo: 'not-found' }
 ];
 
