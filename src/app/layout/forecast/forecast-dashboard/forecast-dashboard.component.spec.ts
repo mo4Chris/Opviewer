@@ -2,19 +2,28 @@ import { CommonModule } from '@angular/common';
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
-import { MockedUserServiceProvider } from '@app/shared/services/test.user.service';
-import { MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
-import { RouterService } from '@app/supportModules/router.service';
+import { CommonService } from '@app/common.service';
+import { PermissionService } from '@app/shared/permissions/permission.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { of } from 'rxjs';
+import { ForecastDashboardUtilsService } from './forecast-dashboard-utils.service';
 import { ForecastDashboardComponent } from './forecast-dashboard.component';
+import { By } from '@angular/platform-browser';
+
 
 describe('ForecastDashboardComponent', () => {
   let component: ForecastDashboardComponent;
   let fixture: ComponentFixture<ForecastDashboardComponent>;
-
+  let commonServiceMock;
+  let forecastDashboardUtilsServiceMock;
+  let permissionServiceMock;
+  let debugElement;
   beforeEach(waitForAsync(() => {
+    forecastDashboardUtilsServiceMock = jasmine.createSpyObj('forecastDashboardUtilsService', ['createViewModel', 'sortProductList']);
+    commonServiceMock = jasmine.createSpyObj('commonService', ['getForecastProjectList', 'getForecastClientList'])
+    permissionServiceMock = jasmine.createSpyObj('permissionService', ['admin'])
     TestBed.configureTestingModule({
-      declarations: [ ForecastDashboardComponent ],
+      declarations: [ForecastDashboardComponent],
       imports: [
         FormsModule,
         NgbModule,
@@ -22,55 +31,80 @@ describe('ForecastDashboardComponent', () => {
         RouterTestingModule,
       ],
       providers: [
-        MockedCommonServiceProvider,
-        MockedUserServiceProvider,
+        { provide: PermissionService, useValue: permissionServiceMock },
+        { provide: CommonService, useValue: commonServiceMock },
+        { provide: ForecastDashboardUtilsService, useValue: forecastDashboardUtilsServiceMock }
       ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ForecastDashboardComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    debugElement = fixture.debugElement;
   });
 
   it('should create', () => {
-    expect(component).toBeTruthy();
+    commonServiceMock.getForecastProjectList.and.returnValue(of([{}]))
+    commonServiceMock.getForecastClientList.and.returnValue(of([{}]))
+    forecastDashboardUtilsServiceMock.createViewModel.and.returnValue(of([{}]))
+    fixture.detectChanges();
+    expect(component).toBeTruthy()
   });
 
-  it('should have working buttons', async () => {
-    component.projects = [{
-      id: 0,
-      nicename: 'TESTY',
-      name: 'string',
-      client_id: 1,
-      latitude: 2,
-      longitude: 3,
-      water_depth: 4,
-      maximum_duration: 5,
-      vessel_id: 1234,
-      activation_start_date: '6',
-      activation_end_date: '7',
-      client_preferences: null,
-      consumer_id: 8,
-      analysis_types: ['Standard'],
-      metocean_provider: {
-        id: 1,
-        name: 'test',
-        display_name: 'Test 1',
-        is_active: true,
+  describe('HTML Template testing',()=>{
+    beforeEach(() => {
+      const project = {
+        "id": 1,
+        "active": false,
+        "nicename": "A video demo project",
       }
-    }];
-    const routerSpyProjectOverview = spyOn(RouterService.prototype, 'routeToForecastProjectOverview');
-    const routerSpyForecast = spyOn(RouterService.prototype, 'routeToForecast');
-    await fixture.whenStable();
-    const elt: HTMLElement = fixture.nativeElement;
-    const hoverDivs: NodeListOf<HTMLButtonElement> = elt.querySelectorAll('button');
-    hoverDivs.forEach(btn => {
-      btn.click();
+
+      const client = {
+        "id": 1,
+      }
+
+      const combined = {
+        ...project,
+        client
+      }
+      commonServiceMock.getForecastProjectList.and.returnValue(of([{}]))
+      commonServiceMock.getForecastClientList.and.returnValue(of([{}]))
+      forecastDashboardUtilsServiceMock.createViewModel.and.returnValue(of([combined]));
+      forecastDashboardUtilsServiceMock.sortProductList.and.returnValue([combined]);
+    })
+
+    it('should show the table for admin when admin is logged in', async () => {
+      permissionServiceMock.admin = true;
+      fixture.detectChanges();
+
+      const result = debugElement.queryAll(By.css('th')).length
+      const expected = 5;
+
+      expect(result).toEqual(expected)
     });
-    expect(routerSpyProjectOverview).toHaveBeenCalled();
-    expect(routerSpyForecast).toHaveBeenCalled();
-  });
+    
+    it('should show the table for non-admin when customer is logged in', async () => {
+      permissionServiceMock.admin = false;
+
+      fixture.detectChanges();
+
+      const result = debugElement.queryAll(By.css('th')).length
+      const expected = 3;
+
+      expect(result).toEqual(expected)
+    });
+    
+    it('should show rendering of data "nicename" in table ', async () => {
+      permissionServiceMock.admin = false;
+
+      fixture.detectChanges();
+
+      const result = debugElement.queryAll(By.css('td'))[0].nativeElement.textContent
+      const expected = 'A video demo project'
+
+      expect(result).toEqual(expected)
+    });
+  })  
 });

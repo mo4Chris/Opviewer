@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonService } from '@app/common.service';
 import { intersect } from '@app/models/arrays';
 import { PermissionService } from '@app/shared/permissions/permission.service';
@@ -10,6 +10,7 @@ import { RouterService } from '@app/supportModules/router.service';
 import { ForecastVesselRequest } from '../../forecast-project/forecast-project.component';
 import { ForecastMotionLimit } from '../../models/forecast-limit';
 import { ForecastOperation, ForecastExpectedResponsePreference, ForecastResponseObject } from '../../models/forecast-response.model';
+import { ForecastOpsPickerUtilsService } from './forecast-ops-picker-utils.service';
 
 const DEFAULT_SLIP_OPTIONS = {
   Max_Allowed_Slip_Meter: 2,
@@ -22,9 +23,10 @@ const SAMPLE_PROJECT_NAME = 'sample_project';  // TODO configure via env file
 @Component({
   selector: 'app-forecast-ops-picker',
   templateUrl: './forecast-ops-picker.component.html',
-  styleUrls: ['./forecast-ops-picker.component.scss']
+  styleUrls: ['./forecast-ops-picker.component.scss'],
 })
-export class ForecastOpsPickerComponent implements OnChanges {
+export class ForecastOpsPickerComponent implements OnInit,OnChanges {
+  @Input() selectedTab: string;
   @Input() projects: ForecastOperation[] = [];
   @Input() lastUpdated: string;
   @Input() vessels: ForecastVesselRequest[];
@@ -63,6 +65,8 @@ export class ForecastOpsPickerComponent implements OnChanges {
   private operationTimeChanged = false;
   private headingChanged = false;
   private limitChanged = false;
+  showOperationSettings: boolean;
+  showCtvSlipSettings: boolean;
 
   public get settingsChanged() {
     return this.operationTimeChanged
@@ -95,6 +99,7 @@ export class ForecastOpsPickerComponent implements OnChanges {
     private routerService: RouterService,
     private alert: AlertService,
     private newService: CommonService,
+    private forecastUtilsService: ForecastOpsPickerUtilsService,
     public gps: GpsService,
     public permission: PermissionService,
     public calcService: CalculationService,
@@ -120,6 +125,12 @@ export class ForecastOpsPickerComponent implements OnChanges {
   }
 
   // ##################### Methods #####################
+
+  ngOnInit(): void {
+    this.showCtvSlipSettings = this.forecastUtilsService.shouldShowSlipSettings(this.selectedTab)
+    this.showOperationSettings = this.forecastUtilsService.shouldShowOperationSettingsOptions(this.selectedTab)
+  }
+
   ngOnChanges(changes: SimpleChanges = {}) {
     if (changes.minForecastDate) this.date = this.minForecastDate;
     if (changes.selectedProjectId) this.onNewSelectedOperation();
@@ -321,7 +332,7 @@ export interface ForecastOperationSettings {
   slipLimit?: any;
 
 }
-interface YMD {
+export interface YMD {
   year: number;
   month: number;
   day: number;
