@@ -1,0 +1,13 @@
+<a *ngIf="!disableRouter" class="portal-sidebar__item" [routerLink]="destination"
+  [routerLinkActive]="['router-link-active']">
+  <i class="fa fa-fw" [ngClass]="icon"></i>
+  <div class="portal-sidebar__label">
+    {{ label | translate }}
+  </div>
+</a>
+<a *ngIf="disableRouter" class="portal-sidebar__item">
+  <i class="fa fa-fw" [ngClass]="icon"></i>
+  <div class="portal-sidebar__label">
+    {{ label | translate }}
+  </div>
+</a>
