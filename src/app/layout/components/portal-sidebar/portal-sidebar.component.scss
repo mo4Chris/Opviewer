@@ -19,12 +19,8 @@
   // Border radius
   --sidebar-item-border-radius: var(--border-radius-interact);
 
-  // Overlay
-  --sidebar-overlay-color: var(--primary-container, rgba(24, 7, 58, 0.9));
-  --sidebar-overlay-opacity: 0.4;
-
   // Scaling
-  --sidebar-size-adjust: CLAMP(-0.75rem, -0.75rem + 0.6349vh, 0rem);
+  --sidebar-size-adjust: -0.5rem;
   --sidebar-space-top: calc(var(--size-4) + var(--sidebar-size-adjust));
   --sidebar-space-bottom: calc(var(--size-4) + var(--sidebar-size-adjust));
   @media screen and (min-height: 630px) {
@@ -121,6 +117,10 @@
 
   .portal-sidebar__item-cnt {
     padding: var(--sidebar-item-inset);
+
+    & + .portal-sidebar__item-cnt {
+      padding-top: 0;
+    }
   }
 
   .portal-sidebar__item {
@@ -175,12 +175,16 @@
     }
 
     // Exceptions for specific icons
+    .fa-line-chart {
+      transform: translateY(0.125rem);
+    }
+
     .fa-history {
-      transform: scaleX(-1) scale(1.2);
+      transform: translateY(0.125rem) scaleX(-1) scale(1.2);
     }
 
     .fa-home {
-      transform: scale(1.2);
+      transform: translateY(0.125rem) scale(1.2);
     }
   }
 
@@ -203,7 +207,11 @@
   }
 }
 
-.portal-sidebar .portal-sidebar__overlay {
+.portal-sidebar__overlay {
+  // Overlay
+  --sidebar-overlay-color: var(--primary-container, rgba(24, 7, 58, 0.9));
+  --sidebar-overlay-opacity: 0.4;
+
   position: fixed;
   top: 0;
   left: 0;
@@ -211,7 +219,7 @@
   bottom: 0;
   z-index: 1047;
   opacity: var(--sidebar-overlay-opacity);
-  background: var(--sidebar-background-color);
+  background-color: var(--sidebar-overlay-color);
   transition: opacity 0.4s var(--transition-out);
 
   &.portal-sidebar__overlay--hide {
