@@ -294,7 +294,8 @@ module.exports.createUser = createUser;
  */
 
 async function activateDemoUserViaToken(
-  token
+  token,
+  username
 ) {
   //Deze wordt ook gebruikt in de functie hieronder. universeel toegankelijk maken in toekomst.
   const currentDate = new Date();
@@ -309,9 +310,9 @@ async function activateDemoUserViaToken(
     "demo_expiration_date"=$2,
     "token"=$3
   WHERE
-    "token"=$4
+    "token"=$4 AND "username"=$5
   `
-  const values = [true, formattedExpireDate, null, token]
+  const values = [true, formattedExpireDate, null, token, username]
 
   const result = await connections.admin.query(query, values).then((sql_response) => {
     if (sql_response.rowCount > 0) return { status: 'success', statusMessage: 'Demo user has been activated'};

@@ -13,30 +13,27 @@ export class ActivateDemoUserComponent implements OnInit {
     private route: ActivatedRoute,
     public routerService: RouterService,
     public alert: AlertService,
-    private newService: CommonService,
+    private commonService: CommonService,
   ) {
   }
 
   ngOnInit(): void {
     const token = this.route.snapshot.paramMap.get("token");
+    const username = this.route.snapshot.paramMap.get("username");
     const isValidToken = this.validateTokenParameter(token);
-    this.loginHandler(isValidToken, token)
+    this.loginHandler(isValidToken, token, username)
   }
 
-  private loginHandler(isValidToken: boolean, token: string | null): void {
+  loginHandler(isValidToken: boolean, token: string | null, username: string | null): void {
     if(isValidToken) {
-      this.activateDemoUser(token)
+      this.activateDemoUser(token, username)
     } else {
       this.rerouteToLogin('danger', 'No token has been provided to activate a demo user')
     }
   }
 
-  validateTokenParameter(token: string | null) : boolean {
-   return token !== null;
-  }
-
-  activateDemoUser(token) {
-    this.newService.activateDemoUser(token).subscribe(statusObject => {
+  activateDemoUser(token, username) {
+    this.commonService.activateDemoUser(token, username).subscribe(statusObject => {
       const status = statusObject.status;
       const statusMessage = statusObject.statusMessage;
 
@@ -49,6 +46,8 @@ export class ActivateDemoUserComponent implements OnInit {
     this.alert.sendAlert({ type: status, text: message });
     this.routerService.route(['login', {status: status, message: message}]);
   }
+
+  validateTokenParameter(token: string | null) : boolean {
+    return token !== null;
+   }
 }
-
-

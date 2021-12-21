@@ -130,8 +130,8 @@ export class CommonService {
     return this.post('/api/saveUserVessels/', {username, vessel_ids});
   }
   // Observable vervangen door model dat alert status en statusmessage geeft
-  activateDemoUser(token: string): Observable<{status: string, statusMessage: string}> {
-    return this.post('/api/activateDemoUser/', {token: token});
+  activateDemoUser(token: string, username: string | null): Observable<{status: string, statusMessage: string}> {
+    return this.post('/api/activateDemoUser/', {token: token, username: username});
   }
 
 

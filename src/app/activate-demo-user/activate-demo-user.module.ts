@@ -4,7 +4,7 @@ import { RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
       { path: '', component: ActivateDemoUserComponent}, 
-      { path: ':token', component: ActivateDemoUserComponent }
+      { path: ':token/:username', component: ActivateDemoUserComponent }
 ];
 
 

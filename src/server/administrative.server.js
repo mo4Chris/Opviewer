@@ -70,7 +70,8 @@ module.exports = function (
     const requires2fa = req.body.requires2fa;
     const vessel_ids = req.body.vessel_ids; // Always empty?
     const user_type = req.body.user_type ?? 'demo'; // Shouldn't this always be demo?
-    const tokenHash = bcrypt.hashSync(username, 10)
+    //functie voor maken
+    const tokenHash = bcrypt.hashSync(username, 10).replace(/\\|\$|\//g,'');
 
     const phoneNumber = req.body.phoneNumber;
     const full_name = req.body.full_name;
@@ -129,21 +130,39 @@ module.exports = function (
     Function: ${job_title}<br>
     Phone number: ${phoneNumber}<br>
     <br>
-    https://portal.mo4.online/activateDemoUser?token=${tokenHash}
+    https://portal.mo4.online/activate-demo-user/${tokenHash}/${username}
     `;
 
     mailTo('Registered demo user', html, 'webmaster@mo4.online');
     logger.info({ msg: 'Succesfully created user ', username })
-    return res.send({ data: `User ${username} succesfully added!` });
+    return res.send({ data: `User ${username} succesfully added! Please await account approval.` });
   });
 
   app.post('/api/activateDemoUser',
   async (req, res) => {
-    const token = req.body.token;
-    const userValidationResponse = await user_helper.activateDemoUserViaToken(token)
+    const token = req.body?.token;
+    const username = req.body?.username;
+    const userValidationResponse = await user_helper.activateDemoUserViaToken(token, username)
+
+    //Dit moet nog naar een EmailService/helper
+    if (userValidationResponse?.status === 'success') sendDemoActivationEmail(username);
 
     return res.send(userValidationResponse)
   });
+
+  function sendDemoActivationEmail(username) {
+
+    const html = `
+    Via this email we would like to update you regarding your requested demo account. <br>
+    Your demo account has been approved. You can now use the MO4 portal for a month. <br>
+    Go to https://portal.mo4.online to login using your credentials. <br>
+    Please remember that for your trial period, the 2FA field should remain empty during login. <br><br>`;
+
+    mailTo('Registered demo user', html, username);
+    logger.info({ msg: 'Succesfully created user ', username })
+
+  }
+  
 
   app.post('/api/setPassword', checkSchema(models.setPasswordModel), function (req, res) {
     const errors = validationResult(req);
