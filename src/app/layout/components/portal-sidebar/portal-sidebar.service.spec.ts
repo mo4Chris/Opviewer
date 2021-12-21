@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 
 import { PortalSidebarService, sidebarContentType } from './portal-sidebar.service';
-import { PermissionModel, PermissionService } from '@app/shared/permissions/permission.service';
+import { PermissionModel } from '@app/shared/permissions/permission.service';
 
 describe('PortalSidebarService', () => {
   let service: PortalSidebarService;
