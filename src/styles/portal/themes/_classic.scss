@@ -25,6 +25,9 @@
 
   --background: var(--theme-classic-white);
   --on-background: var(--theme-classic-black);
+
+  --brand-icon: #00adee;
+  --brand-wordmark: var(--theme-classic-white);
 }
 
 /* Typography */
@@ -40,16 +43,11 @@
     "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
-/* Easings */
+/* Border radius */
 
 .theme-classic {
-  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-/* Transitions */
-
-.theme-classic {
-  --transition-out: var(--ease-out-quart);
+  --border-radius-interact: 0.25rem;
+  --border-radius-panel: 0;
 }
 
 /* State opacity (surface) */

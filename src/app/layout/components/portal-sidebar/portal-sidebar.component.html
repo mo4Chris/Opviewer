@@ -5,9 +5,11 @@
       <div class="portal-sidebar__logo">
         <app-portal-logo [sidebarIsExpanded]="isExpanded"></app-portal-logo>
       </div>
-      <button class="portal-sidebar__item" (click)="toggleExpanded()">
-        <i class="fa fa-fw fa-bars"></i>
-      </button>
+      <div class="portal-sidebar__item-cnt">
+        <button class="portal-sidebar__item portal-sidebar__hamburger" (click)="toggleExpanded()">
+          <i class="fa fa-fw fa-bars"></i>
+        </button>
+      </div>
     </div>
     <div class="portal-sidebar__items">
       <ng-container *ngFor="let item of sidebarContent">

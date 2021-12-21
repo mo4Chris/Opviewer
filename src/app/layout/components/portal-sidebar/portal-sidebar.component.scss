@@ -16,6 +16,9 @@
   --sidebar-item-surface-active-opacity: 0.8;
   --sidebar-item-surface-active-link-opacity: 0.9;
 
+  // Border radius
+  --sidebar-item-border-radius: var(--border-radius-interact);
+
   // Overlay
   --sidebar-overlay-color: var(--primary-container, rgba(24, 7, 58, 0.9));
   --sidebar-overlay-opacity: 0.4;
@@ -28,6 +31,7 @@
     --sidebar-size-adjust: CLAMP(-0.5rem, -2.3529rem + 4.7059vh, 0rem);
   }
   --sidebar-expanded-width: 16ch;
+  --sidebar-item-inset: 0.25rem;
 
   position: fixed;
   z-index: 1048;
@@ -45,6 +49,8 @@
 .theme-classic .portal-sidebar {
   --sidebar-item-surface-color: var(--secondary);
   --sidebar-icon-active-color: var(--secondary-container);
+  --sidebar-item-border-radius: 0rem;
+  --sidebar-item-inset: 0rem;
 }
 
 // Exception for light theme (insufficient contrast)
@@ -113,14 +119,18 @@
   flex-direction: column;
   font-size: var(--size-5);
 
+  .portal-sidebar__item-cnt {
+    padding: var(--sidebar-item-inset);
+  }
+
   .portal-sidebar__item {
     position: relative;
     display: flex;
     min-height: var(--size-4);
-    padding-left: var(--size-4);
-    padding-right: var(--size-4);
-    padding-top: var(--sidebar-space-top);
-    padding-bottom: var(--sidebar-space-bottom);
+    padding-left: calc(var(--size-4) - var(--sidebar-item-inset));
+    padding-right: calc(var(--size-4) - var(--sidebar-item-inset));
+    padding-top: calc(var(--sidebar-space-top) - var(--sidebar-item-inset));
+    padding-bottom: calc(var(--sidebar-space-bottom) - var(--sidebar-item-inset));
     color: var(--sidebar-icon-color);
 
     &::before {
@@ -137,6 +147,7 @@
       transition: opacity 0.15s var(--transition-out);
       background-color: var(--sidebar-item-surface-color);
       text-decoration: none;
+      border-radius: var(--sidebar-item-border-radius);
     }
 
     &:hover {
@@ -207,4 +218,8 @@
     pointer-events: none;
     opacity: 0;
   }
+}
+
+.portal-sidebar .portal-sidebar__hamburger {
+  width: 100%;
 }

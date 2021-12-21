@@ -1,12 +1,6 @@
 :host {
-  --logo-icon-color: var(--secondary);
-  --logo-letter-color: var(--on-secondary-container);
-}
-
-// Exception for classic theme
-.theme-classic :host {
-  --logo-icon-color: #00adee;
-  --logo-letter-color: var(--theme-classic-white);
+  --logo-icon-color: var(--brand-icon);
+  --logo-letter-color: var(--brand-wordmark);
 }
 
 .portal-logo--sidebar {

@@ -1,4 +1,5 @@
 /* TODO: New MO4 Portal light theme */
+// Please note: None of the style tokens in this file are final. We are still working on the new themes.
 
 /* The classic theme will be used as a testbed for this new system. In the meantime we will continue working on the new design tokens before switching over fully. */
 
@@ -20,6 +21,9 @@
 
   --background: hsl(180, 20%, 99%);
   --on-background: hsl(197, 14%, 10%);
+
+  --brand-icon: var(--secondary);
+  --brand-wordmark: var(--on-secondary-container);
 }
 
 /* Typography */
@@ -35,16 +39,11 @@
     "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
-/* Easings */
+/* Border radius */
 
 .theme-light {
-  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
-}
-
-/* Transitions */
-
-.theme-light {
-  --transition-out: var(--ease-out-quart);
+  --border-radius-interact: 0.5rem;
+  --border-radius-panel: 0.25rem;
 }
 
 /* State opacity (surface) */

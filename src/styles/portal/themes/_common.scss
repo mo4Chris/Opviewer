@@ -1,5 +1,7 @@
 /* Sizes (to use for spacing) */
 
+// Should we go with a system like this, or one that uses SASS variables?
+// Or perhaps just lookup table we can all use and stick to.
 .theme-classic,
 .theme-dark,
 .theme-light {
@@ -30,4 +32,20 @@
   --size-40: calc(10rem + var(--size-adjust));
   --size-44: calc(11rem + var(--size-adjust));
   --size-48: calc(12rem + var(--size-adjust));
+}
+
+/* Easings */
+
+.theme-classic,
+.theme-dark,
+.theme-light {
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Transitions */
+
+.theme-classic,
+.theme-dark,
+.theme-light {
+  --transition-out: var(--ease-out-quart);
 }
