@@ -1,5 +1,5 @@
 // Third party dependencies
-import { OnInit, Component, ViewChild, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
+import { OnInit, Component, ViewChild, ViewEncapsulation } from '@angular/core';
 
 // Services
 import { PermissionService } from '@app/shared/permissions/permission.service';
