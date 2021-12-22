@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonService } from '@app/common.service';
 import { intersect } from '@app/models/arrays';
-import { PermissionService } from '@app/shared/permissions/permission.service';
+import { PermissionModel, PermissionService } from '@app/shared/permissions/permission.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { CalculationService } from '@app/supportModules/calculation.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
@@ -67,6 +67,7 @@ export class ForecastOpsPickerComponent implements OnInit,OnChanges {
   private limitChanged = false;
   showOperationSettings: boolean;
   showCtvSlipSettings: boolean;
+  disableAddButton: boolean;
 
   public get settingsChanged() {
     return this.operationTimeChanged
@@ -103,6 +104,7 @@ export class ForecastOpsPickerComponent implements OnInit,OnChanges {
     public gps: GpsService,
     public permission: PermissionService,
     public calcService: CalculationService,
+    private forecastOpsPickerUtilsService: ForecastOpsPickerUtilsService,
   ) {
   }
 
@@ -127,6 +129,8 @@ export class ForecastOpsPickerComponent implements OnInit,OnChanges {
   // ##################### Methods #####################
 
   ngOnInit(): void {
+    const currentLimitsAmount = this.limits.length
+    this.disableAddButton = this.forecastOpsPickerUtilsService.shouldDisableAddButton(this.permission,currentLimitsAmount)
     this.showCtvSlipSettings = this.forecastUtilsService.shouldShowSlipSettings(this.selectedTab)
     this.showOperationSettings = this.forecastUtilsService.shouldShowOperationSettingsOptions(this.selectedTab)
   }
@@ -215,17 +219,23 @@ export class ForecastOpsPickerComponent implements OnInit,OnChanges {
   public onLimitsChange() {
     this.limitChanged = true;
   }
-  public onAddLimitsLine() {
+  public onAddLimitsLine(permission,limits) {
     this.limitChanged = true;
     this.limits.push(new ForecastMotionLimit({
       Dof: 'Heave',
       Type: 'Disp',
       Value: 1,
     }));
+
+    const currentLimitsAmount = limits.length 
+    this.disableAddButton = this.forecastOpsPickerUtilsService.shouldDisableAddButton(permission, currentLimitsAmount)
   }
-  public onRemoveLimitsLine() {
+  public onRemoveLimitsLine(permission) {
     this.limitChanged = true;
     this.limits.pop();
+
+    const currentLimitsAmount = this.limits.length 
+    this.disableAddButton = this.forecastOpsPickerUtilsService.shouldDisableAddButton(permission, currentLimitsAmount)
   }
   public onConfirm () {
     // if (!this.timeValid) { return this.alert.sendAlert({text: 'Invalid operation time selection!', type: 'danger'}); }
@@ -325,7 +335,6 @@ function parseTimeString(timestring: string) {
 }
 
 export interface ForecastOperationSettings {
-  // heading: number;
   startTime: number;
   stopTime: number;
   limits?: any;

@@ -7,11 +7,12 @@ import { ClientOverviewComponent } from './client-overview.component';
 import { PageHeaderModule } from '../../shared';
 
 import { HttpClientModule } from '@angular/common/http';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { CommonService } from '../../common.service';
 import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { UserService } from '../../shared/services/user.service';
+import { LicenceTypeDialogComponent } from './licence-type-dialog/licence-type-dialog.component';
 
 @NgModule({
     imports: [
@@ -21,9 +22,10 @@ import { UserService } from '../../shared/services/user.service';
         ClientRoutingModule,
         PageHeaderModule,
         NgbModule,
-        NgMultiSelectDropDownModule
+        NgMultiSelectDropDownModule,
+        ReactiveFormsModule
     ],
-    declarations: [ClientOverviewComponent],
+    declarations: [ClientOverviewComponent, LicenceTypeDialogComponent],
     providers: [CommonService, UserService],
     bootstrap: [ClientOverviewComponent]
 })

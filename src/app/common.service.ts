@@ -88,6 +88,9 @@ export class CommonService {
     return this.get('/api/getClients');
   }
 
+  updateClientLicence(client){
+    return this.post('/api/change-client-license', client)
+  }
 
   // ============= User management =============
   getUserByUsername(username: string): Observable<UserModel[]> {

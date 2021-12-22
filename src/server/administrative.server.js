@@ -199,7 +199,7 @@ module.exports = function (
     let token;
     let PgQuery = `SELECT "userTable"."user_id", "userTable"."username", "userTable"."password",
     "userTable"."active", "userTable".requires2fa, "userTable"."secret2fa",
-    "clientTable"."client_name", "user_type", "admin", "user_read", "demo",
+    "clientTable"."client_name", client_permissions, "user_type", "admin", "user_read", "demo",
     "user_manage", "twa", "dpr", "longterm", "forecast", "user_see_all_vessels_client",
     "userTable"."client_id", "userTable"."demo_project_id"
     FROM "userTable"
@@ -247,6 +247,7 @@ module.exports = function (
           longterm: user.longterm,
           user_type: user.user_type,
           forecast: user.forecast,
+          licenceType: user.client_permissions.licenceType ?? 'NO_LICENCE',
           user_see_all_vessels_client: user.user_see_all_vessels_client,
         },
         expires: expireDate.setMonth(expireDate.getMonth() + 1).valueOf(),

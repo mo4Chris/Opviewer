@@ -553,5 +553,38 @@ module.exports = function (
         res.send({data: "Succesfully saved the permissions"})
       }).catch(err => res.onError(err))
   });
+
+
+  app.post('/api/change-client-license',
+    async function(req, res) {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) return res.onBadRequest(errors);
+
+      // Set user permissions for another user
+      const token = req['token'];
+      const own_permission = token['permission'];
+      if (!own_permission.admin) return res.onUnauthorized()      
+
+      const query = `
+        UPDATE "clientTable"
+        SET "client_permissions"= $1
+        WHERE "client_id"=$2;
+      `
+    const values = [
+      {"licenceType": `${req.body.value}`}
+      ,
+      req.body.client_id
+    ]
+
+    connections.admin.query(query, values).then((response) => {
+      if(response.rowCount === 0) {
+        res.onBadRequest('Target user not found!')
+      }
+      else{
+        res.send({data: "Succesfully saved the licenceType"})
+      }
+    }).catch(err => {
+      return res.onError(err)})
+  })
 }
 

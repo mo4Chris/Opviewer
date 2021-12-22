@@ -15,6 +15,7 @@ import { AlertComponent } from './components/alert/alert.component';
 import { PortalSidebarComponent } from './components/portal-sidebar/portal-sidebar.component';
 import { PortalLogoComponent } from './components/portal-logo/portal-logo.component';
 import { PortalSidebarItemComponent } from './components/portal-sidebar-item/portal-sidebar-item.component';
+import { PortalSidebarService } from './components/portal-sidebar/portal-sidebar.service';
 
 @NgModule({
     imports: [
@@ -28,6 +29,6 @@ import { PortalSidebarItemComponent } from './components/portal-sidebar-item/por
         NgbDropdownModule
     ],
     declarations: [LayoutComponent, SidebarComponent, HeaderComponent, AlertComponent, PortalSidebarComponent, PortalLogoComponent, PortalSidebarItemComponent],
-    providers: [CommonService]
+    providers: [CommonService, PortalSidebarService]
 })
-export class LayoutModule {}
+export class LayoutModule { }

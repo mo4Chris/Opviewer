@@ -38,7 +38,9 @@
               "node-2fa",
               "bcryptjs",
               "hi-base32",
-              "@agm/snazzy-info-window"
+              "@agm/snazzy-info-window",
+              "lodash",
+              "rxjs"
             ]
           },
           "configurations": {

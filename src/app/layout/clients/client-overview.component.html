@@ -1,19 +1,24 @@
-<div [@routerTransition] *ngIf="true">
-  <app-page-header heading="Clients" icon="fa-building"></app-page-header>
-  <table class="table table-hover table-striped">
-    <thead>
-      <tr>
-        <th>Clients</th>
-        <th>Admin</th>
-        <th>Forecast</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let client of clients">
-        <td>{{client.name}}</td>
-        <td>{{client.client_id}}</td>
-        <td>{{client.forecast_client_id}}</td>
-      </tr>
-    </tbody>
-  </table>
+<div class="client-overview-wrapper">
+<app-page-header heading="Clients" icon="fa-building"></app-page-header>
+<table *ngIf="clients$ | async as clients" class="table table-hover table-striped">
+  <thead>
+    <tr>
+      <th>Clients</th>
+      <th>Admin</th>
+      <th>Forecast</th>
+      <th>Licence Type</th>
+      <th>Change Licence</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let client of clients">
+      <td>{{client.name}}</td>
+      <td>{{client.client_id}}</td>
+      <td>{{client.forecast_client_id}}</td>
+      <td>{{client.client_permissions?.licenceType}}</td>
+      <td>
+        <button *ngIf="client.client_id" class="btn btn-outline-primary mb-2 mr-2" (click)="openLicenceChangeDialog(client)">EDIT LICENCE</button>
+    </tr>
+  </tbody>
+</table>
 </div>

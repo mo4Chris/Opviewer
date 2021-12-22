@@ -42,6 +42,7 @@ export class UserTestService extends UserService {
         user_read: true,
         user_manage: true,
         user_type: 'admin',
+        licenceType: 'NO_LICENCE'
       }
     };
     return {...defaults, ...config};

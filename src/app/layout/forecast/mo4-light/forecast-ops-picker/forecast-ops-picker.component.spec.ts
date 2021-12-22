@@ -15,8 +15,8 @@ import { ForecastOpsPickerComponent } from './forecast-ops-picker.component';
 describe('ForecastOpsPickerComponent', () => {
   let component: ForecastOpsPickerComponent;
   let fixture: ComponentFixture<ForecastOpsPickerComponent>;
-  const forecastOpsPickerUtilsServiceMock = jasmine.createSpyObj('ForecastOpsPickerUtilsService', ['shouldShowOperationSettingsOptions','shouldShowSlipSettings'])
   beforeEach(waitForAsync(() => {
+    const forecastOpsPickerUtilsServiceMock = jasmine.createSpyObj('ForecastOpsPickerUtilsService', ['shouldDisableAddButton', 'shouldShowSlipSettings', 'shouldShowOperationSettingsOptions'])
     TestBed.configureTestingModule({
       declarations: [
         ForecastOpsPickerComponent,
@@ -30,7 +30,8 @@ describe('ForecastOpsPickerComponent', () => {
       providers: [
         {provide: ForecastOpsPickerUtilsService, useValue: forecastOpsPickerUtilsServiceMock},
         MockedUserServiceProvider,
-        MockedCommonServiceProvider
+        MockedCommonServiceProvider,
+        {provide: ForecastOpsPickerUtilsService, useValue: forecastOpsPickerUtilsServiceMock }
       ]
     })
     .compileComponents();

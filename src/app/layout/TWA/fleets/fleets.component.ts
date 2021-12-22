@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { routerTransition } from '../../../router.animations';
 import { StringMutationService } from '../../../shared/services/stringMutation.service';
 import { DatetimeService } from '../../../supportModules/datetime.service';
 
@@ -12,7 +11,6 @@ import * as moment from 'moment-timezone';
     selector: 'app-fleets',
     templateUrl: './fleets.component.html',
     styleUrls: ['./fleets.component.scss'],
-    animations: [routerTransition()]
 })
 export class FleetsComponent implements OnInit {
     constructor(

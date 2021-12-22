@@ -3,6 +3,7 @@ import { By } from '@angular/platform-browser';
 import { PortalSidebarComponent } from './portal-sidebar.component';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { PortalSidebarService } from './portal-sidebar.service';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 
 describe('PortalSidebarComponent', () => {
@@ -16,6 +17,7 @@ describe('PortalSidebarComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [PortalSidebarComponent],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [
         { provide: PermissionService, useValue: permissionServiceMock },
         { provide: PortalSidebarService },

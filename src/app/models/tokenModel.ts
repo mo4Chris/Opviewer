@@ -37,5 +37,6 @@ export interface UserPermissions {
     forecast: {read: boolean, changeLimits: boolean, createProject: boolean},
     user_type: UserType,
     user_see_all_vessels_client: boolean,
+    licenceType: string;
 }
 

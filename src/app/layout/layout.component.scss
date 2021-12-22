@@ -24,8 +24,8 @@
 
 .layout {
   position: relative;
-  margin-left: var(--size-20);
-  overflow-x: auto;
+  margin-left: var(--size-16);
+  overflow-x: hidden;
 }
 
 @media print {

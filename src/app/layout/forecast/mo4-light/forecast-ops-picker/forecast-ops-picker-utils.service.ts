@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { PermissionModel } from '@app/shared/permissions/permission.service';
 
 export const TAB_LIST = {
   WORKABILITY: 'Workability',
@@ -14,5 +15,9 @@ export class ForecastOpsPickerUtilsService {
 
   shouldShowSlipSettings(selectedTab: string): boolean {
     return selectedTab === TAB_LIST.WORKABILITY
+  }
+
+  shouldDisableAddButton(permission: PermissionModel,limitsAmount: number) {
+    return permission.licenceType != 'PRO' && limitsAmount >= 3;
   }
 }

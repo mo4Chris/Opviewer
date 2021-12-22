@@ -48,6 +48,7 @@ PlotlyModule.plotlyjs = PlotlyJS;
     CommonService,
     ForecastOpsPickerUtilsService,
     ForecastDashboardUtilsService,
+    ForecastOpsPickerUtilsService
   ],
   declarations: [
     ForecastOpsPickerComponent,

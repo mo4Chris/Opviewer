@@ -29,7 +29,6 @@ export class PortalSidebarComponent implements OnInit {
   }
 
   public handleClickFeedback() {
-    console.log(this._header);
     // TODO: Feedback should be in a separate service... not in an unrelated component.
     // Using a dirty hack for now, until this is solved.
     this._header.openFeedbackModal(this._header.modal);

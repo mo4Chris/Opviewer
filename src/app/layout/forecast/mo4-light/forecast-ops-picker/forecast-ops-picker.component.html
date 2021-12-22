@@ -224,12 +224,12 @@
           <tr>
             <td colspan=3 *ngIf="permission.forecastChangeLimits">
               <div [ngbTooltip]="addLimitsTooltip">
-                <button class="btn btn-sm btn-danger float-left" [disabled]="(limits==null) || (limits?.length<=0)"
-                  (click)="onRemoveLimitsLine();" type="button">
+                <button class="btn btn-sm btn-danger float-left" [disabled]="(limits==null) || (limits?.length<=1)"
+                  (click)="onRemoveLimitsLine(permission);" type="button">
                   Remove last
                 </button>
-                <button class="btn btn-sm btn-success float-right" [disabled]="(limits==null) || (limits?.length>=3)"
-                  (click)="onAddLimitsLine();" type="button">
+                <button class="btn btn-sm btn-success float-right" [disabled]="disableAddButton"
+                  (click)="onAddLimitsLine(permission, limits);" type="button">
                   Add line
                 </button>
               </div>

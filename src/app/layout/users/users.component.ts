@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { routerTransition } from '@app/router.animations';
 import { CommonService } from '@app/common.service';
-import { Router } from '@angular/router';
 import { map, catchError } from 'rxjs/operators';
 import { UserService } from '@app/shared/services/user.service';
 import { StringMutationService } from '@app/shared/services/stringMutation.service';
@@ -14,7 +12,6 @@ import { RouterService } from '@app/supportModules/router.service';
   selector: 'app-users',
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss'],
-  animations: [routerTransition()]
 })
 export class UsersComponent implements OnInit {
   constructor(

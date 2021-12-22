@@ -37,6 +37,7 @@ export abstract class PermissionModel {
   forecastRead = false;
   forecastChangeLimits = false;
   forecastCreateProject = false;
+  licenceType = 'NO_LICENCE'
 }
 
 
@@ -129,6 +130,7 @@ function setPermissionFromToken(base: PermissionModel, permission: UserPermissio
 
   if (permission?.dpr?.read != null ) base.dprRead = permission.dpr.read;
 
+  base.licenceType = permission?.licenceType;
   return base;
 }
 

@@ -14,7 +14,6 @@ import { AlertService } from '@app/supportModules/alert.service';
   selector: 'app-report-tables',
   templateUrl: './tables.component.html',
   styleUrls: ['./tables.component.scss'],
-  animations: [routerTransition()]
 })
 export class TablesComponent implements OnInit {
   constructor(

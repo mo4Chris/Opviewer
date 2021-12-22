@@ -1,0 +1,21 @@
+<form *ngIf="radioGroupForm" class="licence-form" [formGroup]="radioGroupForm" (ngSubmit)="onSubmit(fromParent)">
+
+    <div>
+        <h1 class="licence-form__title"> Licence Type </h1>
+        <p>Please select the type for your client!</p>
+    </div>
+
+    <div class="licence-form__radio-button-layout">
+        <label>
+            <input type="radio" formControlName="model" value="PRO"> Pro licence
+        </label>
+        <label>
+            <input type="radio" formControlName="model" value="LIGHT"> Light licence
+        </label>
+        <label>
+            <input type="radio" formControlName="model" value="NO_LICENCE"> No licence
+        </label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Change Licence</button>
+</form>

@@ -4,9 +4,7 @@ import { PermissionModel } from '@app/shared/permissions/permission.service';
 export const FEEDBACK_MODAL = '#feedback';
 const NO_PERMISSIONS_REQUIRED = ['default'];
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable()
 export class PortalSidebarService {
 
   // -- Properties --
@@ -31,7 +29,7 @@ export class PortalSidebarService {
       label: 'Forecast',
       icon: 'fa-history',
       destination: '/forecast',
-      requiredPermissionsOr: ['forecastRead']
+      requiredPermissionsOr: ['forecastRead', 'licenceType']
     },
     {
       type: sidebarContentType.Top,
@@ -84,7 +82,10 @@ export class PortalSidebarService {
   public getContentWithPermission(permission: PermissionModel, content: SidebarItemIconModel[] = this._defaultContent) {
     return content.filter(item => {
       return item.requiredPermissionsOr.some((itemRequiredPermission) => {
-        return permission[itemRequiredPermission] || itemRequiredPermission === 'default';
+        const permissionValue = permission[itemRequiredPermission]
+        // values from permission model can come back as boolean or as string
+        const isBoolean = typeof (permissionValue) === 'boolean'
+        return isBoolean ? permissionValue : ['LIGHT', 'PRO'].includes(permissionValue) || itemRequiredPermission === 'default';
       });
     });
   }

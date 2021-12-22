@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewChild, SystemJsNgModuleLoader, NgZone, ElementRef, OnDestroy } from '@angular/core';
-import { routerTransition } from '@app/router.animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { mapLegend, mapMarkerIcon } from '../dashboard/models/mapLegend';
 
@@ -24,7 +23,6 @@ import { MapZoomData, MapZoomLayer } from '@app/models/mapZoomLayer';
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
-  animations: [routerTransition()]
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
