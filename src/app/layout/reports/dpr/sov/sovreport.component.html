@@ -3,15 +3,15 @@
 </app-dpr-map>
 
 
-<div *ngIf="showContent && printMode == 0" class="plsdonotprintthisforfsake">
-  <br>
-  <ngb-alert #refused style="position: relative;" *ngIf="dprApproval < 0" [dismissible]="false" type="warning">
-    The DPR previously signed off by the vesselmaster has been refused by client. Please update as soon as possible.
-  </ngb-alert>
+<br>
+<ngb-alert #refused style="position: relative;" *ngIf="dprApproval < 0" [dismissible]="false" type="warning">
+  The DPR previously signed off by the vesselmaster has been refused by client. Please update as soon as possible.
+</ngb-alert>
 
-
-  <ul ngbNav #nav="ngbNav" class="nav-tabs" [activeId]="activeTab">
-    <li [disabled]="!hasGeneral" [destroyOnHide]="false" ngbNavItem="sov-summary">
+<div *ngIf="showContent && printMode == 0" class="card mb-3">
+<div class="sov-report__header card-header nav-card-header">
+  <ul ngbNav #nav="ngbNav" class="nav-pills nav" [activeId]="activeTab">
+    <li [disabled]="!hasGeneral" [destroyOnHide]="false" ngbNavItem="sov-summary" >
       <a ngbNavLink>Workability</a>
       <ng-template #summaryTest id="tab-summary" ngbNavContent>
         <br>
@@ -104,9 +104,9 @@
       </ng-template>
     </li>
   </ul>
-
+</div>
   
-  <div [ngbNavOutlet]="nav" class="mt-2"></div>
+  <div [ngbNavOutlet]="nav" class="card-body table-responsive"></div>
 </div>
 
 
