@@ -1,6 +1,7 @@
-<app-header></app-header>
-<app-sidebar></app-sidebar>
-<section class="main-container">
-    <router-outlet></router-outlet>
-    <app-global-alert></app-global-alert>
+<app-header *ngIf="useClassicLayout"></app-header>
+<app-sidebar *ngIf="useClassicLayout"></app-sidebar>
+<app-portal-sidebar *ngIf="!useClassicLayout"></app-portal-sidebar>
+<section [ngClass]="{'layout': !useClassicLayout, 'layout--classic': useClassicLayout}">
+  <router-outlet></router-outlet>
+  <app-global-alert></app-global-alert>
 </section>

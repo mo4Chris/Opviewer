@@ -1,0 +1,56 @@
+/* TODO: New MO4 Portal light theme */
+// Please note: None of the style tokens in this file are final. We are still working on the new themes.
+
+/* The classic theme will be used as a testbed for this new system. In the meantime we will continue working on the new design tokens before switching over fully. */
+
+// These color tokens should be automatically generated based on hue and saturation values.
+
+/* Palette */
+
+.theme-light {
+  --primary: hsl(227, 71%, 40%);
+  --on-primary: hsl(227, 71%, 100%);
+  --primary-container: hsl(227, 71%, 90%);
+  --on-primary-container: hsl(227, 71%, 10%);
+
+  // TODO: The light theme has insufficient contrast between primary and secondary
+  --secondary: hsl(198, 100%, 40%);
+  --on-secondary: hsl(198, 100%, 100%);
+  --secondary-container: hsl(198, 100%, 90%);
+  --on-secondary-container: hsl(198, 100%, 10%);
+
+  --background: hsl(180, 20%, 99%);
+  --on-background: hsl(197, 14%, 10%);
+
+  --brand-icon: var(--secondary);
+  --brand-wordmark: var(--on-secondary-container);
+}
+
+/* Typography */
+
+.theme-light {
+  text-rendering: auto;
+
+  --font-display: "MontSerrat", "Open Sans", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-body: "MontSerrat", "Open Sans", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+/* Border radius */
+
+.theme-light {
+  --border-radius-interact: 0.5rem;
+  --border-radius-panel: 0.25rem;
+}
+
+/* State opacity (surface) */
+// Inspired by Material 3
+
+.theme-light {
+  --surface-hover-opacity: 0.08;
+  --surface-focus-opacity: 0.12;
+  --surface-active-opacity: 0.16;
+}

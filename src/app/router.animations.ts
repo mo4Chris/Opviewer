@@ -54,8 +54,8 @@ export function slideToTop() {
         state('void', style({})),
         state('*', style({})),
         transition(':enter', [
-            style({ transform: 'translateY(100%)' }),
-            animate('0.5s ease-in-out', style({ transform: 'translateY(0%)' }))
+            style({ transform: 'translateY(2.5rem)', opacity: 0 }),
+            animate('0.3s cubic-bezier(0.25, 1, 0.5, 1)', style({ transform: 'translateY(0rem)', opacity: 1 }))
         ]),
         transition(':leave', [
             style({ transform: 'translateY(0%)' }),

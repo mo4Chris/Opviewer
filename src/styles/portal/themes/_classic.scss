@@ -1,0 +1,60 @@
+/* Colors */
+
+.theme-classic {
+  --theme-classic-black: #212529;
+  --theme-classic-blue: #007bff;
+  --theme-classic-dark-blue: #18073a;
+  --theme-classic-dark-blue-muted: rgba(24, 7, 58, 0.9);
+  --theme-classic-transit-blue: rgba(229, 245, 252, 1);
+  --theme-classic-transit-grey: #4a4949;
+  --theme-classic-white: #fff;
+}
+
+/* Palette */
+
+.theme-classic {
+  --primary: var(--theme-classic-dark-blue);
+  --on-primary: var(--theme-classic-white);
+  --primary-container: var(--theme-classic-dark-blue-muted);
+  --on-primary-container: var(--theme-classic-white);
+
+  --secondary: var(--theme-classic-blue);
+  --on-secondary: var(--theme-classic-white);
+  --secondary-container: var(--theme-classic-transit-blue);
+  --on-secondary-container: var(--theme-classic-transit-grey);
+
+  --background: var(--theme-classic-white);
+  --on-background: var(--theme-classic-black);
+
+  --brand-icon: #00adee;
+  --brand-wordmark: var(--theme-classic-white);
+}
+
+/* Typography */
+
+.theme-classic {
+  text-rendering: auto;
+
+  --font-display: "MontSerrat", "Open Sans", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-body: "MontSerrat", "Open Sans", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+/* Border radius */
+
+.theme-classic {
+  --border-radius-interact: 0.25rem;
+  --border-radius-panel: 0;
+}
+
+/* State opacity (surface) */
+// Inspired by Material 3
+
+.theme-classic {
+  --surface-hover-opacity: 0.08;
+  --surface-focus-opacity: 0.12;
+  --surface-active-opacity: 0.16;
+}
