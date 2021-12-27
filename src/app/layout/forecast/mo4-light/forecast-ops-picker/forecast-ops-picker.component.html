@@ -43,7 +43,7 @@
         </ng-template>
       </ngb-panel>
 
-      <ngb-panel *ngIf="!responseNotFound" title="Operation setting" id="ops-date-time">
+      <ngb-panel *ngIf="!responseNotFound && showOperationSettings" title="Operation setting" id="ops-date-time">
         <ng-template ngbPanelContent>
           <tr>
             <td>
@@ -117,7 +117,7 @@
         </ng-template>
       </ngb-panel>
 
-      <ngb-panel *ngIf="hasCtvSlipSettings && !responseNotFound" title="Ctv slip settings" id="ctv-settings">
+      <ngb-panel *ngIf="hasCtvSlipSettings && !responseNotFound && showCtvSlipSettings" title="Ctv slip settings" id="ctv-settings">
         <ng-template  ngbPanelContent>
           <tr>
             <td>
@@ -172,7 +172,7 @@
         </ng-template>
       </ngb-panel>
 
-      <ngb-panel title="Operation limits" *ngIf="!responseNotFound" id="ops-limits">
+      <ngb-panel title="Operation limits" *ngIf="!responseNotFound && showOperationSettings" id="ops-limits">
         <ng-template ngbPanelContent>
           <tr colspan="3" [ngbTooltip]="helpLimits" class='sep-row' container="body">
             <th>Limit type</th>

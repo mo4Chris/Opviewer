@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnChanges, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { CommonService } from '@app/common.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
@@ -21,6 +21,7 @@ import { now } from 'moment-timezone';
   templateUrl: './mo4-light.component.html',
   styleUrls: ['./mo4-light.component.scss']
 })
+
 export class Mo4LightComponent implements OnInit {
   private project_id: number;
 
@@ -46,9 +47,9 @@ export class Mo4LightComponent implements OnInit {
   }
 
   private ctvSlipResponse: CtvSlipResponse;
-  public SlipProbability: number[][] = [];
-  public SlipCoefficients: number[];
-  public SlipThrustLevels: number[];
+  public slipProbability: number[][] = [];
+  public slipCoefficients: number[];
+  public slipThrustLevels: number[];
 
   public limits: ForecastMotionLimit[] = [];
 
@@ -213,13 +214,13 @@ export class Mo4LightComponent implements OnInit {
     if (! POI?.SlipResponse?.ProbabilityWindowNoSlip) return;
     const slip = POI.SlipResponse;
 
-    this.SlipCoefficients = slip.Friction_Coeff_Range;
-    this.SlipThrustLevels = slip.Thrust_Range;
+    this.slipCoefficients = slip.Friction_Coeff_Range;
+    this.slipThrustLevels = slip.Thrust_Range;
 
-    this.SlipProbability = slip.ProbabilityWindowNoSlip.map(
+    this.slipProbability = slip.ProbabilityWindowNoSlip.map(
       _s => _s.map(__s => __s?.[this.selectedThrustIndex]?.[this.selectedSlipCoefficient])
     );
-    this.SlipProbability = this.SlipProbability.map(_s => _s.map(n => 100-100*n))
+    this.slipProbability = this.slipProbability.map(_s => _s.map(n => 100-100*n))
   }
   computeWorkability() {
     if (!(this.limits?.length > 0 )) return this.Workability = null;
@@ -228,7 +229,7 @@ export class Mo4LightComponent implements OnInit {
     const limiters = this.limits.map(limit => {
       switch (limit.Type) {
         case 'Slip':
-          return this.matService.scale(this.SlipProbability, 1/limit.Value);
+          return this.matService.scale(this.slipProbability, 1/limit.Value);
         case 'Wave':
           const wave: number[] = metocean.Wave.Parametric[limit.Dof];
           return wave.map(w => this.WorkabilityHeadings.map(_ => w / limit.Value));

@@ -9,12 +9,13 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
 import { MockedCommonService, MockedCommonServiceProvider } from '@app/supportModules/mocked.common.service';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { ForecastExpectedResponsePreference } from '../../models/forecast-response.model';
+import { ForecastOpsPickerUtilsService } from './forecast-ops-picker-utils.service';
 import { ForecastOpsPickerComponent } from './forecast-ops-picker.component';
 
 describe('ForecastOpsPickerComponent', () => {
   let component: ForecastOpsPickerComponent;
   let fixture: ComponentFixture<ForecastOpsPickerComponent>;
-
+  const forecastOpsPickerUtilsServiceMock = jasmine.createSpyObj('ForecastOpsPickerUtilsService', ['shouldShowOperationSettingsOptions','shouldShowSlipSettings'])
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [
@@ -27,6 +28,7 @@ describe('ForecastOpsPickerComponent', () => {
         RouterTestingModule,
       ],
       providers: [
+        {provide: ForecastOpsPickerUtilsService, useValue: forecastOpsPickerUtilsServiceMock},
         MockedUserServiceProvider,
         MockedCommonServiceProvider
       ]
@@ -37,6 +39,7 @@ describe('ForecastOpsPickerComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(ForecastOpsPickerComponent);
     component = fixture.componentInstance;
+    fixture.detectChanges();
   });
 
   it('should create', () => {

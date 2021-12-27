@@ -2,67 +2,46 @@ import { Component, OnInit } from '@angular/core';
 import { CommonService } from '@app/common.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { RouterService } from '@app/supportModules/router.service';
-import { forkJoin } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ForecastOperation } from '../models/forecast-response.model';
+import { ForecastDashboardUtilsService, viewModel } from './forecast-dashboard-utils.service';
+import { map } from 'rxjs/operators';
 
 @Component({
   selector: 'app-forecast-dashboard',
   templateUrl: './forecast-dashboard.component.html',
   styleUrls: ['./forecast-dashboard.component.scss']
 })
+
 export class ForecastDashboardComponent implements OnInit {
-  public projects: ForecastOperation[];
-  public clients: Client[];
+  viewModel$: Observable<viewModel[] | ForecastOperation[]>;
+  isAdmin: boolean;
 
   constructor(
     public routerService: RouterService,
     private newService: CommonService,
-    public permission: PermissionService
+    public permission: PermissionService,
+    private forecastDashboardUtilsService: ForecastDashboardUtilsService
   ) { }
 
   ngOnInit() {
-    this.loadData();
+    this.isAdmin = this.permission.admin
+    const clientList$ = this.newService.getForecastClientList();
+    const forecastOperationList$ = this.newService.getForecastProjectList();
+    const viewModel$ = this.isAdmin ? this.forecastDashboardUtilsService.createViewModel(clientList$, forecastOperationList$) : forecastOperationList$
+    this.viewModel$ = viewModel$.pipe(map(this.forecastDashboardUtilsService.sortProductList))
   }
 
-  loadData() {
-    if (this.permission.admin) return forkJoin([
-      this.newService.getForecastClientList(),
-      this.newService.getForecastProjectList(),
-    ]).subscribe(([clients, projects]) => {
-      this.clients = clients;
-      this.projects = projects;
-    });
-
-    forkJoin([
-      this.newService.getForecastProjectList(),
-    ]).subscribe(([projects]) => {
-      this.projects = projects;
-    });
-  }
-
-  onEditUsers(client: Client) {
+  onEditUsers() {
     console.error('Not yet implemented!');
   }
 
   routeToProjectOverview(project_name: string) {
     this.routerService.routeToForecastProjectOverview(project_name);
   }
+
   routeToProject(project_id: number) {
     this.routerService.routeToForecast(project_id);
   }
-  public getClient(client_id: number) {
-    const client = this.clients.find(c => c.id == client_id);
-    return client ? client.name : 'N/a';
-  }
 }
 
-
-interface Client {
-  id: number;
-  name: string;
-  start_date: TimeString;
-  end_date: TimeString;
-  consumer_id: number;
-}
-
-type TimeString = string;

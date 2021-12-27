@@ -1,0 +1,233 @@
+.portal-sidebar {
+  // Colors
+  --sidebar-background-color: var(--primary-container, rgba(24, 7, 58, 0.9));
+  --sidebar-color: var(--on-primary-container, #fff);
+  --sidebar-icon-color: var(--on-primary-container, #fff);
+  --sidebar-icon-active-color: var(--on-secondary-container, #007bff);
+
+  // Typography
+  --sidebar-font-family: var(--font-body);
+
+  // State (surface)
+  --sidebar-item-surface-opacity: 0;
+  --sidebar-item-surface-color: var(--secondary-container);
+  --sidebar-item-surface-hover-opacity: 0.4;
+  --sidebar-item-surface-focus-opacity: 0.6;
+  --sidebar-item-surface-active-opacity: 0.8;
+  --sidebar-item-surface-active-link-opacity: 0.9;
+
+  // Border radius
+  --sidebar-item-border-radius: var(--border-radius-interact);
+
+  // Scaling
+  --sidebar-size-adjust: -0.5rem;
+  --sidebar-space-top: calc(var(--size-4) + var(--sidebar-size-adjust));
+  --sidebar-space-bottom: calc(var(--size-4) + var(--sidebar-size-adjust));
+  @media screen and (min-height: 630px) {
+    --sidebar-size-adjust: CLAMP(-0.5rem, -2.3529rem + 4.7059vh, 0rem);
+  }
+  --sidebar-expanded-width: 16ch;
+  --sidebar-item-inset: 0.25rem;
+
+  position: fixed;
+  z-index: 1048;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  height: 100%;
+  background-color: var(--sidebar-background-color);
+  font-family: var(--sidebar-font-family);
+  color: var(--sidebar-color);
+}
+
+// Exception for classic theme
+.theme-classic .portal-sidebar {
+  --sidebar-item-surface-color: var(--secondary);
+  --sidebar-icon-active-color: var(--secondary-container);
+  --sidebar-item-border-radius: 0rem;
+  --sidebar-item-inset: 0rem;
+}
+
+// Exception for light theme (insufficient contrast)
+.theme-light .portal-sidebar {
+  --sidebar-item-surface-color: var(--secondary);
+  --sidebar-icon-active-color: var(--secondary-container);
+}
+
+// --- Sidebar states ---
+
+.portal-sidebar.portal-sidebar--hide .portal-sidebar__label {
+  opacity: 0;
+  margin-left: 0px;
+  width: 0px;
+}
+
+.portal-sidebar.portal-sidebar--measure {
+  transition-duration: 0s !important;
+}
+
+@media print {
+  .portal-sidebar {
+    display: none;
+  }
+}
+
+// --- Sidebar elements ---
+
+.portal-sidebar .portal-sidebar__groups {
+  display: flex;
+  overflow-x: hidden;
+  overflow-y: auto;
+  flex-direction: column;
+  gap: var(--size-12);
+  height: 100%;
+  padding-top: var(--size-4);
+  padding-bottom: var(--size-4);
+}
+
+.portal-sidebar .portal-sidebar__spacer {
+  display: none;
+
+  @media screen and (min-height: 800px) {
+    display: block;
+    flex: 1 0;
+  }
+}
+
+.portal-sidebar .portal-sidebar__logo {
+  position: relative;
+  margin-bottom: var(--size-4);
+  width: var(--size-8);
+  height: var(--size-9);
+
+  app-portal-logo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--size-36);
+    height: 100%;
+  }
+}
+
+.portal-sidebar__items {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--size-5);
+
+  .portal-sidebar__item-cnt {
+    padding: var(--sidebar-item-inset);
+
+    & + .portal-sidebar__item-cnt {
+      padding-top: 0;
+    }
+  }
+
+  .portal-sidebar__item {
+    position: relative;
+    display: flex;
+    min-height: var(--size-4);
+    padding-left: calc(var(--size-4) - var(--sidebar-item-inset));
+    padding-right: calc(var(--size-4) - var(--sidebar-item-inset));
+    padding-top: calc(var(--sidebar-space-top) - var(--sidebar-item-inset));
+    padding-bottom: calc(var(--sidebar-space-bottom) - var(--sidebar-item-inset));
+    color: var(--sidebar-icon-color);
+
+    &::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      top: 0;
+      left: 0;
+      align-items: baseline;
+      display: flex;
+      width: 100%;
+      height: 100%;
+      opacity: var(--sidebar-item-surface-opacity);
+      transition: opacity 0.15s var(--transition-out);
+      background-color: var(--sidebar-item-surface-color);
+      text-decoration: none;
+      border-radius: var(--sidebar-item-border-radius);
+    }
+
+    &:hover {
+      text-decoration: none;
+      --sidebar-item-surface-opacity: var(--sidebar-item-surface-hover-opacity);
+    }
+
+    &:focus {
+      --sidebar-item-surface-opacity: var(--sidebar-item-surface-focus-opacity);
+      // It's safe to remove the default outline since we're providing a custom style here.
+      outline: none;
+    }
+
+    &:active {
+      --sidebar-item-surface-opacity: var(
+        --sidebar-item-surface-active-opacity
+      );
+    }
+
+    &.router-link-active {
+      --sidebar-item-surface-opacity: var(
+        --sidebar-item-surface-active-link-opacity
+      );
+      color: var(--sidebar-icon-active-color);
+    }
+
+    // Exceptions for specific icons
+    .fa-line-chart {
+      transform: translateY(0.125rem);
+    }
+
+    .fa-history {
+      transform: translateY(0.125rem) scaleX(-1) scale(1.2);
+    }
+
+    .fa-home {
+      transform: translateY(0.125rem) scale(1.2);
+    }
+  }
+
+  .portal-sidebar__label {
+    opacity: 1;
+    overflow: hidden;
+    transition: width 0.2s var(--transition-out),
+      margin-left 0.3s var(--transition-out), opacity 0.2s var(--transition-out);
+    will-change: opacity;
+    width: var(--sidebar-expanded-width, 100%);
+    margin-left: var(--size-4);
+    font-size: var(--size-4);
+    white-space: nowrap;
+  }
+
+  button {
+    background: none;
+    border: none;
+    text-align: left;
+  }
+}
+
+.portal-sidebar__overlay {
+  // Overlay
+  --sidebar-overlay-color: var(--primary-container, rgba(24, 7, 58, 0.9));
+  --sidebar-overlay-opacity: 0.4;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1047;
+  opacity: var(--sidebar-overlay-opacity);
+  background-color: var(--sidebar-overlay-color);
+  transition: opacity 0.4s var(--transition-out);
+
+  &.portal-sidebar__overlay--hide {
+    pointer-events: none;
+    opacity: 0;
+  }
+}
+
+.portal-sidebar .portal-sidebar__hamburger {
+  width: 100%;
+}

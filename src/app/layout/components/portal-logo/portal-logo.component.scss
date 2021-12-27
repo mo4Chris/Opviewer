@@ -1,0 +1,24 @@
+:host {
+  --logo-icon-color: var(--brand-icon);
+  --logo-letter-color: var(--brand-wordmark);
+}
+
+.portal-logo--sidebar {
+  width: 100%;
+  height: 100%;
+  margin-left: 0.55rem;
+}
+
+.portal-logo__letter {
+  opacity: 1;
+  transition: opacity 0.3s var(--transition-out);
+  fill: var(--logo-letter-color);
+}
+
+.portal-logo--sidebar-hide .portal-logo__letter {
+  opacity: 0;
+}
+
+.portal-logo__icon {
+  fill: var(--logo-icon-color);
+}

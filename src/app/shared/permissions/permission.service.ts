@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { TokenModel, UserPermissions } from '@app/models/tokenModel';
 import { UserService } from '../services/user.service';
 
-abstract class PermissionModel {
+export abstract class PermissionModel {
   admin = false;
   demo = false;
 
