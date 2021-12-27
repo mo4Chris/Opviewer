@@ -39,10 +39,12 @@ app-heading-picker {
 }
 
 .nav-card-header{
-  padding-bottom: 6px;
-  padding-top: 6px;
-  padding-left: 8px;
-  padding-right: 8px;
+  padding: 0.5em;
+
+  ul {
+    display:flex;
+    gap: 0.5em;  
+}
 
   li > a:hover {
     background-color: rgba(0, 159, 227, 0.7);
