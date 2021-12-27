@@ -1,0 +1,40 @@
+<div #portalSidebar class="portal-sidebar" [ngClass]="{ 'portal-sidebar--hide': !isExpanded }">
+  <div class="portal-sidebar__groups">
+
+    <div class="portal-sidebar__items">
+      <div class="portal-sidebar__logo">
+        <app-portal-logo [sidebarIsExpanded]="isExpanded"></app-portal-logo>
+      </div>
+      <div class="portal-sidebar__item-cnt">
+        <button class="portal-sidebar__item portal-sidebar__hamburger" (click)="toggleExpanded()">
+          <i class="fa fa-fw fa-bars"></i>
+        </button>
+      </div>
+    </div>
+    <div class="portal-sidebar__items">
+      <ng-container *ngFor="let item of sidebarContent">
+        <ng-container [ngSwitch]="item.type">
+          <app-portal-sidebar-item *ngSwitchCase="sidebarContentType.Top" class="portal-sidebar__item-cnt"
+            [icon]="item.icon" [label]="item.label" [destination]="item.destination" (click)="handleClickItem()">
+          </app-portal-sidebar-item>
+        </ng-container>
+      </ng-container>
+    </div>
+    <div class="portal-sidebar__spacer"></div>
+    <div class="portal-sidebar__items">
+      <ng-container *ngFor="let item of sidebarContent">
+        <ng-container [ngSwitch]="item.type">
+          <app-portal-sidebar-item *ngSwitchCase="sidebarContentType.Feedback" class="portal-sidebar__item-cnt"
+            [icon]="item.icon" [label]="item.label" [disableRouter]="true" (click)="handleClickFeedback()">
+          </app-portal-sidebar-item>
+          <app-portal-sidebar-item *ngSwitchCase="sidebarContentType.Bottom" class="portal-sidebar__item-cnt"
+            [icon]="item.icon" [label]="item.label" [destination]="item.destination" (click)="handleClickItem()">
+          </app-portal-sidebar-item>
+        </ng-container>
+      </ng-container>
+    </div>
+  </div>
+</div>
+<div (click)="handleClickItem()" [ngClass]="{'portal-sidebar__overlay--hide': !isExpanded}"
+  class="portal-sidebar__overlay"></div>
+<app-header #fakeHeader style="display: none;"></app-header>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
@@ -17,10 +17,12 @@ export class HeaderComponent implements OnInit {
   routerValue = '';
   pushRightClass = 'push-right';
   modalReference: NgbModalRef;
-  pages = ['dashboard', 'vesselsandreports', 'vesselreport', 'scatterplot', 'users', 'signup', 'user-settings', 'login', 'longterm', 'forecast' ];
+  pages = ['dashboard', 'vesselsandreports', 'vesselreport', 'scatterplot', 'users', 'signup', 'user-settings', 'login', 'longterm', 'forecast'];
   tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
   userCreatePermission;
-  feedback: {message: string, page: string};
+  feedback: { message: string, page: string };
+
+  @ViewChild('content') private _feedbackModal;
 
   constructor(
     private translate: TranslateService,
@@ -49,11 +51,15 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit() {
     this.userCreatePermission = this.permission.userCreate;
-    this.feedback = {message: '', page: ''};
+    this.feedback = { message: '', page: '' };
   }
 
   openRequestFullAccessAccountModal(content) {
     this.modalReference = this.modalService.open(content);
+  }
+
+  openFeedbackModal() {
+    this.openModal(this._feedbackModal);
   }
 
   openModal(content) {
@@ -70,10 +76,10 @@ export class HeaderComponent implements OnInit {
     this.feedback.page = this.routerValue;
 
     this.modalReference = this.modalService.open(content);
-   }
+  }
 
   sendFeedback() {
-    this.newService.sendFeedback(this.feedback).subscribe(data =>  {
+    this.newService.sendFeedback(this.feedback).subscribe(data => {
       if (data.status === 200) {
         this.alert.sendAlert({
           text: 'Feedback sent!',
@@ -91,13 +97,13 @@ export class HeaderComponent implements OnInit {
   }
 
   requestFullAccount() {
-    if(!this.permission?.demo) {
+    if (!this.permission?.demo) {
       this.alert.sendAlert({
         text: 'Request has not been sent, you already have a full account',
         type: 'warning'
       });
     } else {
-      this.newService.requestFullAccount().subscribe(data =>  {
+      this.newService.requestFullAccount().subscribe(data => {
         if (data.status === 200) {
           this.alert.sendAlert({
             text: 'Full account requested!',
