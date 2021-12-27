@@ -1,0 +1,14 @@
+<ng-container *ngIf="waveHeightInformation$ | async as waveHeightInformation">
+
+    <div *ngIf="waveHeightInformation.showPlot">
+        <div class="weather-forecast-wave-height__header card-header">
+           <button class="button btn-primary" (click)="toggleWaveGraph(waveHeightType)">back</button> <h2 class="weather-forecast-wave-height__title">{{waveHeightInformation.title}}</h2>
+           <button class="button btn-primary" (click)="toggleWaveGraph(waveHeightType)">
+            next
+           </button>
+        </div>
+        <plotly-plot className="plotly-canvas" [layout]='waveHeightInformation.plotLayout'
+            [data]="waveHeightInformation.data" [useResizeHandler]="true">
+        </plotly-plot>
+    </div>
+</ng-container>

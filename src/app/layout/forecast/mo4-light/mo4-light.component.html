@@ -131,6 +131,13 @@
               </div>
             </ng-template>
           </li>
+          
+          <li *ngIf="!responseNotFound" ngbNavItem="forecast-weather">
+            <a ngbNavLink>Weather forecast</a>
+            <ng-template #weatherForecast id="tab-weather" ngbNavContent>
+             <app-weather-forecast></app-weather-forecast>
+            </ng-template>
+          </li>
         </ul>
       </div>
 

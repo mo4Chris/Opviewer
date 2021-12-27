@@ -1,0 +1,13 @@
+.weather-forecast-wave-height{
+    &__title{
+        display: flex;
+        justify-content: center;
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    
+    }
+}

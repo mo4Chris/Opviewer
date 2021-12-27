@@ -28,6 +28,7 @@ import { ForecastWorkabilityLimiterComponent } from './mo4-light/forecast-workab
 import { ForecastOpsPickerUtilsService } from './mo4-light/forecast-ops-picker/forecast-ops-picker-utils.service';
 import { ForecastProjectOverviewComponent } from './mo4-light/forecast-project-overview/forecast-project-overview.component';
 import { ForecastDashboardUtilsService } from './forecast-dashboard/forecast-dashboard-utils.service';
+import { WeatherForecastModule } from './models/weather-forecast/weather-forecast.module';
 
 PlotlyModule.plotlyjs = PlotlyJS;
 
@@ -42,7 +43,8 @@ PlotlyModule.plotlyjs = PlotlyJS;
     AgmCoreModule,
     NgbDatepickerModule,
     NgxUploaderDirectiveModule,
-    NgMultiSelectDropDownModule
+    NgMultiSelectDropDownModule,
+    WeatherForecastModule
   ],
   providers: [
     CommonService,
@@ -66,7 +68,7 @@ PlotlyModule.plotlyjs = PlotlyJS;
     WeatherOverviewComponent,
     ForecastMotionOverviewComponent,
     ForecastWorkabilityLimiterComponent,
-    ForecastProjectOverviewComponent
+    ForecastProjectOverviewComponent,
   ],
   bootstrap: [
     Mo4LightComponent
