@@ -1,0 +1,41 @@
+<div class='card mb-3'>
+    <div class='card-header flex-box'>
+        <div>Project overview</div>
+        <button type="button" class="btn btn-outline-secondary helpBtn" [autoClose]="true"
+            [ngbPopover]="helpProjectOverview" placement="bottom" popoverClass="helpPopup">?
+        </button>
+    </div>
+    <div class="card-body forecast-margin">
+        <app-forecast-ops-picker 
+            [selectedTab]="selectedTab" 
+            [projects]="projects" 
+            [selectedProjectId]="selectedProjectId"
+            [responseNotFound]="responseNotFound" 
+            [minForecastDate]="minForecastDate"
+            [maxForecastDate]="maxForecastDate" 
+            [limits]="limits" 
+            [lastUpdated]="lastUpdated"
+            [vessels]='vessels'
+            [slipCoefficients]="slipCoefficients" 
+            [slipThrustLevels]="slipThrustLevels" 
+            [response]="responseObj"
+            (onChange)="onChangeHandler($event)" 
+            [heading]="heading" 
+            (headingChange)="onHeadingChange($event)" 
+            (slipCoefficientChange)="onSlipCoefficientChange($event)" 
+            [slipCoefficient]="slipCoefficient" 
+            (thrustIndexChange)="onThrustIndexChange($event)" 
+            [thrustIndex]="selectedThrustIndex" 
+            >
+        </app-forecast-ops-picker>
+    </div>
+</div>
+
+
+<ng-template #helpProjectOverview>
+    Use the uppermost dropdown to navigate between projects. Then select the operation
+    date, time and heading to receive a workability forecast. All other settings can be
+    changed by navigating to the project settings page.
+    <br><br>
+    Note: a workability forecast cannot be generated unless valid limits have been specified!
+</ng-template>
