@@ -67,6 +67,17 @@ export class CommonService {
   getAdministrativeConnectionTest() {
     return this.get('/api/mo4admin/connectionTest');
   }
+
+   getWeatherForecasts(){
+    const result = this.get('/api/weather-forecasts');
+    return result
+  }
+
+  getSpecificWeatherForecasts(id){    
+    const result = this.get(`/api/weather-forecast/${id}`);
+    return result
+  }
+
   getActiveConnections(): Observable<any> {
     return this.get('/api/getActiveConnections/');
   }

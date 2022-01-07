@@ -1,0 +1,33 @@
+.weather{
+    &__button{
+        display: flex;
+        flex-direction: column;
+        border-radius: 10px;
+        padding: 10px 10px 0px;
+        background-color: white;
+        border: 1px solid white;
+        width: 70px;
+        align-items: center;
+        cursor: pointer;
+        &__icon {
+            font-size: 30px;
+            color: var(--theme-classic-blue);
+        }
+        &__day {
+            color: var(--theme-classic-blue);
+        }
+
+        &:focus{
+            .weather__button__icon, .weather__button__day{
+                color: white;
+            }
+            background-color: var(--theme-classic-blue);
+        }
+        &:active{
+            .weather__button__icon, .weather__button__day{
+                color: white;
+            }
+            background-color: var(--theme-classic-blue);
+        }
+    }
+}

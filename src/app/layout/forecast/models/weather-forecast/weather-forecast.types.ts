@@ -7,14 +7,6 @@ export interface WeatherForecast {
     DailySummary: DailySummary;
 }
 
-export enum WEATHER_FORECAST_TYPE {
-    HS = 'HS',
-    HMAX = 'HMAX',
-    SPEED = 'SPEED',
-    GUST = 'GUST'
-  }
-   
-
 export interface Air {
     DateTime:                 DateTime;
     DateNum:                  DateNum;

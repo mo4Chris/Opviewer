@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { filter, map } from 'rxjs/operators';
+import { filter, map, tap } from 'rxjs/operators';
 import { WeatherForecastCommunicationService } from '../weather-forecast-communication.service';
-import { WEATHER_FORECAST_TYPE } from '../weather-forecast.types';
 import { WeatherForecastWaveHeightGraphService } from './weather-forecast-wave-height-graph.service';
+import { WEATHER_FORECAST_WAVE_TYPE } from './weather-forecast-wave-height-graph.types';
 
 @Component({
   selector: 'app-weather-forecast-wave-height-graph',
@@ -11,9 +11,10 @@ import { WeatherForecastWaveHeightGraphService } from './weather-forecast-wave-h
   styleUrls: ['./weather-forecast-wave-height-graph.component.scss']
 })
 export class WeatherForecastWaveHeightGraphComponent implements OnInit {
-  waveHeightType = WEATHER_FORECAST_TYPE.HS
+  waveHeightType = WEATHER_FORECAST_WAVE_TYPE.HS
   public plotLayout: Partial<Plotly.Layout>;
   waveHeightInformation$: Observable<unknown>;
+  waveHeightInfo: any;
 
   constructor(private weatherForecastService: WeatherForecastWaveHeightGraphService, private weatherForecastCommunicationService: WeatherForecastCommunicationService) { }
 
@@ -21,18 +22,35 @@ export class WeatherForecastWaveHeightGraphComponent implements OnInit {
     this.waveHeightInformation$ = this.fetchData(this.waveHeightType);
   }
 
-
   fetchData(waveHeightType) {
     return this.weatherForecastCommunicationService.getWeatherForecasts().pipe(
       filter(data => data.length != 0),
       map(data => {
         return this.weatherForecastService.getPlotData(data, waveHeightType)
+      }),
+      tap(data =>{
+        this.waveHeightInfo = 
+        data.data.map((data) =>{
+          const weatherForecast = data.meta.waveWeatherForecast[0]
+          return {
+            metaInfo: {...data.meta.generalInformation, weatherForecast},
+          }
+        })
       })
     )
   }
 
-  toggleWaveGraph(waveType) {
-    this.waveHeightType = waveType === WEATHER_FORECAST_TYPE.HS ? WEATHER_FORECAST_TYPE.HMAX : WEATHER_FORECAST_TYPE.HS;
+  onHover(event){
+    this.waveHeightInfo = event.points.map(point =>{
+      const weatherForecast = point.data.meta.waveWeatherForecast[point.pointIndex]
+      return {
+        metaInfo: { weatherForecast, ...point.data.meta.generalInformation},
+      }
+    })
+  }
+
+  onSelectType(type){
+    this.waveHeightType = type;
     this.waveHeightInformation$ = this.fetchData(this.waveHeightType);
   }
 

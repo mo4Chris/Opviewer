@@ -1,25 +1,28 @@
 export interface WeatherForecastDayResult {
-    Data: Array<number | string>;
-    Units: any[] | string;
-    Type: any[] | string;
+    units: any[] | string;
+    type: any[] | string;
     dataType: string;
     val: any | number | string;
     index: number;
 }
 
 export interface WeatherForecastDailySummaryInformation {
-    Data:     Array<number | string>;
-    Units:    any[] | string;
-    Type:     any[] | string;
+    units:    any[] | string;
+    type:     any[] | string;
     dataType: string;
 }
 
 export interface WeatherForecastHourChartInformation {
     day:        string;
-    visibility: number;
+    formattedDate:        string;
+    temperature: ExtendedDataType;
+    visibility: ExtendedDataType;
     dateNum:    string;
     hour:       string;
-    date:       string;
+    icon:       string;
+    date:       Date | string;
+    pressure:  ExtendedDataType;
+    humidity: ExtendedDataType;
 }
 
 

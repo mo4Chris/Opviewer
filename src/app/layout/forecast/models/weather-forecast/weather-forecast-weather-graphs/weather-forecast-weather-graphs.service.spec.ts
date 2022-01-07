@@ -1,6 +1,6 @@
 import { WeatherForecast } from '../weather-forecast.types';
 import { WeatherForecastWeatherGraphsService } from './weather-forecast-weather-graphs.service';
-import { DayReport, WeatherForecastDayResult, WeatherForecastHourChartInformation } from './weather-forecast.types';
+import { WeatherForecastDayResult, WeatherForecastHourChartInformation } from './weather-forecast.types';
 
 describe('WeatherForecastWeatherGraphsService', () => {
   let service: WeatherForecastWeatherGraphsService;
@@ -14,7 +14,7 @@ describe('WeatherForecastWeatherGraphsService', () => {
   });
 
   describe('factorDailyWeatherForecastData', () => {
-    it('should be created', () => {
+    it('should create the daily weather forecast data', () => {
       const weatherForecast = {
         "Air": {
           "DateTime": {
@@ -149,7 +149,7 @@ describe('WeatherForecastWeatherGraphsService', () => {
             },
             "dateGraphInformation": []
         }
-      ] as DayReport[]
+    ]
       expect(actual).toEqual(expected)
     })
   })
@@ -157,21 +157,24 @@ describe('WeatherForecastWeatherGraphsService', () => {
 
     it('should add the keys of the Air object to the object as dataType', () => {
       const input = {
-        DailySummary: {
-          'val': {
-            Data: ['val']
-          }
+        "DailySummary": {
+          "DateNum": {
+            "Data": [
+              123,
+            ],
+            Units: 'lala',
+            Type: 'ms'
+          },
         }
       } as unknown as WeatherForecast
       const actual = service.getDataStructure(input);
       const expected: any = [
         [
           {
-            "Data": [
-              "val"
-            ],
-            "dataType": "VAL",
-            "val": "val",
+            "units": 'lala',
+            "type": 'ms',
+            "dataType": "DATENUM",
+            "val": 123,
             "index": 0
           }
         ]
@@ -179,15 +182,17 @@ describe('WeatherForecastWeatherGraphsService', () => {
 
       expect(actual).toEqual(expected);
     })
-
   })
   describe('createNewDataObjectWithIndex', () => {
     it('should add the keys of the Air object to the object as dataType', () => {
       const input = {
-        Data: ['val', 'val2', 'val3']
+        Data: ['val', 'val2', 'val3'],
+        dataType: 'DATATYPE',
+        Type: 'lala',
+        Units: 'mm'
       } as unknown as WeatherForecast
       const actual = service.createNewDataObjectWithIndex(input);
-      const expected: any = [{ Data: ['val', 'val2', 'val3'], val: 'val', index: 0 }, { Data: ['val', 'val2', 'val3'], val: 'val2', index: 1 }, { Data: ['val', 'val2', 'val3'], val: 'val3', index: 2 }]
+      const expected: any = [{ val: 'val', index: 0,  dataType: 'DATATYPE', type: 'lala', units: 'mm' }, {  val: 'val2', index: 1, dataType: 'DATATYPE', type: 'lala', units: 'mm' }, { val: 'val3', index: 2, dataType: 'DATATYPE', type: 'lala', units: 'mm' }]
 
       expect(actual).toEqual(expected);
     })
@@ -242,35 +247,10 @@ describe('WeatherForecastWeatherGraphsService', () => {
       const actual = service.factorAirInformation((weatherForecast as unknown as WeatherForecast))
       const expected: any = [
         [
-          { day: 'Wed', visibility: undefined, temperature: undefined, dateNum: '738386', hour: '09:00', date: 'Wednesday, 18 August' },
-          { day: 'Wed', visibility: undefined, temperature: undefined, dateNum: '738386', hour: '10:00', date: 'Wednesday, 18 August' }
-        ]
-      ]
-      expect(actual).toEqual(expected);
-    })
-
-    it('should return WeatherForecastHourChartInformation[][] and should ignore ', () => {
-      const weatherForecast = {
-        "Air": {
-          "DateTime": {
-            "Data": [
-              "18-Aug-2021 09:00:00",
-              "18-Aug-2021 10:00:00",
-            ],
-          },
-          "ICON": {
-            "Data": [
-              738386.375,
-              738386.4166666666,
-            ],
-          },
-        },
-      }
-      const actual = service.factorAirInformation((weatherForecast as unknown as WeatherForecast))
-      const expected: any = [
-        [
-          { day: 'Wed', visibility: undefined, temperature: undefined, dateNum: undefined, hour: '09:00', date: 'Wednesday, 18 August' },
-          { day: 'Wed', visibility: undefined, temperature: undefined, dateNum: undefined, hour: '10:00', date: 'Wednesday, 18 August' }
+          { day: 'Wed', visibility: { val: undefined, unit: undefined }, temperature: { val: undefined, unit: undefined }, dateNum: '738386', hour: '09:00', formattedDate: 'Wednesday, 18 August' , date: new Date('Wed Aug 18 2021 09:00:00 GMT+0200 (Central European Summer Time)'),
+          icon: undefined, pressure: { val: undefined, unit: undefined }, humidity: { val: undefined, unit: undefined }},
+          { day: 'Wed', visibility: { val: undefined, unit: undefined }, temperature: { val: undefined, unit: undefined }, dateNum: '738386', hour: '10:00', formattedDate: 'Wednesday, 18 August' , date: new Date('Wed Aug 18 2021 10:00:00 GMT+0200 (Central European Summer Time)'),
+          icon: undefined, pressure: { val: undefined, unit: undefined }, humidity: { val: undefined, unit: undefined }}
         ]
       ]
       expect(actual).toEqual(expected);
@@ -281,105 +261,105 @@ describe('WeatherForecastWeatherGraphsService', () => {
     it('should create a day Report', () => {
       const input: WeatherForecastDayResult[][] = [[
         {
-          "Units": [],
-          "Type": [],
+          "units": [],
+          "type": [],
           "dataType": "SUMMARY",
           "val": "Partly cloudy throughout the day.",
           "index": 0
         },
         {
-          "Units": [],
-          "Type": [],
+          "units": [],
+          "type": [],
           "dataType": "DATETIME",
           "val": "18-Aug-2021",
           "index": 0
         },
         {
-          "Units": [],
-          "Type": [],
+          "units": [],
+          "type": [],
           "dataType": "DATENUM",
           "val": 738386,
           "index": 0
         },
         {
-          "Units": [],
-          "Type": [],
+          "units": [],
+          "type": [],
           "dataType": "ICON",
           "val": "partly-cloudy-day",
           "index": 0
         },
         {
-          "Units": [],
-          "Type": [],
+          "units": [],
+          "type": [],
           "dataType": "SUNRISE",
           "val": "18-Aug-2021 07:13:00",
           "index": 0
         },
         {
-          "Units": [],
-          "Type": [],
+          "units": [],
+          "type": [],
           "dataType": "SUNSET",
           "val": "18-Aug-2021 21:18:00",
           "index": 0
         },
         {
-          "Units": "degrees Celcius",
-          "Type": [],
+          "units": "degrees Celcius",
+          "type": [],
           "dataType": "TEMPERATURELOW",
           "val": 16.71,
           "index": 0
         },
         {
-          "Units": "degrees Celcius",
-          "Type": [],
+          "units": "degrees Celcius",
+          "type": [],
           "dataType": "TEMPERATUREHIGH",
           "val": 19.48,
           "index": 0
         },
         {
-          "Units": [],
-          "Type": [],
+          "units": [],
+          "type": [],
           "dataType": "PRECIPITATIONPROBABILITY",
           "val": 0.03,
           "index": 0
         },
         {
-          "Units": "mm/hour",
-          "Type": [],
+          "units": "mm/hour",
+          "type": [],
           "dataType": "PRECIPITATIONINTENSITY",
           "val": 0.0009,
           "index": 0
         },
         {
-          "Units": [],
-          "Type": [],
+          "units": [],
+          "type": [],
           "dataType": "VISIBILITY",
           "val": 16.093,
           "index": 0
         },
         {
-          "Units": "m/s",
-          "Type": [],
+          "units": "m/s",
+          "type": [],
           "dataType": "WINDSPEED",
           "val": 4.95,
           "index": 0
         },
         {
-          "Units": "m/s",
-          "Type": [],
+          "units": "m/s",
+          "type": [],
           "dataType": "WINDGUST",
           "val": 7.57,
           "index": 0
         },
         {
-          "Units": "degrees",
-          "Type": "Coming from, compass directions, true north at 0deg",
+          "units": "degrees",
+          "type": "Coming from, compass directions, true north at 0deg",
           "dataType": "WINDDIRECTION",
           "val": 310,
           "index": 0
         }
       ]] as WeatherForecastDayResult[][]
-      const weatherForecastHourChartInformation: WeatherForecastHourChartInformation[][] = [[{ date: 'Wednesday, 18 August' } as WeatherForecastHourChartInformation]]
+      const weatherForecastHourChartInformation: WeatherForecastHourChartInformation[][] = [[{ formattedDate: 'Wednesday, 18 August' } as unknown as WeatherForecastHourChartInformation]]
       const actual = service.createDayReports(input, weatherForecastHourChartInformation)
 
       const expected: any = [
@@ -421,7 +401,7 @@ describe('WeatherForecastWeatherGraphsService', () => {
           },
           "dateGraphInformation": [
             {
-              "date": "Wednesday, 18 August"
+              "formattedDate": "Wednesday, 18 August"
             }
           ]
         }
@@ -479,12 +459,38 @@ describe('WeatherForecastWeatherGraphsService', () => {
 
   describe('createTemperatureChartReport', () => {
     it('should create a temperature ChartReport', () => {
-      const input: WeatherForecastDayResult[][] = [[{ dataType: 'DATETIME', val: "18-Aug-2021 09:00:00" }, { dataType: 'VISIBILITY', val: '23' },
-      { dataType: 'TEMPERATURE', val: '23' }, { dataType: 'DATENUM', val: 1234.00000 }
+      const input: WeatherForecastDayResult[][] = [[{ dataType: 'DATETIME', val: "18-Aug-2021 09:00:00" }, { dataType: 'VISIBILITY', val: '23' , units: 'lolo' },
+      { dataType: 'TEMPERATURE', val: '23', units: 'degrees celcius' }, { dataType: 'DATENUM', val: 1234.00000 }, { dataType: 'ICON', val: 'CLOUDY DAY' }, { dataType: 'PRESSURE', val: 1234.00000 , units: 'kakak'}, { dataType: 'HUMIDITY', val: 1234.00000, units:'lala' }
       ]] as WeatherForecastDayResult[][]
 
       const actual = service.createTemperatureChartReport(input)
-      const expected: any = [{ day: 'Wed', visibility: '23', temperature: '23', dateNum: '1234', hour: '09:00', date: 'Wednesday, 18 August' }]
+
+      const expected: any = [
+        {
+          "day": "Wed",
+          "visibility": {
+              "val": "23",
+              "unit": 'lolo'
+          },
+          "temperature": {
+              "val": "23",
+              "unit": 'degrees celcius'
+          },
+          "dateNum": "1234",
+          "hour": "09:00",
+          "date": new Date("2021-08-18T07:00:00.000Z"),
+          "formattedDate": "Wednesday, 18 August",
+          "icon": "CLOUDY DAY",
+          "pressure": {
+              "val": 1234,
+              "unit": "kakak"
+          },
+          "humidity": {
+              "val": 1234,
+              "unit": "lala"
+          }
+      }
+    ]
 
       expect(actual).toEqual(expected);
     })
@@ -493,7 +499,32 @@ describe('WeatherForecastWeatherGraphsService', () => {
       const input: WeatherForecastDayResult[][] = [[]] as WeatherForecastDayResult[][]
 
       const actual = service.createTemperatureChartReport(input)
-      const expected: any = [{ day: '', visibility: undefined, temperature: undefined, dateNum: undefined, hour: '', date: '' }]
+      const expected: any = [
+        {
+            "day": "",
+            "dateNum": undefined,
+            "icon": undefined,
+            "visibility": {
+              val: undefined,
+              unit: undefined
+            },
+            "temperature": {
+              val: undefined,
+              unit: undefined
+            },
+            "hour": "",
+            "date": '',
+            "formattedDate": "",
+            "pressure": {
+              val: undefined,
+              unit: undefined
+            },
+            "humidity": {
+              val: undefined,
+              unit: undefined
+            }
+        }
+    ]
 
       expect(actual).toEqual(expected);
     })
@@ -501,8 +532,8 @@ describe('WeatherForecastWeatherGraphsService', () => {
 
   describe('getTemperatureValues', () => {
     it('should retrieve the object values for temperature types', () => {
-      const input: WeatherForecastDayResult[] = [{ dataType: 'TEMPERATURELOW', val: 12.9, Units: 'degrees' } as WeatherForecastDayResult]
-      const actual = service.getTemperatureValues(input, 'TEMPERATURELOW')
+      const input: WeatherForecastDayResult[] = [{ dataType: 'TEMPERATURELOW', val: 12.9, units: 'degrees' } as WeatherForecastDayResult]
+      const actual = service.getExtendedValues(input, 'TEMPERATURELOW')
       const expected: any = {
         val: 12.9,
         unit: 'degrees'
@@ -586,7 +617,7 @@ describe('WeatherForecastWeatherGraphsService', () => {
             "temperature": 16.58,
             "dateNum": "738374",
             "hour": "10:00",
-            "date": 'Monday, 06 August'
+            "formattedDate": 'Monday, 06 August'
           },
         ],
         [
@@ -596,10 +627,10 @@ describe('WeatherForecastWeatherGraphsService', () => {
             "temperature": 16.41,
             "dateNum": "738375",
             "hour": "12:00",
-            "date": "Saturday, 07 August"
+            "formattedDate": "Saturday, 07 August"
           },
         ]
-      ]
+      ] as unknown as WeatherForecastHourChartInformation[][]
       const data = [{
         "dataType": "DATETIME",
         "val": 'Monday, 06 August',
@@ -612,7 +643,7 @@ describe('WeatherForecastWeatherGraphsService', () => {
         "temperature": 16.58,
         "dateNum": "738374",
         "hour": "10:00",
-        "date": "Monday, 06 August"
+        "formattedDate": "Monday, 06 August"
       }]
       expect(actual).toEqual(expected);
     })
@@ -620,11 +651,11 @@ describe('WeatherForecastWeatherGraphsService', () => {
 
   describe('filterSameDates', () => {
     it('should return a list of the same day', () => {
-      const input: WeatherForecastHourChartInformation[] = [{ date: 'Wednesday, 18 August' }, { date: 'Wednesday, 18 August' }, { date: 'Wednesday, 25 August' }] as WeatherForecastHourChartInformation[]
+      const input: WeatherForecastHourChartInformation[] = [{ formattedDate: 'Wednesday, 18 August' }, { formattedDate: 'Wednesday, 18 August' }, { formattedDate: 'Wednesday, 25 August' }] as WeatherForecastHourChartInformation[]
       const date = 'Wednesday, 18 August'
 
       const actual = service.filterSameDates(input, date)
-      const expected: any = [{ date: 'Wednesday, 18 August' }, { date: 'Wednesday, 18 August' }]
+      const expected: any = [{ formattedDate: 'Wednesday, 18 August' }, { formattedDate: 'Wednesday, 18 August' }]
 
       expect(actual).toEqual(expected);
     })

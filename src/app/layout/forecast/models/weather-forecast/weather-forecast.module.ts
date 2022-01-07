@@ -16,6 +16,8 @@ import { WeatherForecastWeatherGraphComponent } from './weather-forecast-weather
 import { WeatherForecastWeatherGraphsComponent } from './weather-forecast-weather-graphs/weather-forecast-weather-graphs.component';
 import { WeatherForecastWeatherGraphsService } from './weather-forecast-weather-graphs/weather-forecast-weather-graphs.service';
 import { WeatherForecastDialogUtilsService } from './weather-forecast-dialog/weather-forecast-dialog-utils.service';
+import { WeatherIconsModule } from '../../weather-icons/weather-icons.module';
+import { WeatherForecastWeatherGraphService } from './weather-forecast-weather-graphs/weather-forecast-weather-graph/weather-forecast-weather-graph.service';
 
 
 @NgModule({
@@ -25,9 +27,10 @@ import { WeatherForecastDialogUtilsService } from './weather-forecast-dialog/wea
     PlotlyModule,
     ReactiveFormsModule,
     FormsModule,
-    NgbModule
+    NgbModule,
+    WeatherIconsModule
   ],
-  providers: [WeatherForecastUtilsService, WeatherForecastWaveHeightGraphService,WeatherForecastCommunicationService, WeatherForecastWindSpeedGraphService, WeatherForecastWeatherGraphsService, WeatherForecastDialogUtilsService],
+  providers: [WeatherForecastUtilsService, WeatherForecastWaveHeightGraphService,WeatherForecastCommunicationService, WeatherForecastWindSpeedGraphService, WeatherForecastWeatherGraphsService, WeatherForecastDialogUtilsService, WeatherForecastWeatherGraphService],
   exports: [WeatherForecastComponent]
 })
 export class WeatherForecastModule { }

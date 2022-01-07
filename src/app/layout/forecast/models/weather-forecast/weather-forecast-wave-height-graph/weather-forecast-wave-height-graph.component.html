@@ -1,14 +1,58 @@
 <ng-container *ngIf="waveHeightInformation$ | async as waveHeightInformation">
 
-    <div *ngIf="waveHeightInformation.showPlot">
-        <div class="weather-forecast-wave-height__header card-header">
-           <button class="button btn-primary" (click)="toggleWaveGraph(waveHeightType)">back</button> <h2 class="weather-forecast-wave-height__title">{{waveHeightInformation.title}}</h2>
-           <button class="button btn-primary" (click)="toggleWaveGraph(waveHeightType)">
-            next
-           </button>
+    <div class="weather-forecast__wave-report card">
+   
+        <div class="weather-forecast__wave-report__wave-direction-wrapper">
+            <div class="">
+                <h2>Wave Graph overview</h2>
+            </div>
+            <div class="weather-forecast__wave-report__wave-direction">
+                <dl *ngFor="let info of waveHeightInfo">
+                    <div class="weather-forecast__wave-report__wave-direction__list-item">
+                        <dt>Provider:</dt>
+                        <dd>{{info.metaInfo.provider}}</dd>
+                    </div>
+                    <div class="weather-forecast__wave-report__wave-direction__list-item">
+                        <dt>Timestamp: </dt>
+                        <dd>{{info.metaInfo.timeStamp}}</dd>
+                    </div>
+                    <div class="weather-forecast__wave-report__wave-direction__list-item">
+                        <dt>Selected time: </dt>
+                        <dd>{{info.metaInfo.weatherForecast.dateTime.val}}</dd>
+                    </div>
+                    <div *ngIf="info.metaInfo.weatherForecast?.hs" class="weather-forecast__wave-report__wave-direction__list-item">
+                        <dt>Hs: </dt>
+                        <dd>{{info.metaInfo.weatherForecast.hs.val}} {{info.metaInfo.weatherForecast.hs.Units}}</dd>
+                    </div>
+                    <div class="weather-forecast__wave-report__wave-direction__list-item">
+                        <dt>HMax: </dt>
+                        <dd>{{info.metaInfo.weatherForecast.hMax.val}} {{info.metaInfo.weatherForecast.hMax.Units}}
+                        </dd>
+                    </div>
+                    <div class="weather-forecast__wave-report__wave-direction__list-item">
+                        <dt>Tz: </dt>
+                        <dd>{{info.metaInfo.weatherForecast.tz.val}} {{info.metaInfo.weatherForecast.tz.Units}}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
         </div>
-        <plotly-plot className="plotly-canvas" [layout]='waveHeightInformation.plotLayout'
-            [data]="waveHeightInformation.data" [useResizeHandler]="true">
-        </plotly-plot>
-    </div>
+
+        <div class="weather-forecast__wave-report__graph-information">
+            <div class="weather-forecast__wave-report__graph-information__graph">
+
+                <div class="weather-forecast__wave-report__graph-information__selection">
+                    <button (click)="onSelectType('hs')" class="btn btn-outline-primary mb-2 mr-2">Hs</button>
+                    <button (click)="onSelectType('hMax')" class="btn btn-outline-primary mb-2 mr-2">HMax</button>
+                    <button (click)="onSelectType('tz')" class="btn btn-outline-primary mb-2 mr-2">Tz</button>
+                </div>
+
+                <plotly-plot className="plotly-canvas" [layout]='waveHeightInformation.plotLayout'
+                (hover)="onHover($event)"    
+                [data]="waveHeightInformation.data" [useResizeHandler]="true" [config]="{displayModeBar: false}">
+                </plotly-plot>
+            </div>
+
+        </div>
+    </div> 
 </ng-container>
