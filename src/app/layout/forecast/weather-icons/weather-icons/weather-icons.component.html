@@ -30,6 +30,9 @@
         <div *ngSwitchCase="'partly-cloudy-night'">
             <i class="weather__button__icon wi wi-night-partly-cloudy"></i>
         </div>
+        <div *ngSwitchDefault>
+            <i class="weather__button__icon wi wi-na"></i>
+        </div>
     </div>
     <div class="weather__button__day">
         {{day}}

@@ -5,8 +5,8 @@
             <div class="">
                 <h2>Wind Graph overview</h2>
             </div>
-            <div class="weather-forecast__wind-report__wind-direction">
-                <dl *ngFor="let info of windDegreesInformation">
+            <div class="card weather-forecast__wind-report__wind-direction">
+                <dl class="weather-forecast__wind-report__wind-direction__definition_list" *ngFor="let info of windGraphHoverInformation">
                     <div class="weather-forecast__wind-report__wind-direction__list-item">
                         <dt>Provider:</dt>
                         <dd>{{info.metaInfo.provider}}</dd>

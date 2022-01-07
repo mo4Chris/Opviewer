@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { filter, map, tap } from 'rxjs/operators';
 import { WeatherForecastCommunicationService } from '../weather-forecast-communication.service';
 import { WeatherForecastWindSpeedGraphService } from './weather-forecast-wind-speed-graph.service';
-import { WEATHER_FORECAST_WIND_TYPE } from './weather-forecast-wind-speed-graph.types';
+import { WEATHER_FORECAST_WIND_TYPE, WindGraphInformation } from './weather-forecast-wind-speed-graph.types';
 
 @Component({
   selector: 'app-weather-forecast-wind-speed-graph',
@@ -15,8 +15,8 @@ export class WeatherForecastWindSpeedGraphComponent implements OnInit {
   public plotLayout: Partial<Plotly.Layout>;
   windGraphInformation$
   weatherForecastWindType = this.speed;
-  degreesClass: any;
-  windDegreesInformation: any[];
+  degreesClass: string;
+  windGraphHoverInformation: WindGraphInformation[];
   
   constructor(
     private weatherForecastService: WeatherForecastWindSpeedGraphService, 
@@ -33,7 +33,7 @@ export class WeatherForecastWindSpeedGraphComponent implements OnInit {
         return this.weatherForecastService.getPlotData(data, windType)
       }),
       tap(data =>{
-        this.windDegreesInformation = 
+        this.windGraphHoverInformation = 
         data.data.map((data) =>{
           const weatherForecast = data.meta.weatherForecastWind[0]
           return {
@@ -50,7 +50,7 @@ export class WeatherForecastWindSpeedGraphComponent implements OnInit {
   }
 
   onHover(event){
-    this.windDegreesInformation = event.points.map(point =>{
+    this.windGraphHoverInformation = event.points.map(point =>{
       const weatherForecast = point.data.meta.weatherForecastWind[point.pointIndex]
       return {
         metaInfo: { weatherForecast, ...point.data.meta.generalInformation},

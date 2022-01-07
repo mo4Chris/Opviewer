@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { flattenDeep, groupBy } from 'lodash';
-import { WeatherForecast } from '../weather-forecast.types';
-import { DayReport, WeatherForecastDailySummaryInformation, WeatherForecastDayResult, WeatherForecastHourChartInformation } from './weather-forecast.types';
+import { Air, DailySummary, DateNum, DateTime, Humidity, Icon, PrecipitationProbability, WeatherForecast, WeatherForecastGraphData } from '../weather-forecast.types';
+import { DayReport, WeatherForecastDayResult, WeatherForecastHourChartInformation } from './weather-forecast.types';
 import * as moment from 'moment';
 @Injectable()
 
@@ -21,7 +21,7 @@ export class WeatherForecastWeatherGraphsService {
     return this.factorDailySummeryInformation(weatherForecast).map(this.createNewDataObjectWithIndex)
   }
 
-  createNewDataObjectWithIndex(dataObject){
+  createNewDataObjectWithIndex(dataObject): WeatherForecastGraphData[]{
     return dataObject.Data.map((val, index) => {
       return {
         type: dataObject.Type,
@@ -33,7 +33,7 @@ export class WeatherForecastWeatherGraphsService {
     })
   }
 
-  factorDailySummeryInformation(weatherForecast: WeatherForecast): WeatherForecastDailySummaryInformation[] {
+  factorDailySummeryInformation(weatherForecast: WeatherForecast):((PrecipitationProbability | Humidity| DateNum | DateTime) & {dataType: string})[] {
     return  Object.entries(weatherForecast.DailySummary).map(([key, value]) => {
       return {
         ...value,
@@ -42,7 +42,7 @@ export class WeatherForecastWeatherGraphsService {
     })
   }
 
-  factorAirData(weatherForecast: WeatherForecast): WeatherForecastDailySummaryInformation[] {
+  factorAirData(weatherForecast: WeatherForecast): ((PrecipitationProbability | Humidity | Icon| DateNum | DateTime) & {dataType: string})[] {
     return  Object.entries(weatherForecast.Air).map(([key, value]) => {
       return {
         ...value,

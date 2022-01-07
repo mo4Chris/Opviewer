@@ -6,12 +6,6 @@ export interface WeatherForecastDayResult {
     index: number;
 }
 
-export interface WeatherForecastDailySummaryInformation {
-    units:    any[] | string;
-    type:     any[] | string;
-    dataType: string;
-}
-
 export interface WeatherForecastHourChartInformation {
     day:        string;
     formattedDate:        string;

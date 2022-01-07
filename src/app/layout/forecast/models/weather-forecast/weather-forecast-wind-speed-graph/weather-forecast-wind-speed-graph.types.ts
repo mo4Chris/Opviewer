@@ -1,3 +1,5 @@
+import { WeatherForecastGraphData } from "../weather-forecast.types";
+
 export enum WEATHER_FORECAST_WIND_TYPE {
     SPEED = 'speed',
     GUST = 'gust',
@@ -9,7 +11,7 @@ export enum WEATHER_FORECAST_WIND_TYPE {
 }
 
 export interface Datum {
-    meta:        Meta;
+    meta:        WeatherForecastWindGraphMeta;
     x:           Date[];
     y:           number[];
     hovertext:   string[];
@@ -20,7 +22,7 @@ export interface Datum {
     name:        string;
 }
 
-export interface Meta {
+export interface WeatherForecastWindGraphMeta {
     generalInformation:  GeneralInformation;
     weatherForecastWind: WeatherForecastWind[];
 }
@@ -31,18 +33,20 @@ export interface GeneralInformation {
 }
 
 export interface WeatherForecastWind {
-    dateTime:   WeatherForecastWindData;
-    dateNum:    WeatherForecastWindData;
-    speed:      WeatherForecastWindData;
-    gust:       WeatherForecastWindData;
-    directions: WeatherForecastWindData;
+    dateTime:   WeatherForecastGraphData;
+    dateNum:    WeatherForecastGraphData;
+    speed:      WeatherForecastGraphData;
+    gust:       WeatherForecastGraphData;
+    directions: WeatherForecastGraphData;
 }
 
-export interface WeatherForecastWindData {
-    units:    string;
-    type:     string;
-    dataType: string;
-    val:      number | string;
-    index:    number;
+export interface WindGraphInformation {
+    metaInfo:     MetaInfo;
+    degreesClass: string;
 }
 
+export interface MetaInfo {
+    timeStamp:       string;
+    provider:        string;
+    weatherForecast: WeatherForecastWind;
+}
