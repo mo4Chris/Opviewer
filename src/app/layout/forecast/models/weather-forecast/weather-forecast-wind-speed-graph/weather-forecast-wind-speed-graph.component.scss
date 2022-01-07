@@ -3,9 +3,6 @@
         display: flex;
         flex-direction: row;
         justify-content: space-between;
-        align-items: flex-start;
-        width: 100%;
-        max-height: 600px;
         padding: 20px;
 
         &__graph-information {
@@ -22,8 +19,9 @@
         }
 
         &__wind-direction {
-            height: 450px;
-            overflow-y: scroll;
+            height: 500px;
+            padding: 0.5em;
+            overflow-y: auto;
             overflow-x: hidden;
 
             &__icon { 
@@ -35,6 +33,9 @@
                 display: flex;
                 justify-content: space-between;
                 flex-wrap: wrap;
+            }
+            &__definition_list:last-child {
+                margin-bottom: 0;
             }
         }
 

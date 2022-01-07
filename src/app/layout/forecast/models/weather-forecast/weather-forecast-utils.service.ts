@@ -12,4 +12,5 @@ export class WeatherForecastUtilsService {
     const response = this.commonService.getWeatherForecasts();
     return response
   }
+  
 }

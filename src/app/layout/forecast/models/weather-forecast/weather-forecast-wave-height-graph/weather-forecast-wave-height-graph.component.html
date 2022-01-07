@@ -6,8 +6,8 @@
             <div class="">
                 <h2>Wave Graph overview</h2>
             </div>
-            <div class="weather-forecast__wave-report__wave-direction">
-                <dl *ngFor="let info of waveHeightInfo">
+            <div class="card weather-forecast__wave-report__wave-direction">
+                <dl class="weather-forecast__wave-report__wave-direction__definition_list" *ngFor="let info of waveHeightInfo">
                     <div class="weather-forecast__wave-report__wave-direction__list-item">
                         <dt>Provider:</dt>
                         <dd>{{info.metaInfo.provider}}</dd>

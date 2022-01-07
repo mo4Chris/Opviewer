@@ -35,13 +35,8 @@ export class WeatherForecastDialogComponent implements OnInit {
 
   }
 
-  submitForm(metoceanForecastList: MetoceanForecastListView[]) {
+  submitForm() {
     const selectedIds = this.weatherForecastDialogUtilsService.getSelectedIds(this.form.value)
-    const selectedProviders = metoceanForecastList.filter(forecast => {
-      return selectedIds.includes(forecast.File_Id)
-    })
-
-    // TODO: do something with selectedProviders
     this.activeModal.close(selectedIds);
   }
 }

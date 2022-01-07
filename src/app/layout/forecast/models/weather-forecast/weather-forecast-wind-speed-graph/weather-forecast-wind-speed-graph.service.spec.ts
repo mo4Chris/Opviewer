@@ -1,6 +1,6 @@
 import { WeatherForecast } from '../weather-forecast.types';
 import { WeatherForecastWindSpeedGraphService } from './weather-forecast-wind-speed-graph.service';
-import { Meta, WeatherForecastWind, WeatherForecastWindData } from './weather-forecast-wind-speed-graph.types';
+import { WeatherForecastWindGraphMeta, WeatherForecastWind } from './weather-forecast-wind-speed-graph.types';
 
 describe('WeatherForecastWindSpeedGraphService', () => {
   let service: WeatherForecastWindSpeedGraphService;
@@ -528,7 +528,7 @@ describe('WeatherForecastWindSpeedGraphService', () => {
       } as WeatherForecast
 
       const actual = service.factorWindInformation(input)
-      const expected = [
+      const expected: any = [
         {
           "Data": [
             "12-Jan-2022 05:00:00"
@@ -582,7 +582,7 @@ describe('WeatherForecastWindSpeedGraphService', () => {
             }
           }
         ]
-      } as Meta
+      } as WeatherForecastWindGraphMeta
       const actual = service.createPlottyData(input, 'speed')
       const expected: any = {
         "meta": {
