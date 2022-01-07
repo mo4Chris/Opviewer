@@ -5,18 +5,29 @@
     justify-content: center;
     }
 
+    &__wrapper{
+        display: inline-flex;
+        align-items: flex-end;
+        gap: 20px;
+        width: 100%;
+        justify-content: space-evenly;
+    }
+    
+    &__information {
+        display: flex;
+        flex-direction: column;
+        max-width: 50%;
+    }
+
     &__day-summary{
         display: flex;
-        align-items: center;
-        margin: 20px 0;
-        ul {
-            list-style-type: none;
-        }
+        flex-direction: column;
     }
 
     &__list-item{
         display: flex;
         justify-content: space-between;
+        flex-wrap: wrap;
     }
 
     &__header{
@@ -28,11 +39,8 @@
     &__button-wrapper{
         display: flex;
         flex-direction: row;
-    }
-
-    &__button{
-        cursor: pointer;
-        padding: 0;
-        border: 0;
+        justify-content: flex-start;
+        gap: 0.5em;
+        flex-wrap: wrap;
     }
 }

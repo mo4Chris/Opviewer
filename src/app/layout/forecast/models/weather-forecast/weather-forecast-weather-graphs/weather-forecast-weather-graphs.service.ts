@@ -51,9 +51,6 @@ export class WeatherForecastWeatherGraphsService {
 
   factorAirInformation(weatherForecast: WeatherForecast): WeatherForecastHourChartInformation[][] {
     const result = this.factorAirData(weatherForecast)
-      .filter(val => {
-        return val.dataType !== 'ICON'
-      })
       .map(this.createNewDataObjectWithIndex);
 
     const flattend = flattenDeep(result)
@@ -71,14 +68,14 @@ export class WeatherForecastWeatherGraphsService {
         dateIcon: this.getValue(data, 'ICON'),
         timeOfSunrise: this.createSunriseHour(data),
         timeOfSunset: this.createSunSetHour(data),
-        temperatureLow: this.getTemperatureValues(data, 'TEMPERATURELOW'),
-        temperatureHigh: this.getTemperatureValues(data, 'TEMPERATUREHIGH'),
-        precipitationProbability: this.getTemperatureValues(data, 'PRECIPITATIONPROBABILITY'),
-        precipitationIntensity: this.getTemperatureValues(data, 'PRECIPITATIONINTENSITY'),
+        temperatureLow: this.getExtendedValues(data, 'TEMPERATURELOW'),
+        temperatureHigh: this.getExtendedValues(data, 'TEMPERATUREHIGH'),
+        precipitationProbability: this.getExtendedValues(data, 'PRECIPITATIONPROBABILITY'),
+        precipitationIntensity: this.getExtendedValues(data, 'PRECIPITATIONINTENSITY'),
         visibility: this.getValue(data, 'VISIBILITY'),
-        windSpeed: this.getTemperatureValues(data, 'WINDSPEED'),
-        windGust: this.getTemperatureValues(data, 'WINDGUST'),
-        windDirection: this.getTemperatureValues(data, 'WINDDIRECTION'),
+        windSpeed: this.getExtendedValues(data, 'WINDSPEED'),
+        windGust: this.getExtendedValues(data, 'WINDGUST'),
+        windDirection: this.getExtendedValues(data, 'WINDDIRECTION'),
         dateGraphInformation: this.getDateGraphInformation(dateGraphInformation, data)
       }
     })
@@ -88,16 +85,20 @@ export class WeatherForecastWeatherGraphsService {
     return weatherForecast.map((data) => {
       return {
         day: this.createFormattedDay(data),
-        visibility: this.getValue(data, 'VISIBILITY'),
-        temperature: this.getValue(data, 'TEMPERATURE'),
+        visibility: this.getExtendedValues(data, 'VISIBILITY'),
+        temperature: this.getExtendedValues(data, 'TEMPERATURE'),
         dateNum: this.getDateNum(data),
         hour: this.createHour(data),
-        date: this.createFormattedDate(data),
+        date: this.getDate(data),
+        formattedDate: this.createFormattedDate(data),
+        icon: this.getValue(data, "ICON"),
+        pressure: this.getExtendedValues(data, "PRESSURE"),
+        humidity: this.getExtendedValues(data, "HUMIDITY")
       }
     })
   }
 
-  getTemperatureValues(data: WeatherForecastDayResult[], type: string) {
+  getExtendedValues(data: WeatherForecastDayResult[], type: string) {
     const temperature = data.find(val => val.dataType === type)
     return {
       val: temperature?.val,
@@ -109,6 +110,10 @@ export class WeatherForecastWeatherGraphsService {
     return data.find(val => val?.dataType === type)?.val
   }
 
+  getDate(data: WeatherForecastDayResult[]){
+    const dayResult = this.getValue(data, 'DATETIME');
+    return !!dayResult ? new Date(dayResult) : '';
+  }
   getDateNum(data: WeatherForecastDayResult[]): string | undefined {
     const dateNum = this.getValue(data, 'DATENUM');
     return !!dateNum ? dateNum.toString().split('.')[0] : undefined;
@@ -144,15 +149,13 @@ export class WeatherForecastWeatherGraphsService {
     const correspondingDates = dateGraphInformation.map(hoursArray => {
       return this.filterSameDates(hoursArray, date);
     })
-
     const result = flattenDeep(correspondingDates).filter(Boolean);
-
     return result
   }
 
   filterSameDates(hoursArray: WeatherForecastHourChartInformation[], date: string){
       return hoursArray.filter(val => {
-        return val.date === date;
+        return val.formattedDate === date;
       })
   }
 }

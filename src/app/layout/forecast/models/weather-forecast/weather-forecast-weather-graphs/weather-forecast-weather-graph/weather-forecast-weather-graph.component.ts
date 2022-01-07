@@ -1,51 +1,40 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DayReport } from '../weather-forecast.types';
+import { WeatherForecastPlotlyData, WEATHER_FORECAST_OPTIONS_TYPE } from './weather-forecast-weather-graph.types';
+import { WeatherForecastWeatherGraphService } from './weather-forecast-weather-graph.service';
+
 @Component({
   selector: 'app-weather-forecast-weather-graph',
   templateUrl: './weather-forecast-weather-graph.component.html',
   styleUrls: ['./weather-forecast-weather-graph.component.scss']
 })
+
 export class WeatherForecastWeatherGraphComponent implements OnInit {
   @Input() weatherForecast: DayReport[]
+  temperature = WEATHER_FORECAST_OPTIONS_TYPE.TEMPERATURE
+  visibility = WEATHER_FORECAST_OPTIONS_TYPE.VISIBILITY
+  humidity = WEATHER_FORECAST_OPTIONS_TYPE.HUMIDITY
+  pressure = WEATHER_FORECAST_OPTIONS_TYPE.PRESSURE
+  weatherForecastType = WEATHER_FORECAST_OPTIONS_TYPE.TEMPERATURE;
   selectedWFindex = 0;
-  disableNextButton= false;
-  disableBackButton= false;
   dayReport: DayReport;
+  temperatureGraphInformation: WeatherForecastPlotlyData;
+
+  constructor(private weatherForecastWeatherGraphService: WeatherForecastWeatherGraphService){}
+  
   ngOnInit(): void {
     this.dayReport = this.weatherForecast[this.selectedWFindex];
-    this.disableBackButton = this.shouldDisableBackButton(this.selectedWFindex);
-    this.disableNextButton = this.shouldDisableNextButton(this.selectedWFindex, this.weatherForecast);
-  }
-
-
-  previousWeatherForecast(weatherForecast){
-    this.selectedWFindex--
-    this.disableBackButton = this.shouldDisableBackButton(this.selectedWFindex)
-    this.disableNextButton = this.shouldDisableNextButton(this.selectedWFindex, weatherForecast)
-    this.dayReport = this.weatherForecast[this.selectedWFindex]
+    this.temperatureGraphInformation = this.weatherForecastWeatherGraphService.createGraphInformation(this.weatherForecast[this.selectedWFindex], this.weatherForecastType)
   }
   
-  nextWeatherForecast(weatherForecast){
-    this.selectedWFindex++
-    this.disableNextButton = this.shouldDisableNextButton(this.selectedWFindex, weatherForecast)
-    this.disableBackButton = this.shouldDisableBackButton(this.selectedWFindex)
-    this.dayReport = this.weatherForecast[this.selectedWFindex]
-  }
-  
-  onSelectDayReport(i, weatherForecast){
+  onSelectDayReport(i){
     this.selectedWFindex = i;
-    this.disableNextButton = this.shouldDisableNextButton(this.selectedWFindex, weatherForecast)
-    this.disableBackButton = this.shouldDisableBackButton(this.selectedWFindex)
     this.dayReport = this.weatherForecast[this.selectedWFindex]
-
+    this.temperatureGraphInformation = this.weatherForecastWeatherGraphService.createGraphInformation(this.weatherForecast[this.selectedWFindex], this.weatherForecastType)
   }
 
-  shouldDisableBackButton(selectedWFindex){
-    return selectedWFindex <= 0;
+  onSelectType(type){
+    this.weatherForecastType = type;
+    this.temperatureGraphInformation = this.weatherForecastWeatherGraphService.createGraphInformation(this.weatherForecast[this.selectedWFindex], type)
   }
-
-  shouldDisableNextButton(selectedWFindex, weatherForecast){
-    return selectedWFindex >= weatherForecast.length - 1;
-  }
-
 }

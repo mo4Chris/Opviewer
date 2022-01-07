@@ -16,10 +16,15 @@ export interface WeatherForecastDailySummaryInformation {
 
 export interface WeatherForecastHourChartInformation {
     day:        string;
-    visibility: number;
+    formattedDate:        string;
+    temperature: ExtendedDataType;
+    visibility: ExtendedDataType;
     dateNum:    string;
     hour:       string;
-    date:       string;
+    icon:       string;
+    date:       Date | string;
+    pressure:  ExtendedDataType;
+    humidity: ExtendedDataType;
 }
 
 

@@ -1,0 +1,37 @@
+<button class="weather__button" (click)="onClick($event)">
+    <div [ngSwitch]="weatherIconType">
+        <div *ngSwitchCase="'clear-night'">
+            <i class="weather__button__icon wi wi-night-clear"></i>
+        </div>
+        <div *ngSwitchCase="'clear-day'">
+            <i class="weather__button__icon wi wi-day-sunny"></i>
+        </div>
+        <div *ngSwitchCase="'rain'">
+            <i class="weather__button__icon wi wi-rain"></i>
+        </div>
+        <div *ngSwitchCase="'snow'">
+            <i class="weather__button__icon wi wi-day-snow-wind"></i>
+        </div>
+        <div *ngSwitchCase="'sleet'">
+            <i class="weather__button__icon wi wi-day-sleet"></i>
+        </div>
+        <div *ngSwitchCase="'wind'">
+            <i class="weather__button__icon wi wi-day-windy"></i>
+        </div>
+        <div *ngSwitchCase="'fog'">
+            <i class="weather__button__icon wi wi-fog"></i>
+        </div>
+        <div *ngSwitchCase="'cloudy'">
+            <i class="weather__button__icon wi wi-cloudy"></i>
+        </div>
+        <div *ngSwitchCase="'partly-cloudy-day'">
+            <i class="weather__button__icon wi wi-day-cloudy"></i>
+        </div>
+        <div *ngSwitchCase="'partly-cloudy-night'">
+            <i class="weather__button__icon wi wi-night-partly-cloudy"></i>
+        </div>
+    </div>
+    <div class="weather__button__day">
+        {{day}}
+    </div>
+</button>
