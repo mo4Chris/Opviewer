@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { icon, latLng, marker, tileLayer } from 'leaflet';
 
-import { UserService } from '@app/shared/services/user.service'
 import { CommonService } from '@app/common.service';
 import { map, take } from 'rxjs/operators';
 import * as L from "leaflet";
@@ -16,16 +15,13 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
 export class OsmDashboardMapComponent implements OnInit {
 
   constructor(
-    private userService: UserService,
     private commonService: CommonService,
     private dateTimeService: DatetimeService,
   ) { }
-
-  tokenInfo = this.userService.getDecodedAccessToken(localStorage.getItem('token'));
   zoomLvl = 5.5;
 
   //icons in icon service
-  greenIcon = icon({
+  Icon = icon({
     iconSize: [40, 40],
     iconAnchor: [20, 40],
     iconUrl: 'assets/images/grn-circle.png',
@@ -40,6 +36,8 @@ export class OsmDashboardMapComponent implements OnInit {
     iconAnchor: [20, 40],
     iconUrl: 'assets/images/red-circle.png',
   })
+  
+  
   harbourIcon = icon({
     iconSize: [20, 20],
     iconAnchor: [10, 10],
@@ -55,9 +53,12 @@ export class OsmDashboardMapComponent implements OnInit {
     iconAnchor: [10, 10],
     iconUrl: 'assets/images/forecast-location.png',
   })
-
-  
-   vesselMarkerClusterList = L.markerClusterGroup();
+   
+  vesselMarkerClusterList = L.markerClusterGroup();
+  forecastMarkerClusterList = L.markerClusterGroup();
+  harbourMarkerList;
+  turbineMarkerList;
+  map;
   
   vesselMarkerClusterOptions = {
     iconCreateFunction: function(cluster) {
@@ -77,12 +78,6 @@ export class OsmDashboardMapComponent implements OnInit {
     }
   };
   
-  
-
-
-  forecastMarkerClusterList = L.markerClusterGroup();
-  
-  
   forecastMarkerClusterOptions = {
     iconCreateFunction: function(cluster) {
       const icon = L.divIcon({
@@ -101,13 +96,6 @@ export class OsmDashboardMapComponent implements OnInit {
     }
   }
 
-
-  harbourMarkerList;
-  turbineMarkerList;
-  
-  map;
-
-
   osmMapOptions = {
     layers: [
       this.getMapBaseLayer()
@@ -123,8 +111,6 @@ export class OsmDashboardMapComponent implements OnInit {
   onMapReady(map: L.Map) {
     this.map = map;
   }
-
-  layers = [];
 
   controlLayers() {
     if (this.map.getZoom() > 6){ 
@@ -147,14 +133,8 @@ export class OsmDashboardMapComponent implements OnInit {
 
         this.harbourMarkerList = L.layerGroup(harbours)
         this.turbineMarkerList = windfarms;
-
-        console.log(this.vesselMarkerClusterList)
     });
-    
-    
   }
-
-
 
   retrieveHarbourLocations () {
     return this.commonService.getHarbourLocations().pipe(
@@ -240,13 +220,14 @@ export class OsmDashboardMapComponent implements OnInit {
 
   getCorrectColorIcon(timestamp) {
     const lastUpdatedHours = this.dateTimeService.hoursSinceTimeString(timestamp);
-      if (lastUpdatedHours < 1) {
-        return this.greenIcon;
-      } else if (lastUpdatedHours < 6) {
-        return this.yellowIcon;
-      } else {
-        return this.redIcon;
-      }
+    
+    const color = lastUpdatedHours < 1 ? 'grn' : lastUpdatedHours < 6 ? 'ylw' : 'red'
+    
+    return L.icon( {
+      iconSize: [40, 40],
+      iconAnchor: [20, 40],
+      iconUrl: `assets/images/${color}-circle.png`
+    })
   } 
 
 
@@ -261,9 +242,4 @@ export class OsmDashboardMapComponent implements OnInit {
   getOnlineSeaMapsLayer() {
     return tileLayer('http://tiles.openseamap.org/seamark/{z}/{x}/{y}.png', {})
   }
-
-
-
-
-
 }
