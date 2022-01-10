@@ -1,0 +1,17 @@
+<div style="height: 700px;"
+     leaflet 
+     [leafletOptions]="osmMapOptions"
+     [leafletLayers]="turbineMarkerList"
+     (leafletMapReady)="onMapReady($event)"
+     (leafletMapZoomEnd)="controlLayers($event)"
+     >
+	<div 
+		[leafletMarkerCluster]="vesselMarkerClusterList"
+        [leafletMarkerClusterOptions]="vesselMarkerClusterOptions"
+		>
+	</div>
+    <div
+		[leafletMarkerCluster]="forecastMarkerClusterList"
+        [leafletMarkerClusterOptions]="forecastMarkerClusterOptions">
+	</div>
+</div>

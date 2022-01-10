@@ -4,6 +4,7 @@ import { NgbCarouselModule, NgbAlertModule, NgbModule } from '@ng-bootstrap/ng-b
 import { AgmCoreModule } from '@agm/core';
 import { AgmSnazzyInfoWindowModule } from '@agm/snazzy-info-window';
 import { AgmJsMarkerClustererModule } from '@agm/js-marker-clusterer';
+import { OsmDashboardMapComponent } from '@app/layout/components/openSeaMaps/osm-dashboard-map/osm-dashboard-map.component'
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { DashboardRoutingModule } from './dashboard-routing.module';
@@ -15,6 +16,8 @@ import { LogisticsSpecialistComponent } from './components/logistics-specialist/
 import { MarineControllerComponent } from './components/marine-controller/marine-controller.component';
 import { VesselMasterComponent } from './components/vessel-master/vessel-master.component';
 import { environment } from 'environments/environment';
+import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+import { LeafletMarkerClusterModule } from '@asymmetrik/ngx-leaflet-markercluster';
 
 @NgModule({
     imports: [
@@ -24,6 +27,8 @@ import { environment } from 'environments/environment';
         NgbCarouselModule,
         NgbAlertModule,
         DashboardRoutingModule,
+        LeafletModule,
+        LeafletMarkerClusterModule,
         AgmCoreModule.forRoot({
             apiKey: environment.GOOGLE_API_KEY
         }),
@@ -37,7 +42,8 @@ import { environment } from 'environments/environment';
         AdminComponent,
         LogisticsSpecialistComponent,
         MarineControllerComponent,
-        VesselMasterComponent
+        VesselMasterComponent,
+        OsmDashboardMapComponent
     ],
     providers: [UserService],
     bootstrap: [DashboardComponent]

@@ -101,6 +101,10 @@ export class GmapService {
     'assets/clusterer/m1.png',
     'Cluster of vessels'
   );
+  static iconForecastCluster: mapMarkerIcon = new mapMarkerIcon(
+    'assets/clusterer/m4.png',
+    'Cluster of forecasts'
+  );
   static iconWaveSource: mapMarkerIcon = new mapMarkerIcon(
     'assets/images/buoy.png',
     'Wave source',

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, SystemJsNgModuleLoader, NgZone, ElementRef, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, NgZone, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { mapLegend, mapMarkerIcon } from '../dashboard/models/mapLegend';
 
@@ -16,7 +16,6 @@ import { RouterService } from '@app/supportModules/router.service';
 import { AlertService } from '@app/supportModules/alert.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { Observable } from 'rxjs';
-import { MapZoomData, MapZoomLayer } from '@app/models/mapZoomLayer';
 
 
 @Component({
@@ -119,9 +118,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
       if (!userIsActive) {
         this.userService.logout();
       }
-      this.getAlert();
+      // this.getAlert();
       this.makeLegend();
-      this.getLocations();
+      // this.getLocations();
     });
   }
 
@@ -230,10 +229,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
       this.mapLegend.add(GmapService.iconVesselOld);
       this.mapLegend.add(GmapService.iconHarbour);
       this.mapLegend.add(GmapService.iconWindfield);
+      if (this.permission.forecastRead) this.mapLegend.add(GmapService.iconForecastCluster);
       if (this.permission.forecastRead) this.mapLegend.add(GmapService.iconForecastLocation);
 
       const legend = document.getElementById('mapLegendID');
       const height = 35;
+      console.log(this.mapLegend);
       this.mapLegend.markers.forEach(marker => {
         const div = document.createElement('div');
         div.innerHTML = '<span><img src=' + marker.url + ' height="' + height + '"> ' + marker.description + '</span>';

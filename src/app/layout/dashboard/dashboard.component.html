@@ -1,6 +1,19 @@
 <div class="dashboard-wrapper">
     <h2 id="DashboardHeader" class="text-muted">Dashboard <small>Vessel Overview</small></h2>
     <div class="divContainer" fxFlex="100">
+        <app-osm-dashboard-map></app-osm-dashboard-map>
+
+        <div id="mapLegendID" class="mapLegend">
+            <h2>
+                Legend
+            </h2>
+        </div>
+    </div>    
+</div>
+
+<!-- <div class="dashboard-wrapper">
+    <h2 id="DashboardHeader" class="text-muted">Dashboard <small>Vessel Overview</small></h2>
+    <div class="divContainer" fxFlex="100">
         <agm-map #gm
             [latitude]="zoominfo.latitude"
             [longitude]="zoominfo.longitude"
@@ -47,11 +60,15 @@ Project lon:  {{location.lon}}
         </div>
     </div>
 </div>
-<br>
+<br> -->
 
 
 <!-- Currently, children are only used for one-way binding. When filled with content. Move to content above. -->
-<div *ngIf="tokenInfo.userPermission == userType.Admin">
+
+
+
+
+<!-- <div *ngIf="tokenInfo.userPermission == userType.Admin">
     <app-admin [tokenInfo]="tokenInfo" (locationData)="setLocationData($event)" (zoominfo)="setZoominfo($event)"></app-admin>
 </div>
 <div *ngIf="tokenInfo.userPermission == userType.LogisticsSpecialist">
@@ -62,4 +79,4 @@ Project lon:  {{location.lon}}
 </div>
 <div *ngIf="tokenInfo.userPermission == userType.Vesselmaster">
     <app-vessel-master [tokenInfo]="tokenInfo" (locationData)="setLocationData($event)" (zoominfo)="setZoominfo($event)"></app-vessel-master>
-</div>
+</div> -->
