@@ -18,10 +18,12 @@ import { WeatherForecastWeatherGraphsService } from './weather-forecast-weather-
 import { WeatherForecastDialogUtilsService } from './weather-forecast-dialog/weather-forecast-dialog-utils.service';
 import { WeatherIconsModule } from '../../weather-icons/weather-icons.module';
 import { WeatherForecastWeatherGraphService } from './weather-forecast-weather-graphs/weather-forecast-weather-graph/weather-forecast-weather-graph.service';
+import { WeatherForecastChosenForecastsComponent } from './weather-forecast-chosen-forecasts/weather-forecast-chosen-forecasts.component';
+import { WeatherForecastChosenDatasourceComponent } from './weather-forecast-chosen-datasource/weather-forecast-chosen-datasource.component';
 
 
 @NgModule({
-  declarations: [WeatherForecastComponent, WeatherForecastDialogComponent, WeatherForecastGraphComponent, WeatherForecastWaveHeightGraphComponent, WeatherForecastWindSpeedGraphComponent, WeatherForecastWeatherGraphComponent, WeatherForecastWeatherGraphsComponent],
+  declarations: [WeatherForecastComponent, WeatherForecastDialogComponent, WeatherForecastGraphComponent, WeatherForecastWaveHeightGraphComponent, WeatherForecastWindSpeedGraphComponent, WeatherForecastWeatherGraphComponent, WeatherForecastWeatherGraphsComponent, WeatherForecastChosenForecastsComponent, WeatherForecastChosenDatasourceComponent],
   imports: [
     CommonModule,
     PlotlyModule,
@@ -30,7 +32,7 @@ import { WeatherForecastWeatherGraphService } from './weather-forecast-weather-g
     NgbModule,
     WeatherIconsModule
   ],
-  providers: [WeatherForecastUtilsService, WeatherForecastWaveHeightGraphService,WeatherForecastCommunicationService, WeatherForecastWindSpeedGraphService, WeatherForecastWeatherGraphsService, WeatherForecastDialogUtilsService, WeatherForecastWeatherGraphService],
+  providers: [WeatherForecastUtilsService, WeatherForecastWaveHeightGraphService,WeatherForecastCommunicationService, WeatherForecastWindSpeedGraphService, WeatherForecastWeatherGraphsService, WeatherForecastDialogUtilsService, WeatherForecastWeatherGraphService, WeatherForecastGraphComponent],
   exports: [WeatherForecastComponent]
 })
 export class WeatherForecastModule { }

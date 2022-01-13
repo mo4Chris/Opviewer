@@ -1,6 +1,6 @@
-
-<div class="weather-forecast-graph__wrapper">
-    <app-weather-forecast-weather-graphs></app-weather-forecast-weather-graphs>
-    <app-weather-forecast-wave-height-graph></app-weather-forecast-wave-height-graph>
-    <app-weather-forecast-wind-speed-graph></app-weather-forecast-wind-speed-graph>
+<div class="weather-forecast-graph__wrapper" *ngIf='testEmitter$ | async as selected_view'>
+    {{selected_view}}
+    <app-weather-forecast-weather-graphs *ngIf="selected_view == 'general'"></app-weather-forecast-weather-graphs>
+    <app-weather-forecast-wave-height-graph *ngIf="selected_view == 'waves'"></app-weather-forecast-wave-height-graph>
+    <app-weather-forecast-wind-speed-graph *ngIf="selected_view == 'wind'"></app-weather-forecast-wind-speed-graph>
 </div>

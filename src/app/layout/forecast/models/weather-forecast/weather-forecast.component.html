@@ -1,4 +1,14 @@
 <div class="weather-forecast__wrapper">
     <button class="btn btn-primary weather-forecast__choose-forecasts-button" (click)="onChooseWeatherForecast()">choose weather forecast</button>
-    <app-weather-forecast-graph></app-weather-forecast-graph>
+    <div class="row">
+        <div class="col-lg-8">
+            <app-weather-forecast-graph></app-weather-forecast-graph>
+        </div>
+        <div class="col-lg-4">
+            <app-weather-forecast-chosen-forecasts></app-weather-forecast-chosen-forecasts>
+            <app-weather-forecast-chosen-datasource></app-weather-forecast-chosen-datasource>
+        </div>
+        
+    </div>
+    
 </div>
