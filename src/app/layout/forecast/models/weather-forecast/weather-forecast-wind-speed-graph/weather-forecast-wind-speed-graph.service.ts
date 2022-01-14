@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
-import { General, WeatherForecast } from '../weather-forecast.types';
+import { General, WeatherForecast, WeatherForecastGraphData, Wind } from '../weather-forecast.types';
 import { flattenDeep, groupBy } from 'lodash';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import * as moment from 'moment';
-import { WeatherForecastWindData, Meta, Datum, WeatherForecastWind, WeatherForecastWindPlotData } from './weather-forecast-wind-speed-graph.types';
+import { WeatherForecastWindGraphMeta, Datum, WeatherForecastWind, WeatherForecastWindPlotData } from './weather-forecast-wind-speed-graph.types';
 
 @Injectable()
 export class WeatherForecastWindSpeedGraphService {
@@ -12,7 +12,7 @@ export class WeatherForecastWindSpeedGraphService {
     const newDataSet = forecasts.map(forecast => (this.getWindDataWeatherForecast(forecast)))
     const plotData = newDataSet.map(data => (this.createPlottyData(data, waveHeightType)))
     const ceil = this.getCeil(forecasts, waveHeightType)
-    // sind all units and types the same can just take the first one from the list
+    // sind all units and types are the same we can just take the first one from the list
     const waveHeight = newDataSet[0].weatherForecastWind[0][waveHeightType]
     return {
       plotLayout: this.setPlotLayout([0, ceil], waveHeight?.type, waveHeight?.units),
@@ -20,13 +20,13 @@ export class WeatherForecastWindSpeedGraphService {
     }
   }
 
-  getWindDataWeatherForecast(weatherForecast: WeatherForecast): Meta {
+  getWindDataWeatherForecast(weatherForecast: WeatherForecast): WeatherForecastWindGraphMeta {
     const header = weatherForecast.General
     const result = this.factorWindInformation(weatherForecast)
       .filter(weatherForecast => weatherForecast.dataType !== 'HEADER')
       .map(this.createNewDataObjectWithIndex)
 
-    const groupedData: WeatherForecastWindData[][] = Object.values(groupBy(flattenDeep(result), 'index'))
+    const groupedData: WeatherForecastGraphData[][] = Object.values(groupBy(flattenDeep(result), 'index'))
     const dataSet = this.getDataSet(groupedData)
     
     return {
@@ -43,14 +43,14 @@ export class WeatherForecastWindSpeedGraphService {
     return Math.ceil(Math.max(...this.getYaxisRange(forecasts, waveHeightType)))
   }
 
-  getDataSet(data: WeatherForecastWindData[][]): WeatherForecastWind[] {
+  getDataSet(data: WeatherForecastGraphData[][]): WeatherForecastWind[] {
     return data.map((_data) => {
       return {
-        dateTime: _data.find((val: WeatherForecastWindData) => val.dataType === 'DATETIME'),
-        dateNum: _data.find((val: WeatherForecastWindData )=> val.dataType === 'DATENUM'),
-        speed: _data.find((val: WeatherForecastWindData )=> val.dataType === 'SPEED'),
-        gust: _data.find((val: WeatherForecastWindData )=> val.dataType === 'GUST'),
-        directions: _data.find((val: WeatherForecastWindData )=> val.dataType === 'DIRECTIONS'),
+        dateTime: _data.find((val: WeatherForecastGraphData) => val.dataType === 'DATETIME'),
+        dateNum: _data.find((val: WeatherForecastGraphData )=> val.dataType === 'DATENUM'),
+        speed: _data.find((val: WeatherForecastGraphData )=> val.dataType === 'SPEED'),
+        gust: _data.find((val: WeatherForecastGraphData )=> val.dataType === 'GUST'),
+        directions: _data.find((val: WeatherForecastGraphData )=> val.dataType === 'DIRECTIONS'),
       }
     });
   }
@@ -67,7 +67,7 @@ export class WeatherForecastWindSpeedGraphService {
     return flattenDeep(data.map(val => val.Data))
   }
 
-  createNewDataObjectWithIndex(dataObject): WeatherForecastWindData[] {
+  createNewDataObjectWithIndex(dataObject): WeatherForecastGraphData[] {
     return dataObject.Data.map((val, index) => {
       return {
         type: dataObject.Type,
@@ -109,7 +109,7 @@ export class WeatherForecastWindSpeedGraphService {
   }
 
 
-  factorWindInformation(waveInformation: WeatherForecast) {
+  factorWindInformation(waveInformation: WeatherForecast): (Wind & {dataType: string, Data: any})[] {
     return Object.entries(waveInformation.Wind).map(([key, value]) => {
       return {
         ...value,
@@ -118,7 +118,7 @@ export class WeatherForecastWindSpeedGraphService {
     })
   }
 
-  createPlottyData(graphInformation: Meta, waveHeightType: string): Datum {
+  createPlottyData(graphInformation: WeatherForecastWindGraphMeta, waveHeightType: string): Datum {
     const windForecast = graphInformation.weatherForecastWind
     return {
       meta: graphInformation,

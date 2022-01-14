@@ -1,4 +1,4 @@
-<form class="weather-forecast-form" *ngIf="fromParent" [formGroup]="form" (ngSubmit)="submitForm(fromParent)" novalidate>
+<form class="weather-forecast-form" *ngIf="fromParent" [formGroup]="form" (ngSubmit)="submitForm()" novalidate>
   <div class="weather-forecast-form__filter">
     <label for="date">Find the date you are looking for:</label>
     <input class="weather-forecast-form__filter__input" type="text" name="date" formControlName="filter" placeholder="Filter for specific date...">

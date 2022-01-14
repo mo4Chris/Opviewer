@@ -39,18 +39,9 @@ export interface Humidity {
 }
 
 export interface Icon {
-    Data:  Array<any[] | DatumEnum>;
+    Data:  Array<any[]>;
     Units: any[];
     Type:  any[];
-}
-
-export enum DatumEnum {
-    ClearDay = "clear-day",
-    ClearNight = "clear-night",
-    Cloudy = "cloudy",
-    PartlyCloudyDay = "partly-cloudy-day",
-    PartlyCloudyNight = "partly-cloudy-night",
-    Rain = "rain",
 }
 
 export interface PrecipitationProbability {
@@ -163,4 +154,12 @@ export interface Wind {
     Speed:      PrecipitationProbability;
     Gust:       PrecipitationProbability;
     Directions: PrecipitationProbability;
+}
+
+export interface WeatherForecastGraphData {
+    type:     string;
+    units:    string;
+    dataType: string;
+    val:      number | string;
+    index:    number;
 }

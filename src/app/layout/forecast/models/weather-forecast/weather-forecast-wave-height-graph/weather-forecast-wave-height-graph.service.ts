@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { General, WeatherForecast } from '../weather-forecast.types';
+import { CartesianDensity, DateNum, Density, General, PrecipitationProbability, Wave, WaveDateTime, WeatherForecast, WeatherForecastGraphData } from '../weather-forecast.types';
 import { flattenDeep, groupBy} from 'lodash';
 import { DatetimeService } from '@app/supportModules/datetime.service';
 import * as moment from 'moment';
+import { WeatherForecastWaveGraphData, WeatherForecastWaveGraphMeta } from './weather-forecast-wave-height-graph.types';
 
 @Injectable()
 export class WeatherForecastWaveHeightGraphService {
@@ -20,7 +21,7 @@ export class WeatherForecastWaveHeightGraphService {
     }
   }
 
-  getWaveDataWeatherForecast(weatherForecast: WeatherForecast) {
+  getWaveDataWeatherForecast(weatherForecast: WeatherForecast): WeatherForecastWaveGraphMeta {
     const header = weatherForecast.General
 
     const waveInformation = this.factorWaveInformation(weatherForecast)
@@ -31,8 +32,10 @@ export class WeatherForecastWaveHeightGraphService {
 
     const waveData = this.getNewDataObject(waveInformation)
 
-      const groupedWaveData = Object.values(groupBy(flattenDeep(waveData), 'index'))
-      const waveWeatherForecast = this.getDataSet(groupedWaveData, frequencies, directions);
+    const groupedWaveData: WeatherForecastWaveGraphData[][] = Object.values(groupBy(flattenDeep(waveData), 'index'))
+
+    const waveWeatherForecast = this.getDataSet(groupedWaveData, frequencies, directions);
+
     return {
       generalInformation: {
         timeStamp: this.getTimeStamp(header),
@@ -42,15 +45,16 @@ export class WeatherForecastWaveHeightGraphService {
     };
   }
 
-  getNewDataObject(waveInformation){
+  getNewDataObject(waveInformation: ((WaveDateTime | Density | PrecipitationProbability | CartesianDensity | DateNum) & {dataType: string})[]): WeatherForecastGraphData[][] {
     return waveInformation
-    .filter(weatherForecast =>  !['HEADER', 'FREQUENCIES','DIRECTIONS', 'DENSITY','CARTESIANDENSITY'].includes( weatherForecast.dataType ))
-    .map(data => {
+    .filter(weatherForecast =>  !['HEADER', 'FREQUENCIES','DIRECTIONS','CARTESIANDENSITY'].includes( weatherForecast.dataType ))
+    .map((data: (WaveDateTime| PrecipitationProbability) & {dataType: string}) => {
       return this.createNewDataObjectWithIndex(data)
     })
   }
 
-  createPlottyData(graphInformation, waveHeightType: string) {
+  createPlottyData(graphInformation: WeatherForecastWaveGraphMeta, waveHeightType: string) {
+
     const waveForecast = graphInformation.waveWeatherForecast
     return {
       meta: graphInformation,
@@ -79,16 +83,16 @@ export class WeatherForecastWaveHeightGraphService {
   getYaxisRange(forecasts: WeatherForecast[], yAxisValue: string): number[] {
     const newDataSet = forecasts.map(this.factorWaveInformation)
     const data = newDataSet.map(data => {
-      return data.find(val => val.dataType === yAxisValue.toUpperCase())
+      return data.find(val => val.dataType === yAxisValue.toUpperCase()) as PrecipitationProbability
     })
-    return flattenDeep(data.map(val => val.Data))
+    return flattenDeep(data.map((val) => val.Data))
   }
 
   getTimeStamp(generalWeatherForecastInformation: General): string {
     return moment(new Date(this.dateTimeService.matlabDatenumToDate(generalWeatherForecastInformation.RefDateNum.Data))).format('DD MM yyyy, HH:mm');
   }
 
-  getDataSet(data , frequencies, directions) {
+  getDataSet(data : WeatherForecastWaveGraphData[][], frequencies, directions) {
     return data.map((_data) => {
       const hs = _data.find((val) => val.dataType === 'HS');
       const hMax = _data.find((val) => val.dataType === 'HMAX');
@@ -98,16 +102,16 @@ export class WeatherForecastWaveHeightGraphService {
         directions,
         dateTime: _data.find((val) => val.dataType === 'DATETIME'),
         dateNum: _data.find((val )=> val.dataType === 'DATENUM'),
-        density: _data.find((val )=> val.dataType === 'DENSITY'),
-        hs: {...hs, val: hs.val.toFixed(2)},
-        hMax: {...hMax, val: hMax.val.toFixed(2)},
-        tz: {...tz, val: tz.val.toFixed(2)},
+        // density: _data.find((val )=> val.dataType === 'DENSITY'),
+        hs: {...hs, val: (hs.val as number).toFixed(2)},
+        hMax: {...hMax, val: (hMax.val as number).toFixed(2)},
+        tz: {...tz, val: (tz.val as number).toFixed(2)},
       }
     });
   }
 
-  createNewDataObjectWithIndex(dataObject) {
-    return dataObject.Data.map((val, index) => {
+  createNewDataObjectWithIndex(dataObject: (WaveDateTime| PrecipitationProbability) & {dataType: string}): WeatherForecastGraphData[] {
+    return (dataObject.Data as Array<string|number>).map((val, index) => {
       return {
         type: dataObject.Type,
         units: dataObject.Units,
@@ -119,6 +123,7 @@ export class WeatherForecastWaveHeightGraphService {
   }
   
   setPlotLayout(range: number[], graphTitle = 'Could not find data for request', titleY: string): Partial<Plotly.Layout> {
+    
     return {
       title: graphTitle,
       width: 800,
@@ -146,7 +151,7 @@ export class WeatherForecastWaveHeightGraphService {
     };
   }
 
-  factorWaveInformation(waveInformation: WeatherForecast) {
+  factorWaveInformation(waveInformation: WeatherForecast): ((WaveDateTime | Density | PrecipitationProbability | CartesianDensity | DateNum) & {dataType: string})[] {
     const newData = Object.entries(waveInformation.Wave).map(([key, value]) => {
       return {
         ...value,
