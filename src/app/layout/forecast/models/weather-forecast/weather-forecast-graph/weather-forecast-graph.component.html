@@ -1,6 +1,62 @@
-<div class="weather-forecast-graph__wrapper" *ngIf='testEmitter$ | async as selected_view'>
-    {{selected_view}}
-    <app-weather-forecast-weather-graphs *ngIf="selected_view == 'general'"></app-weather-forecast-weather-graphs>
-    <app-weather-forecast-wave-height-graph *ngIf="selected_view == 'waves'"></app-weather-forecast-wave-height-graph>
-    <app-weather-forecast-wind-speed-graph *ngIf="selected_view == 'wind'"></app-weather-forecast-wind-speed-graph>
+<div class="weather-forecast-graph__wrapper" *ngIf="selectedForecasts$ | async as selectedForecastsss">
+
+    <div class="container">
+            <ng-container *ngIf="selectedWeatherForecast$ | async as seleceted">
+                <app-weather-forecast-weather-graphs *ngIf="seleceted.selectedView === 'general' "  [selectedForecast]="selectedWeatherForecast$"></app-weather-forecast-weather-graphs>
+            </ng-container>
+            <!-- <app-weather-forecast-wave-height-graph  [selectedForecast]="selectedWeatherForecast$"></app-weather-forecast-wave-height-graph>
+            <app-weather-forecast-wind-speed-graph  [selectedForecast]="selectedWeatherForecast$"></app-weather-forecast-wind-speed-graph> -->
+
+        <form [formGroup]="form" (ngSubmit)="submit()">
+            <div *ngFor="let selectedForecasts of selectedForecastsss">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" [value]="selectedForecasts.weather_forecast_id"
+                        formControlName="selectedForecast" [id]="selectedForecasts.weather_forecast_id">
+                    <label style="width:100%" class="form-check-label" [for]="selectedForecasts.weather_forecast_id">
+                        <span style="float: left;">{{selectedForecasts.weather_provider}}</span>
+                        <span style="float: right;"> {{selectedForecasts.weather_forecast_time}}</span>
+                    </label>
+                    <hr>
+                </div>
+            </div>
+
+            <div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" value="general" formControlName="selectedView"
+                        id="general" />
+                    <label style="width:100%" class="form-check-label" for="general">
+                        General
+                    </label>
+                    <hr>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" value="waves" formControlName="selectedView"
+                        id="waves" />
+                    <label style="width:100%" class="form-check-label" for="waves">
+                        Waves
+                    </label>
+                    <hr>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" value="wind" formControlName="selectedView"
+                        id="wind" />
+                    <label style="width:100%" class="form-check-label" for="wind">
+                        Wind
+                    </label>
+                    <hr>
+                </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" value="current" formControlName="selectedView"
+                        id="current" />
+                    <label style="width:100%" class="form-check-label" for="current">
+                        Current
+                    </label>
+                    <hr>
+                </div>
+            </div>
+            <button class="btn btn-primary" type="submit" [disabled]="!form.valid">Submit</button>
+        </form>
+    </div>
 </div>

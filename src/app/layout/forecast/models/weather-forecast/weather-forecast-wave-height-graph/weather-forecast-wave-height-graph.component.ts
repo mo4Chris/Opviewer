@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { filter, map, tap } from 'rxjs/operators';
+import { filter, map, switchMap, tap } from 'rxjs/operators';
 import { WeatherForecastCommunicationService } from '../weather-forecast-communication.service';
 import { WeatherForecastWaveHeightGraphService } from './weather-forecast-wave-height-graph.service';
 import { WEATHER_FORECAST_WAVE_TYPE } from './weather-forecast-wave-height-graph.types';
@@ -15,6 +15,7 @@ export class WeatherForecastWaveHeightGraphComponent implements OnInit {
   public plotLayout: Partial<Plotly.Layout>;
   waveHeightInformation$: Observable<unknown>;
   waveHeightInfo: any;
+  @Input() selectedForecast;
 
   constructor(private weatherForecastService: WeatherForecastWaveHeightGraphService, private weatherForecastCommunicationService: WeatherForecastCommunicationService) { }
 
@@ -23,8 +24,14 @@ export class WeatherForecastWaveHeightGraphComponent implements OnInit {
   }
 
   fetchData(waveHeightType) {
-    return this.weatherForecastCommunicationService.getWeatherForecasts().pipe(
+    return this.selectedForecast.pipe(
+      filter((val: any) => val.selectedView === 'waves'),
+      switchMap((val: any)=>{ 
+        return this.weatherForecastCommunicationService.getWeatherForecasts().pipe(
       filter(data => data.length != 0),
+      map( weatherForecasts => {
+        return weatherForecasts.filter(forecast => forecast.General.Routename.Data === val.selectedForecast)
+      }),
       map(data => {
         return this.weatherForecastService.getPlotData(data, waveHeightType)
       }),
@@ -38,7 +45,8 @@ export class WeatherForecastWaveHeightGraphComponent implements OnInit {
         })
       })
     )
-  }
+  }))
+}
 
   onHover(event){
     this.waveHeightInfo = event.points.map(point =>{
