@@ -98,6 +98,8 @@ describe('WeatherForecastWeatherGraphService', () => {
                 ],
                 "plotLayout": {
                     "title": "Wednesday, 18 August: temperature",
+                    width: 800,
+                    height: 450,
                     "yaxis": {
                         "range": [
                             0,
@@ -165,6 +167,8 @@ describe('WeatherForecastWeatherGraphService', () => {
             const actual = service.setPlotLayout(range, graphTitle, titleY)
             const expected: any = {
                 title: graphTitle,
+                width: 800,
+                height: 450,
                 yaxis: {
                     range: range,
                     title: titleY,

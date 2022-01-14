@@ -24,7 +24,9 @@ export class WeatherForecastWeatherGraphsService {
   createNewDataObjectWithIndex(dataObject){
     return dataObject.Data.map((val, index) => {
       return {
-        ...dataObject,
+        type: dataObject.Type,
+        units: dataObject.Units,
+        dataType: dataObject.dataType,
         val,
         index
       }
@@ -102,7 +104,7 @@ export class WeatherForecastWeatherGraphsService {
     const temperature = data.find(val => val.dataType === type)
     return {
       val: temperature?.val,
-      unit: temperature?.Units
+      unit: temperature?.units
     }
   }
 

@@ -1,16 +1,14 @@
 export interface WeatherForecastDayResult {
-    Data: Array<number | string>;
-    Units: any[] | string;
-    Type: any[] | string;
+    units: any[] | string;
+    type: any[] | string;
     dataType: string;
     val: any | number | string;
     index: number;
 }
 
 export interface WeatherForecastDailySummaryInformation {
-    Data:     Array<number | string>;
-    Units:    any[] | string;
-    Type:     any[] | string;
+    units:    any[] | string;
+    type:     any[] | string;
     dataType: string;
 }
 

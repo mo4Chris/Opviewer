@@ -46,6 +46,8 @@ export class WeatherForecastWeatherGraphService {
   setPlotLayout(range: number[], graphTitle: string ,titleY: string): Partial<Plotly.Layout> {
     return {
       title: graphTitle,
+      width: 800,
+      height: 450,
       yaxis: {
         range: range,
         title: titleY,

@@ -4,12 +4,12 @@ describe('WeatherForecastUtilsService', () => {
   let service: WeatherForecastUtilsService;
 
   beforeEach(() => {
-    service =new WeatherForecastUtilsService
+    const commonServiceMock = jasmine.createSpyObj('commonService', ['getWeatherForecasts'])
+    service =new WeatherForecastUtilsService(commonServiceMock)
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
-
 
 });
