@@ -30,7 +30,9 @@ describe('WeatherForecastWeatherGraphsComponent', () => {
   });
   
   it('should create', () => {
-    weatherForecastCommunicationServiceMock.getWeatherForecasts.and.returnValue(of([{}]))
+    component.formValue = {}
+    component.selectedForecast = of({})
+    weatherForecastCommunicationServiceMock.getWeatherForecasts.and.returnValue(of([{General:{Routename:{Data: 'lala'}}}]))
     weatherForecastWeatherGraphsServiceMock.factorDailyWeatherForecastData.and.returnValue(of([{}]))
     fixture.detectChanges();
     expect(component).toBeTruthy();

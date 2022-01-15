@@ -21,7 +21,7 @@
         &__graph-information {
             display: flex;
             flex-direction: row;
-            align-items: center;
+            align-items: flex-start;
             gap: 1em;
             &__graph{
                 display: flex;
@@ -32,10 +32,7 @@
         }
 
         &__wave-direction {
-            height: 450px;
             padding: 0.5em;
-            overflow-y: auto;
-            overflow-x: hidden;
 
             &__icon { 
                 font-size: 40px;

@@ -2,7 +2,7 @@ import { Client, CommonService, StatsRangeRequest } from '../common.service';
 import { mockedObservable } from '../models/testObservable';
 import { VesselModel } from '../models/vesselModel';
 // tslint:disable-next-line:import-blacklist
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { UserTestService } from '../shared/services/test.user.service';
 import { CampaignModel } from '../layout/TWA/models/campaignModel';
 import { CalculationService } from './calculation.service';
@@ -33,7 +33,9 @@ export class MockedCommonService extends CommonService {
     // We build the superclass CommonService using a null http class (since we dont want internet traffic)
     super(null, null);
   }
-
+  getSpecificWeatherForecasts(){
+    return of()
+  }
   loadUserSettings() {
     return mockedObservable(null);
   }

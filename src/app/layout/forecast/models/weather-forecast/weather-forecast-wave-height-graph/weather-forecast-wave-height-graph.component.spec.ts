@@ -28,6 +28,7 @@ describe('WeatherForecastWaveHeightGraphComponent', () => {
   });
 
   it('should create', () => {
+    component.selectedForecast = of({});
     weatherForecastCommunicationServiceMock.getWeatherForecasts.and.returnValue(of([]))
     weatherForecastWaveHeightGraphServiceMock.getPlotData.and.returnValue(of([]))
     fixture.detectChanges();

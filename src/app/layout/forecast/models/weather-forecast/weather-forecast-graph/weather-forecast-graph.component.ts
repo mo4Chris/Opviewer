@@ -1,9 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { CommonService } from '@app/common.service';
 import { DatetimeService } from '@app/supportModules/datetime.service';
-import { BehaviorSubject, Subject } from 'rxjs';
-import { map, startWith, tap } from 'rxjs/operators';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { BehaviorSubject, forkJoin, Observable, Subject } from 'rxjs';
+import { map, startWith, switchMap, tap } from 'rxjs/operators';
 import { WeatherForecastCommunicationService } from '../weather-forecast-communication.service';
+import { WeatherForecastDialogComponent } from '../weather-forecast-dialog/weather-forecast-dialog.component';
+import { WeatherForecastUtilsService } from '../weather-forecast-utils.service';
+import { WeatherForecast } from '../weather-forecast.types';
 
 @Component({
   selector: 'app-weather-forecast-graph',
@@ -19,9 +24,13 @@ export class WeatherForecastGraphComponent implements OnInit {
     private formBuilder: FormBuilder,
     private weatherForecastCommunicationService: WeatherForecastCommunicationService,
     private dateTimeService: DatetimeService,
+    private weatherForecastService: WeatherForecastUtilsService,
+    private modalService: NgbModal, 
+    private commonService: CommonService
+
     )  {}
-  
-  ngOnInit(): void {
+
+    ngOnInit(): void {
     this._createForm()
     this.selectedForecasts$ = 
     this.weatherForecastCommunicationService.getWeatherForecasts().pipe(
@@ -31,14 +40,13 @@ export class WeatherForecastGraphComponent implements OnInit {
         weather_forecast_time: this.dateTimeService.matlabDatenumToYmdHmString(response.General.RefDateNum.Data)
       }))),
       tap(data =>{
-        //find solution to handle selectedForecast
         this.form.setValue({
           selectedForecast: data[0]?.weather_forecast_id ?? '',
           selectedView: 'general'
         })
-        this.selectedWeatherForecast$ = this.form.valueChanges.pipe(startWith(this.form.value))
       }),
       )
+      this.selectedWeatherForecast$ = this.form.valueChanges
     }
     
     private _createForm(){
@@ -46,10 +54,24 @@ export class WeatherForecastGraphComponent implements OnInit {
         selectedForecast: ['', Validators.required],
         selectedView: ['', Validators.required]
       })
-     
-
     }
-  submit(){
-  }
 
+    onChooseWeatherForecast(){
+      this.weatherForecastService.getMetoceanForecasts().pipe(
+        switchMap((data)=>{
+          const modalRef = this.modalService.open(WeatherForecastDialogComponent, { centered: true });
+          modalRef.componentInstance.fromParent = data;
+          return modalRef.result
+        }),
+        switchMap((selectedIds: string[])=>{
+          const listOfCalls = []
+          selectedIds.forEach(id =>{
+            listOfCalls.push(this.commonService.getSpecificWeatherForecasts(id))          
+          })
+            return <Observable<WeatherForecast[]>>forkJoin(listOfCalls)
+        })
+      ).subscribe(data =>{
+        this.weatherForecastCommunicationService.updatedSelectedWeatherForecasts(data);
+      })
+    }
 }

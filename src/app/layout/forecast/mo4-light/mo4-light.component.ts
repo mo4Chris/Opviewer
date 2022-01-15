@@ -5,7 +5,7 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
 import { MatrixService } from '@app/supportModules/matrix.service';
 import { RouterService } from '@app/supportModules/router.service';
 import { forkJoin, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, switchMap } from 'rxjs/operators';
 import { ForecastOperation, ForecastResponseObject, Dof6Array, CtvSlipResponse, Dof6 } from '../models/forecast-response.model';
 import { ForecastResponseService } from '../models/forecast-response.service';
 import { ForecastOperationSettings } from './forecast-ops-picker/forecast-ops-picker.component';
@@ -15,6 +15,8 @@ import { ForecastMotionLimit } from '../models/forecast-limit';
 import { PlotlyLineConfig } from '../models/surface-plot/surface-plot.component';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { now } from 'moment-timezone';
+import { WeatherForecastCommunicationService } from '../models/weather-forecast/weather-forecast-communication.service';
+import { WeatherForecastUtilsService } from '../models/weather-forecast/weather-forecast-utils.service';
 
 @Component({
   selector: 'app-mo4-light',
@@ -72,7 +74,9 @@ export class Mo4LightComponent implements OnInit {
     private responseService: ForecastResponseService,
     private matService: MatrixService,
     private route: ActivatedRoute,
-    private permission: PermissionService
+    private permission: PermissionService,
+    private weatherForecastService: WeatherForecastUtilsService,
+    private weatherForecastCommunicationService: WeatherForecastCommunicationService
   ) {
   }
 
@@ -91,6 +95,13 @@ export class Mo4LightComponent implements OnInit {
       this.showContent = false;
       this.loadData();
     });
+
+    this.weatherForecastService.getMetoceanForecasts().pipe(
+      switchMap(data =>{
+        return this.newService.getSpecificWeatherForecasts(data[0].File_Id)
+      })).subscribe(data =>{
+        this.weatherForecastCommunicationService.updatedSelectedWeatherForecasts([data]);
+      })
   }
   initRoute() {
     return this.route.params.pipe(map(params => {

@@ -1,62 +1,57 @@
-<div class="weather-forecast-graph__wrapper" *ngIf="selectedForecasts$ | async as selectedForecastsss">
-
-    <div class="container">
-            <ng-container *ngIf="selectedWeatherForecast$ | async as seleceted">
-                <app-weather-forecast-weather-graphs *ngIf="seleceted.selectedView === 'general' "  [selectedForecast]="selectedWeatherForecast$"></app-weather-forecast-weather-graphs>
-            </ng-container>
-            <!-- <app-weather-forecast-wave-height-graph  [selectedForecast]="selectedWeatherForecast$"></app-weather-forecast-wave-height-graph>
-            <app-weather-forecast-wind-speed-graph  [selectedForecast]="selectedWeatherForecast$"></app-weather-forecast-wind-speed-graph> -->
-
-        <form [formGroup]="form" (ngSubmit)="submit()">
-            <div *ngFor="let selectedForecasts of selectedForecastsss">
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" [value]="selectedForecasts.weather_forecast_id"
-                        formControlName="selectedForecast" [id]="selectedForecasts.weather_forecast_id">
-                    <label style="width:100%" class="form-check-label" [for]="selectedForecasts.weather_forecast_id">
-                        <span style="float: left;">{{selectedForecasts.weather_provider}}</span>
-                        <span style="float: right;"> {{selectedForecasts.weather_forecast_time}}</span>
-                    </label>
-                    <hr>
-                </div>
-            </div>
-
-            <div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" value="general" formControlName="selectedView"
-                        id="general" />
-                    <label style="width:100%" class="form-check-label" for="general">
-                        General
-                    </label>
-                    <hr>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" value="waves" formControlName="selectedView"
-                        id="waves" />
-                    <label style="width:100%" class="form-check-label" for="waves">
-                        Waves
-                    </label>
-                    <hr>
-                </div>
-
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" value="wind" formControlName="selectedView"
-                        id="wind" />
-                    <label style="width:100%" class="form-check-label" for="wind">
-                        Wind
-                    </label>
-                    <hr>
-                </div>
-
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" value="current" formControlName="selectedView"
-                        id="current" />
-                    <label style="width:100%" class="form-check-label" for="current">
-                        Current
-                    </label>
-                    <hr>
-                </div>
-            </div>
-            <button class="btn btn-primary" type="submit" [disabled]="!form.valid">Submit</button>
-        </form>
+<div class="weather-forecast__wrapper" *ngIf="selectedForecasts$ | async as forecasts">
+    <div class="weather-forecast__graph-templates">
+        <!-- app-weather-forecast-weather-graphs has to start with the form value due to timing issues -->
+        <app-weather-forecast-weather-graphs [formValue]="form.value" [selectedForecast]="selectedWeatherForecast$">
+        </app-weather-forecast-weather-graphs>
+        <app-weather-forecast-wave-height-graph [selectedForecast]="selectedWeatherForecast$">
+        </app-weather-forecast-wave-height-graph>
+        <app-weather-forecast-wind-speed-graph [selectedForecast]="selectedWeatherForecast$">
+        </app-weather-forecast-wind-speed-graph>
     </div>
+
+    <form *ngIf="forecasts.length" class="card weather-forecast__form" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="weather-forecast__form__choose-forecasts">
+            <button class="btn btn-outline-primary mb-2 mr-2" type="button" (click)="onChooseWeatherForecast()">
+                Select forecast(s)
+            </button>
+        </div>
+
+        <div>
+            <h3>Forecast(s): </h3>
+            <div *ngFor="let selectedForecast of forecasts">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" [value]="selectedForecast.weather_forecast_id"
+                        formControlName="selectedForecast" [id]="selectedForecast.weather_forecast_id">
+                    <label class="form-check-label" [for]="selectedForecast.weather_forecast_id">
+                        <span>{{selectedForecast.weather_provider}}</span>
+                        <span> {{selectedForecast.weather_forecast_time}}</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h3>Select view:</h3>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" value="general" formControlName="selectedView"
+                    id="general" />
+                <label class="form-check-label" for="general">
+                    General
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" value="waves" formControlName="selectedView" id="waves" />
+                <label class="form-check-label" for="waves">
+                    Waves
+                </label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="radio" value="wind" formControlName="selectedView" id="wind" />
+                <label class="form-check-label" for="wind">
+                    Wind
+                </label>
+            </div>
+        </div>
+    </form>
 </div>

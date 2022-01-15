@@ -39,7 +39,7 @@ export class WeatherForecastWaveHeightGraphService {
     return {
       generalInformation: {
         timeStamp: this.getTimeStamp(header),
-        provider: header.Forecaster.Data
+        provider: header.Forecaster.Data,
       },
       waveWeatherForecast
     };

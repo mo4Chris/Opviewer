@@ -16,48 +16,49 @@ export class WeatherForecastWaveHeightGraphComponent implements OnInit {
   waveHeightInformation$: Observable<unknown>;
   waveHeightInfo: any;
   @Input() selectedForecast;
+  selectedForecast$: any;
 
   constructor(private weatherForecastService: WeatherForecastWaveHeightGraphService, private weatherForecastCommunicationService: WeatherForecastCommunicationService) { }
 
   ngOnInit(): void {
+    this.selectedForecast$ = this.selectedForecast.pipe(
+      map((val: any) => {
+        return {
+          showPage : val.selectedView === 'waves'
+        }
+      })
+    )
+
     this.waveHeightInformation$ = this.fetchData(this.waveHeightType);
   }
 
   fetchData(waveHeightType) {
-    return this.selectedForecast.pipe(
-      filter((val: any) => val.selectedView === 'waves'),
-      switchMap((val: any)=>{ 
-        return this.weatherForecastCommunicationService.getWeatherForecasts().pipe(
-      filter(data => data.length != 0),
-      map( weatherForecasts => {
-        return weatherForecasts.filter(forecast => forecast.General.Routename.Data === val.selectedForecast)
-      }),
+    return this.weatherForecastCommunicationService.getWeatherForecasts().pipe(
       map(data => {
         return this.weatherForecastService.getPlotData(data, waveHeightType)
       }),
-      tap(data =>{
-        this.waveHeightInfo = 
-        data.data.map((data) =>{
-          const weatherForecast = data.meta.waveWeatherForecast[0]
-          return {
-            metaInfo: {...data.meta.generalInformation, weatherForecast},
-          }
-        })
+      tap(data => {
+        this.waveHeightInfo =
+          data.data.map((data) => {
+            const weatherForecast = data.meta.waveWeatherForecast[0]
+            return {
+              metaInfo: { ...data.meta.generalInformation, weatherForecast },
+            }
+          })
       })
     )
-  }))
-}
+  }
 
-  onHover(event){
-    this.waveHeightInfo = event.points.map(point =>{
+  onHover(event) {
+    this.waveHeightInfo = event.points.map(point => {
       const weatherForecast = point.data.meta.waveWeatherForecast[point.pointIndex]
       return {
-        metaInfo: { weatherForecast, ...point.data.meta.generalInformation},
+        metaInfo: { weatherForecast, ...point.data.meta.generalInformation },
       }
     })
   }
 
-  onSelectType(type){
+  onSelectType(type) {
     this.waveHeightType = type;
     this.waveHeightInformation$ = this.fetchData(this.waveHeightType);
   }
