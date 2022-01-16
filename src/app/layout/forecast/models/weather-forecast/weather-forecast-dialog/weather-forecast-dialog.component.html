@@ -1,0 +1,45 @@
+<form class="weather-forecast-form" *ngIf="fromParent" [formGroup]="form" (ngSubmit)="submitForm(fromParent)" novalidate>
+  <div class="weather-forecast-form__filter">
+    <label for="date">Find the date you are looking for:</label>
+    <input class="weather-forecast-form__filter__input" type="text" name="date" formControlName="filter" placeholder="Filter for specific date...">
+  </div>
+  
+  <div class="weather-forecast-form__table" *ngIf="filteredFormValues$ | async as filteredFormValues">
+      <table class="table table-striped">
+        <thead>
+        <tr>
+          <th scope="col">Provider</th>
+          <th scope="col">Date</th>
+          <th scope="col">Latitude</th>
+          <th scope="col">Longitude</th>
+          <th scope="col">Use</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let data of filteredFormValues">
+          <th scope="row">{{ data.Provider }}</th>
+          <td>
+            {{ data.Received_On }}
+          </td>
+          <td>{{ data.Latitude}}</td>
+          <td>{{ data.Longitude }}</td>
+          <td> <input type="checkbox" [formControlName]="data.File_Id" /></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+      
+      <div class="weather-forecast-form__bottom-wrapper">
+
+    <div class="weather-forecast-form__bottom-wrapper__extension">
+        <div class="weather-forecast-form__submit">
+            <input class="weather-forecast-form__submit__button form-control form-control-sm" type="submit" value="Submit">
+        </div>
+    </div>
+    </div>
+</form>
+
+
+
+

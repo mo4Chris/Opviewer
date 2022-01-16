@@ -1,0 +1,46 @@
+.weather-forecast-form {  
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    &__filter {
+        display: flex;
+        gap: .5rem;
+        padding: .5rem;
+        align-items: baseline;
+        &__input {
+            flex: 1;
+        }
+    }
+
+    &__bottom-wrapper {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        justify-content: flex-end;
+        
+        &__extension {
+            display: flex;
+            justify-content: flex-end;
+            padding: .5rem;
+        }
+    }
+
+    &__table{
+        height: 600px;
+        overflow: scroll;
+    }
+    
+    &__submit {
+        display: flex;
+        justify-content: flex-end;
+        &__button{
+            cursor: pointer;
+        }
+    }
+}
+
+//TODO: figure this out
+::ng-deep .modal-dialog {
+    max-width: 900px;
+}

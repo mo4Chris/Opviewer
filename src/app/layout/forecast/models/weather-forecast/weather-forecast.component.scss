@@ -1,0 +1,12 @@
+.weather-forecast {
+    &__wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    &__choose-forecasts-button{
+        display: flex;
+        align-self: center;
+    }
+}

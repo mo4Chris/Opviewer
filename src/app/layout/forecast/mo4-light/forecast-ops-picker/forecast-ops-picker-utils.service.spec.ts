@@ -49,6 +49,7 @@ describe('ForecastOpsPickerUtilsService', () => {
       
       const actual = service.shouldShowSlipSettings(selectedTab)
       const expected = false;
+      expect(actual).toEqual(expected);
     })
   })
 

@@ -8,6 +8,7 @@ var mo4lightServer = require('./mo4light.server.js');
 var fileUploadServer = require('./file-upload.server.js');
 var mo4AdminServer = require('./administrative.server.js');
 var mo4AdminPostLoginServer = require('./admin.postlogin.server.js');
+var weatherForcastServer = require('./weather-forecast.server.js');
 
 var {mongo} = require("./helper/connections");
 var ctv = require('./models/ctv.js')
@@ -335,8 +336,7 @@ app.use(verifyDemoAccount);
 mo4lightServer(app, logger)
 fileUploadServer(app, logger)
 mo4AdminPostLoginServer(app, logger, mailTo)
-
-
+weatherForcastServer(app, logger)
 //####################################################################
 //#################  Endpoints - with login  #########################
 //####################################################################

@@ -1,0 +1,48 @@
+.weather-forecast{
+    &__wind-report {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: flex-start;
+        width: 100%;
+        max-height: 600px;
+        padding: 20px;
+
+        &__graph-information {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 1em;
+            &__graph{
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1em;
+            }
+        }
+
+        &__wind-direction {
+            height: 450px;
+            overflow-y: scroll;
+            overflow-x: hidden;
+
+            &__icon { 
+                font-size: 40px;
+                color: var(--theme-classic-blue);
+            }
+
+            &__list-item{
+                display: flex;
+                justify-content: space-between;
+                flex-wrap: wrap;
+            }
+        }
+
+        &__wind-direction-wrapper{
+            display: flex;
+            width: 40%;
+            flex-direction: column;
+            gap: .5em;
+        }
+    }
+}

@@ -1,0 +1,53 @@
+.weather-forecast-day-report{
+    padding: 20px;
+    &__title {
+    display: flex;
+    justify-content: center;
+    }
+
+    &__temperature-graph {
+        &__selection {
+            display: flex;
+            justify-content: center;       
+        }
+    }
+
+    &__wrapper{
+        display: inline-flex;
+        align-items: flex-start;
+        gap: 20px;
+        width: 100%;
+        justify-content: space-evenly;
+    }
+    
+    &__information {
+        display: flex;
+        flex-direction: column;
+        max-width: 50%;
+    }
+
+    &__day-summary{
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__list-item{
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    &__header{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    &__button-wrapper{
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 0.5em;
+        flex-wrap: wrap;
+    }
+}

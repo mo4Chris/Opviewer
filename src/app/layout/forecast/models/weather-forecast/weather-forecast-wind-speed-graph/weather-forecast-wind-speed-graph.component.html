@@ -1,0 +1,61 @@
+<ng-container *ngIf="windGraphInformation$ | async as windGraphInformation">
+
+    <div class="weather-forecast__wind-report card">
+        <div class="weather-forecast__wind-report__wind-direction-wrapper">
+            <div class="">
+                <h2>Wind Graph overview</h2>
+            </div>
+            <div class="weather-forecast__wind-report__wind-direction">
+                <dl *ngFor="let info of windDegreesInformation">
+                    <div class="weather-forecast__wind-report__wind-direction__list-item">
+                        <dt>Provider:</dt>
+                        <dd>{{info.metaInfo.provider}}</dd>
+                    </div>
+                    <div class="weather-forecast__wind-report__wind-direction__list-item">
+                        <dt>Timestamp: </dt>
+                        <dd>{{info.metaInfo.timeStamp}}</dd>
+                    </div>
+                    <div class="weather-forecast__wind-report__wind-direction__list-item">
+                        <dt>Selected time: </dt>
+                        <dd>{{info.metaInfo.weatherForecast.dateTime.val}}</dd>
+                    </div>
+                    <div *ngIf="info.metaInfo.weatherForecast?.gust" class="weather-forecast__wind-report__wind-direction__list-item">
+                        <dt>Gust: </dt>
+                        <dd>{{info.metaInfo.weatherForecast.gust.val}} {{info.metaInfo.weatherForecast.gust.Units}}</dd>
+                    </div>
+                    <div class="weather-forecast__wind-report__wind-direction__list-item">
+                        <dt>Speed: </dt>
+                        <dd>{{info.metaInfo.weatherForecast.speed.val}} {{info.metaInfo.weatherForecast.speed.Units}}
+                        </dd>
+                    </div>
+                    <div class="weather-forecast__wind-report__wind-direction__list-item">
+                        <dt>Directions: </dt>
+                        <dd>{{info.metaInfo.weatherForecast.directions.val}}
+                            {{info.metaInfo.weatherForecast.directions.Units}}</dd>
+                    </div>
+                    <div class="weather-forecast__wind-report__wind-direction__list-item">
+                        <dt>Wind Direction: </dt>
+                        <dd><i [ngClass]="info.degreesClass"
+                                class="wi wi-wind weather-forecast__wind-report__wind-direction__icon"></i></dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+
+        <div class="weather-forecast__wind-report__graph-information">
+            <div class="weather-forecast__wind-report__graph-information__graph">
+
+                <div class="weather-forecast__wind-report__graph-information__selection">
+                    <button (click)="onSelectType('speed')" class="btn btn-outline-primary mb-2 mr-2">Speed</button>
+                    <button (click)="onSelectType('gust')" class="btn btn-outline-primary mb-2 mr-2">Gust</button>
+                </div>
+
+                <plotly-plot className="plotly-canvas" [layout]='windGraphInformation.plotLayout'
+                    (hover)="onHover($event)" [data]="windGraphInformation.data" [useResizeHandler]="true"
+                    [config]="{displayModeBar: false}">
+                </plotly-plot>
+            </div>
+
+        </div>
+    </div>
+</ng-container>
