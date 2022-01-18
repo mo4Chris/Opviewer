@@ -234,7 +234,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
       const legend = document.getElementById('mapLegendID');
       const height = 35;
-      console.log(this.mapLegend);
       this.mapLegend.markers.forEach(marker => {
         const div = document.createElement('div');
         div.innerHTML = '<span><img src=' + marker.url + ' height="' + height + '"> ' + marker.description + '</span>';

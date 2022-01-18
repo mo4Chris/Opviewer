@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { icon, latLng, marker, tileLayer } from 'leaflet';
+import { latLng, tileLayer } from 'leaflet';
 
 import { CommonService } from '@app/common.service';
-import { map, take } from 'rxjs/operators';
 import * as L from "leaflet";
 import { forkJoin } from 'rxjs/internal/observable/forkJoin';
-import { DatetimeService } from '@app/supportModules/datetime.service';
+import { OsmGenerateIconsService } from '../osm-generate-icons.service';
+import { OsmAssignDataService } from '../osm-assign-data.service';
 
 @Component({
   selector: 'app-osm-dashboard-map',
@@ -15,92 +15,26 @@ import { DatetimeService } from '@app/supportModules/datetime.service';
 export class OsmDashboardMapComponent implements OnInit {
 
   constructor(
+    private osmIconService: OsmGenerateIconsService,
+    private osmDataAssignService: OsmAssignDataService,
     private commonService: CommonService,
-    private dateTimeService: DatetimeService,
   ) { }
-  zoomLvl = 5.5;
 
-  //icons in icon service
-  Icon = icon({
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-    iconUrl: 'assets/images/grn-circle.png',
-  })
-  yellowIcon = icon({
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-    iconUrl: 'assets/images/ylw-circle.png',
-  })
-  redIcon = icon({
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-    iconUrl: 'assets/images/red-circle.png',
-  })
-  
-  
-  harbourIcon = icon({
-    iconSize: [20, 20],
-    iconAnchor: [10, 10],
-    iconUrl: 'assets/images/marina.png',
-  })
-  turbineIcon = icon({
-    iconSize: [20, 20],
-    iconAnchor: [10, 10],
-    iconUrl: 'assets/images/windTurbine.png',
-  })
-  forecastIcon = icon({
-    iconSize: [20, 20],
-    iconAnchor: [10, 10],
-    iconUrl: 'assets/images/forecast-location.png',
-  })
-   
   vesselMarkerClusterList = L.markerClusterGroup();
   forecastMarkerClusterList = L.markerClusterGroup();
   harbourMarkerList;
   turbineMarkerList;
+  turbineOutlineList;
   map;
-  
-  vesselMarkerClusterOptions = {
-    iconCreateFunction: function(cluster) {
-      const icon = L.divIcon({
-        iconSize: [0,0],
-        iconAnchor: [16, 16],
-        html: `<div style="
-        width: 32px;
-        height: 32px;
-        line-height: 32px;
-        background-image: url('http://localhost:4200/assets/clusterer/m1.png');
-        background-size: cover; 
-        text-align: center;
-    ">` + cluster.getChildCount() + '</div>'
-    });
-    return icon;
-    }
-  };
-  
-  forecastMarkerClusterOptions = {
-    iconCreateFunction: function(cluster) {
-      const icon = L.divIcon({
-        iconSize: [0,0],
-        iconAnchor: [16,16],
-        html: `<div style="
-        width: 32px;
-        height: 32px;
-        line-height: 32px;
-        background-image: url('http://localhost:4200/assets/clusterer/m4.png');
-        background-size: cover; 
-        text-align: center;
-    ">` + cluster.getChildCount() + '</div>'
-      });
-      return icon;
-    }
-  }
+
+  vesselMarkerClusterOptions = this.osmIconService.getMarkerClustererIcon('m1');
+  forecastMarkerClusterOptions = this.osmIconService.getMarkerClustererIcon('m4');
 
   osmMapOptions = {
     layers: [
       this.getMapBaseLayer()
     ],
-    zoom: this.zoomLvl,
+    zoom: 5.5,
     center: latLng(55, 0)
   };
 
@@ -113,96 +47,37 @@ export class OsmDashboardMapComponent implements OnInit {
   }
 
   controlLayers() {
-    if (this.map.getZoom() > 6){ 
+    if (this.map.getZoom() > 6) {
       this.map.addLayer(this.harbourMarkerList);
     } else {
       this.map.removeLayer(this.harbourMarkerList);
     }
+
+    if (this.map.getZoom() > 8) {
+      this.map.addLayer(this.turbineOutlineList)
+    } else {
+      this.map.removeLayer(this.turbineOutlineList)
+    }
   }
-  
+
 
   ngOnInit(): void {
     forkJoin([
-      this.retrieveHarbourLocations(),
-      this.retrieveLatestVesselLocation(),
-      this.retrieveWindfarmLocations(),
-      this.retrieveForecastLocations()
-    ]).subscribe(([harbours, vessels, windfarms, forecasts]) => {
-        this.vesselMarkerClusterList = L.markerClusterGroup().addLayers(vessels),
-        this.forecastMarkerClusterList= L.markerClusterGroup().addLayers(forecasts)
+      this.osmDataAssignService.retrieveHarbourLocations(),
+      this.osmDataAssignService.retrieveLatestVesselLocation(),
+      this.osmDataAssignService.retrieveWindfarmLocations(),
+      this.osmDataAssignService.retrieveForecastLocations(),
+      this.osmDataAssignService.retrieveWindfarmOutline()
+    ]).subscribe(([harbours, vessels, windfarms, forecasts, windfarmOutlines]) => {
+      this.vesselMarkerClusterList = L.markerClusterGroup().addLayers(vessels),
+        this.forecastMarkerClusterList = L.markerClusterGroup().addLayers(forecasts)
 
-        this.harbourMarkerList = L.layerGroup(harbours)
-        this.turbineMarkerList = windfarms;
+      this.harbourMarkerList = L.layerGroup(harbours)
+      this.turbineMarkerList = windfarms;
+      this.turbineOutlineList = L.layerGroup(windfarmOutlines);
     });
   }
 
-  retrieveHarbourLocations () {
-    return this.commonService.getHarbourLocations().pipe(
-      map((response: any) => response.map(response => ({
-        location_name: response.name,
-        lat: response.centroid.lat,
-        lon: response.centroid.lon,
-          })
-        )
-      ), 
-      map(elements => elements.map(element => {
-        return marker([element.lat, element.lon], { icon: this.harbourIcon }).bindPopup(element.location_name);
-      })  ),
-      take(1)
-      )
-  }
-  retrieveLatestVesselLocation () {
-    return this.commonService.getLatestBoatLocation().pipe(
-      map((response: any) => response.map(response => ({
-        vessel_name: response.vesselInformation[0],
-        lat: response.LAT,
-        lon: response.LON,
-        timestamp: response.TIMESTAMP,
-        mmsi: response._id
-          })
-        )
-      ), 
-      map(elements => elements.map(element => {
-        return marker([element.lat, element.lon], { icon: this.getCorrectColorIcon(element.timestamp)}).bindPopup(element.vessel_name);
-      })  ),
-      take(1)
-      )
-  }
-
-  retrieveWindfarmLocations () {
-    return this.commonService.getParkLocations().pipe(
-      map((response: any) => response.map(response => ({
-        site_name: response.SiteName,
-        lat: response.centroid.lat,
-        lon: response.centroid.lon,
-        latOuline: response.outlineLatCoordinates,
-        lonOutline: response.outlineLonCoordinates
-          })
-        )
-      ), 
-      map(elements => elements.map(element => {
-        return marker([element.lat, element.lon], { icon: this.turbineIcon}).bindPopup(element.site_name);
-      })  ),
-      take(1)
-      )
-  }
-
-  retrieveForecastLocations () {
-    return this.commonService.getForecastProjectLocations().pipe(
-      map((response: any) => response.map(response => ({
-        forecast_name: response.nicename,
-        lat: response.lat,
-        lon: response.lon,
-        project_id: response.id
-          })
-        )
-      ), 
-      map(elements => elements.map(element => {
-        return marker([element.lat, element.lon], { icon: this.forecastIcon }).bindPopup(element.forecast_name);
-      })  ),
-      take(1)
-      )
-  }
 
   chooseCorrectStreetMap() {
     const isOnline = true;
@@ -217,18 +92,6 @@ export class OsmDashboardMapComponent implements OnInit {
       return this.getOnlineSeaMapsLayer();
     }
   }
-
-  getCorrectColorIcon(timestamp) {
-    const lastUpdatedHours = this.dateTimeService.hoursSinceTimeString(timestamp);
-    
-    const color = lastUpdatedHours < 1 ? 'grn' : lastUpdatedHours < 6 ? 'ylw' : 'red'
-    
-    return L.icon( {
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
-      iconUrl: `assets/images/${color}-circle.png`
-    })
-  } 
 
 
   getOnlineStreetMapTiles() {
