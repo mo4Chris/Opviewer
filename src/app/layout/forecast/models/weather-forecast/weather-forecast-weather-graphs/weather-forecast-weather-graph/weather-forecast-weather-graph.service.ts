@@ -5,32 +5,56 @@ import { DayReport } from '../weather-forecast.types';
 export class WeatherForecastWeatherGraphService {
 
   constructor() { }
-  createGraphInformation(dayReport: DayReport, type: string){
-    const dateArray = dayReport.dateGraphInformation.map(val =>{
-      return val.date
-    })
-    const array = dayReport.dateGraphInformation.map(val =>{
-      return val[type]?.val
-    })
 
-    const title =  dayReport.dateGraphInformation?.[0]?.[type]?.unit
-    const floor = Math.floor(Math.max(...array)) 
-    const ceil = Math.ceil(Math.max(...array))
-    const floorRange = floor <= 0 ? floor : 0
-    const range = [floorRange, ceil];
-    const graphtitle = `${dayReport.date}: ${type}`
-    const plotLayout = this.setPlotLayout(range,graphtitle ,title)
+  public createGraphInformation(dayReport: DayReport, type: string) {
+    const dateArray = dayReport.dateGraphInformation.map(val => val.date);
+    const array = dayReport.dateGraphInformation.map(val => val[type]?.val);
+
+    const unit = dayReport.dateGraphInformation?.[0]?.[type]?.unit;
+    const title = unit;
+
+    const range = this._getRangeForType(type, array);
+
+    const graphTitle = `${dayReport.date}: ${type}`;
+    const plotLayout = this._setPlotLayout(range, graphTitle, title);
     return {
-      plotData: this.createPlottyData({
+      plotData: this._createPlotlyData({
         dateArray,
         temperatureArray: array,
         title
       }),
       plotLayout
+    };
+  }
+
+  private _getRangeForType(type: string, array) {
+    switch (type) {
+      case 'visibility':
+        return this._rangeWithOffset(array, 1);
+
+      case 'pressure':
+        return this._rangeWithOffset(array);
+
+      default:
+        return this._rangeByLowest(array);
     }
   }
 
-  createPlottyData(graphInformation) {
+  private _rangeWithOffset(array, offset = 0) {
+    const floor = Math.floor(Math.min(...array) - offset);
+    const ceil = Math.ceil(Math.max(...array) + offset);
+
+    return [floor, ceil];
+  }
+
+  private _rangeByLowest(array) {
+    const floor = Math.floor(Math.max(...array));
+    const ceil = Math.ceil(Math.max(...array));
+    const floorRange = floor <= 0 ? floor : 0;
+    return [floorRange, ceil];
+  }
+
+  private _createPlotlyData(graphInformation) {
     return [{
       x: graphInformation.dateArray,
       y: graphInformation.temperatureArray,
@@ -40,10 +64,10 @@ export class WeatherForecastWeatherGraphService {
       marker: {
         color: '#007bff',
       },
-    }]
+    }];
   }
 
-  setPlotLayout(range: number[], graphTitle: string ,titleY: string): Partial<Plotly.Layout> {
+  private _setPlotLayout(range: number[], graphTitle: string, titleY: string): Partial<Plotly.Layout> {
     return {
       title: graphTitle,
       width: 800,
