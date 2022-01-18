@@ -10,30 +10,30 @@ import { WeatherForecastWeatherGraphService } from './weather-forecast-weather-g
 })
 
 export class WeatherForecastWeatherGraphComponent implements OnInit {
-  @Input() weatherForecast: DayReport[]
-  temperature = WEATHER_FORECAST_OPTIONS_TYPE.TEMPERATURE
-  visibility = WEATHER_FORECAST_OPTIONS_TYPE.VISIBILITY
-  humidity = WEATHER_FORECAST_OPTIONS_TYPE.HUMIDITY
-  pressure = WEATHER_FORECAST_OPTIONS_TYPE.PRESSURE
+  @Input() weatherForecast: DayReport[];
+  temperature = WEATHER_FORECAST_OPTIONS_TYPE.TEMPERATURE;
+  visibility = WEATHER_FORECAST_OPTIONS_TYPE.VISIBILITY;
+  humidity = WEATHER_FORECAST_OPTIONS_TYPE.HUMIDITY;
+  pressure = WEATHER_FORECAST_OPTIONS_TYPE.PRESSURE;
   weatherForecastType = WEATHER_FORECAST_OPTIONS_TYPE.TEMPERATURE;
   selectedWFindex = 0;
   dayReport: DayReport;
   temperatureGraphInformation: WeatherForecastPlotlyData;
 
-  constructor(private weatherForecastWeatherGraphService: WeatherForecastWeatherGraphService){}
-  
+  constructor(private weatherForecastWeatherGraphService: WeatherForecastWeatherGraphService) { }
+
   ngOnInit(): void {
     this.dayReport = this.weatherForecast[this.selectedWFindex];
-    this.temperatureGraphInformation = this.weatherForecastWeatherGraphService.createGraphInformation(this.weatherForecast[this.selectedWFindex], this.weatherForecastType)
-  }
-  
-  onSelectDayReport(i){
-    this.selectedWFindex = i;
-    this.dayReport = this.weatherForecast[this.selectedWFindex]
-    this.temperatureGraphInformation = this.weatherForecastWeatherGraphService.createGraphInformation(this.weatherForecast[this.selectedWFindex], this.weatherForecastType)
+    this.temperatureGraphInformation = this.weatherForecastWeatherGraphService.createGraphInformation(this.weatherForecast[this.selectedWFindex], this.weatherForecastType);
   }
 
-  onSelectType(type){
+  onSelectDayReport(i: number) {
+    this.selectedWFindex = i;
+    this.dayReport = this.weatherForecast[this.selectedWFindex];
+    this.temperatureGraphInformation = this.weatherForecastWeatherGraphService.createGraphInformation(this.weatherForecast[this.selectedWFindex], this.weatherForecastType);
+  }
+
+  onSelectType(type) {
     this.weatherForecastType = type;
     this.temperatureGraphInformation = this.weatherForecastWeatherGraphService.createGraphInformation(this.weatherForecast[this.selectedWFindex], type)
   }
