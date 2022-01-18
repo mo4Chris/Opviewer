@@ -13,12 +13,12 @@ export class WeatherForecastWeatherGraphService {
     const unit = dayReport.dateGraphInformation?.[0]?.[type]?.unit;
     const title = unit;
 
-    const range = this._getRangeForType(type, array);
+    const range = this.getRangeForType(type, array);
 
     const graphTitle = `${dayReport.date}: ${type}`;
-    const plotLayout = this._setPlotLayout(range, graphTitle, title);
+    const plotLayout = this.setPlotLayout(range, graphTitle, title);
     return {
-      plotData: this._createPlotlyData({
+      plotData: this.createPlotlyData({
         dateArray,
         temperatureArray: array,
         title
@@ -27,34 +27,35 @@ export class WeatherForecastWeatherGraphService {
     };
   }
 
-  private _getRangeForType(type: string, array) {
+  public getRangeForType(type: string, array): [number, number] {
     switch (type) {
       case 'visibility':
-        return this._rangeWithOffset(array, 1);
+        return this.rangeWithOffset(array, 1);
 
       case 'pressure':
-        return this._rangeWithOffset(array);
+        return this.rangeWithOffset(array);
 
       default:
-        return this._rangeByLowest(array);
+        return this.rangeByLowest(array);
     }
   }
 
-  private _rangeWithOffset(array, offset = 0) {
+  public rangeWithOffset(array, offset = 0): [number, number] {
     const floor = Math.floor(Math.min(...array) - offset);
     const ceil = Math.ceil(Math.max(...array) + offset);
 
     return [floor, ceil];
   }
 
-  private _rangeByLowest(array) {
-    const floor = Math.floor(Math.max(...array));
+  public rangeByLowest(array): [number, number] {
+    const floor = Math.floor(Math.min(...array));
     const ceil = Math.ceil(Math.max(...array));
+
     const floorRange = floor <= 0 ? floor : 0;
     return [floorRange, ceil];
   }
 
-  private _createPlotlyData(graphInformation) {
+  public createPlotlyData(graphInformation) {
     return [{
       x: graphInformation.dateArray,
       y: graphInformation.temperatureArray,
@@ -67,7 +68,7 @@ export class WeatherForecastWeatherGraphService {
     }];
   }
 
-  private _setPlotLayout(range: number[], graphTitle: string, titleY: string): Partial<Plotly.Layout> {
+  public setPlotLayout(range: number[], graphTitle: string, titleY: string): Partial<Plotly.Layout> {
     return {
       title: graphTitle,
       width: 800,

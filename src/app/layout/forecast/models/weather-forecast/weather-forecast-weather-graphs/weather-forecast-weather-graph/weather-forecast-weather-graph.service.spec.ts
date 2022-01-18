@@ -125,6 +125,108 @@ describe('WeatherForecastWeatherGraphService', () => {
     });
   });
 
+  describe('getRangeForType', () => {
+    const array = [-1, 2, 4, 6, 8];
+
+    it('should return a tuple (temperature)', () => {
+      const actual = service.getRangeForType('temperature', array);
+      expect(actual.length).toBe(2);
+    });
+
+    it('should return a tuple (humidity)', () => {
+      const actual = service.getRangeForType('humidity', array);
+      expect(actual.length).toBe(2);
+    });
+
+    it('should return a tuple (visibility)', () => {
+      const actual = service.getRangeForType('visibility', array);
+      expect(actual.length).toBe(2);
+    });
+
+    it('should return a tuple (pressure)', () => {
+      const actual = service.getRangeForType('pressure', array);
+      expect(actual.length).toBe(2);
+    });
+
+    it('should return a tuple (other)', () => {
+      const actual = service.getRangeForType('cats_and_dogs', array);
+      expect(actual.length).toBe(2);
+    });
+
+    it('should clamp the values when type is pressure', () => {
+      const actual = service.getRangeForType('pressure', array);
+      expect(actual).toEqual([-1, 8]);
+    });
+
+    it('should clamp the values with an offset of 1 when type is visibility', () => {
+      const actual = service.getRangeForType('visibility', array);
+      expect(actual).toEqual([-2, 9]);
+    });
+
+    it('should use rangeByLowest for any other type', () => {
+      const actual = service.getRangeForType('cats_and_dogs', array);
+      expect(actual).toEqual([-1, 8]);
+    });
+  });
+
+  describe('rangeByLowest', () => {
+    it('should return a tuple with an lower bound that\'s equal or lower than 0', () => {
+      const array = [-4, -2, 0, 8, 16];
+      const actual = service.rangeByLowest(array);
+      expect(actual).toEqual([-4, 16]);
+    });
+
+    it('should always return a lower bound of 0 even when the lowest value is higher', () => {
+      const array = [8, 9, 10, 11, 12];
+      const actual = service.rangeByLowest(array);
+      expect(actual).toEqual([0, 12]);
+    });
+
+    it('should keep the lower bound at 0 when this is the lowest value', () => {
+      const array = [0, 8, 12, 16, 18];
+      const actual = service.rangeByLowest(array);
+      expect(actual).toEqual([0, 18]);
+    });
+
+    it('should not fail if the input array has a length of 1', () => {
+      const array = [5];
+      const actual = service.rangeByLowest(array);
+      expect(actual).toEqual([0, 5]);
+    });
+
+    it('should not fail if the input array has a length of 1, with a negative value', () => {
+      const array = [-5];
+      const actual = service.rangeByLowest(array);
+      expect(actual).toEqual([-5, -5]);
+    });
+  });
+
+  describe('rangeWithOffset', () => {
+    it('should return a tuple with the lower and upper bound set to the lowest and highest value of the array when no offset is given', () => {
+      const array = [-4, -2, 0, 8, 16];
+      const actual = service.rangeWithOffset(array);
+      expect(actual).toEqual([-4, 16]);
+    });
+
+    it('should apply the correct offset to the upper and lower bounds', () => {
+      const array = [-4, -2, 0, 8, 16];
+      const actual = service.rangeWithOffset(array, 8);
+      expect(actual).toEqual([-12, 24]);
+    });
+
+    it('should apply the correct offset, even when the offset is negative', () => {
+      const array = [-4, -2, 0, 8, 16];
+      const actual = service.rangeWithOffset(array, -8);
+      expect(actual).toEqual([4, 8]);
+    });
+
+    it('should not fail if the input array has a length of 1', () => {
+      const array = [5];
+      const actual = service.rangeWithOffset(array, 2);
+      expect(actual).toEqual([3, 7]);
+    });
+  });
+
   describe('createPlotlyData', () => {
     it('should create', () => {
       const input = {
@@ -137,7 +239,7 @@ describe('WeatherForecastWeatherGraphService', () => {
         'title': 'degrees Celcius'
       };
 
-      const actual = service['_createPlotlyData'](input);
+      const actual = service.createPlotlyData(input);
       const expected: any = [
         {
           'x': [
@@ -164,7 +266,7 @@ describe('WeatherForecastWeatherGraphService', () => {
       const graphTitle = 'lalal';
       const titleY = 'degrees';
 
-      const actual = service['_setPlotLayout'](range, graphTitle, titleY);
+      const actual = service.setPlotLayout(range, graphTitle, titleY);
       const expected: any = {
         title: graphTitle,
         width: 800,
