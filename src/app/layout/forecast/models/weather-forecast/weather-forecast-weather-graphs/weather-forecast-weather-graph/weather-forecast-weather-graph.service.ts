@@ -28,31 +28,15 @@ export class WeatherForecastWeatherGraphService {
   }
 
   public getRangeForType(type: string, array): [number, number] {
-    switch (type) {
-      case 'visibility':
-        return this.rangeWithOffset(array, 1);
-
-      case 'pressure':
-        return this.rangeWithOffset(array);
-
-      default:
-        return this.rangeByLowest(array);
-    }
-  }
-
-  public rangeWithOffset(array, offset = 0): [number, number] {
-    const floor = Math.floor(Math.min(...array) - offset);
-    const ceil = Math.ceil(Math.max(...array) + offset);
-
-    return [floor, ceil];
-  }
-
-  public rangeByLowest(array): [number, number] {
     const floor = Math.floor(Math.min(...array));
     const ceil = Math.ceil(Math.max(...array));
 
-    const floorRange = floor <= 0 ? floor : 0;
-    return [floorRange, ceil];
+    if (type === 'temperature') {
+      const temperatureFloor = floor > 0 ? 0 : floor;
+      return [temperatureFloor, ceil];
+    }
+
+    return [floor, ceil];
   }
 
   public createPlotlyData(graphInformation) {
