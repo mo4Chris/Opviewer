@@ -20,7 +20,6 @@ export class WeatherForecastWindSpeedGraphComponent implements OnInit {
   weatherForecastWindType = this.speed;
   degreesClass: string;
   windGraphHoverInformation: WindGraphInformation[];
-  showPage: boolean;
   selectedForecast$: any;
 
   constructor(
