@@ -1,7 +1,23 @@
-.weather-forecast-graph{
+.weather-forecast{
     &__wrapper{
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         gap: 20px;
     }
+
+    &__graph-templates{
+        width: 85%;
+    }
+
+    &__form{
+        width: 15%;
+        padding: 20px;
+        gap: 20px;
+        &__choose-forecasts {
+            display: flex;
+            justify-content: center;
+        }
+    }
+
+
 }

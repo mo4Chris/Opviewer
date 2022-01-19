@@ -8,9 +8,9 @@
         &__graph-information {
             display: flex;
             flex-direction: row;
-            align-items: center;
+            align-items: flex-start;
             gap: 1em;
-            &__graph{
+            &__graph {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
@@ -19,11 +19,7 @@
         }
 
         &__wind-direction {
-            height: 500px;
             padding: 0.5em;
-            overflow-y: auto;
-            overflow-x: hidden;
-
             &__icon { 
                 font-size: 40px;
                 color: var(--theme-classic-blue);

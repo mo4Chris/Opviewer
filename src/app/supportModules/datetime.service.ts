@@ -50,6 +50,10 @@ static shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'S
     return this.matlabDatenumToMoment(serial).format('YYYY-MM-DD');
   }
 
+  matlabDatenumToYmdHmString(serial: number): string {
+    return this.matlabDatenumToMoment(serial).format('YYYY-MM-DD HH:mm');
+  }
+
   ymdStringToYMD(YMDDate: string): {year: number, month: number, day: number} {
     if (typeof YMDDate !== 'string') return null;
     const YMDarray = YMDDate.split('-');

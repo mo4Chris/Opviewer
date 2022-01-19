@@ -19,9 +19,8 @@ import { WeatherForecastDialogUtilsService } from './weather-forecast-dialog/wea
 import { WeatherIconsModule } from '../../weather-icons/weather-icons.module';
 import { WeatherForecastWeatherGraphService } from './weather-forecast-weather-graphs/weather-forecast-weather-graph/weather-forecast-weather-graph.service';
 
-
 @NgModule({
-  declarations: [WeatherForecastComponent, WeatherForecastDialogComponent, WeatherForecastGraphComponent, WeatherForecastWaveHeightGraphComponent, WeatherForecastWindSpeedGraphComponent, WeatherForecastWeatherGraphComponent, WeatherForecastWeatherGraphsComponent],
+  declarations: [WeatherForecastComponent, WeatherForecastDialogComponent, WeatherForecastGraphComponent, WeatherForecastWaveHeightGraphComponent, WeatherForecastWindSpeedGraphComponent, WeatherForecastWeatherGraphComponent, WeatherForecastWeatherGraphsComponent ],
   imports: [
     CommonModule,
     PlotlyModule,
@@ -30,7 +29,7 @@ import { WeatherForecastWeatherGraphService } from './weather-forecast-weather-g
     NgbModule,
     WeatherIconsModule
   ],
-  providers: [WeatherForecastUtilsService, WeatherForecastWaveHeightGraphService,WeatherForecastCommunicationService, WeatherForecastWindSpeedGraphService, WeatherForecastWeatherGraphsService, WeatherForecastDialogUtilsService, WeatherForecastWeatherGraphService],
+  providers: [WeatherForecastUtilsService, WeatherForecastWaveHeightGraphService,WeatherForecastCommunicationService, WeatherForecastWindSpeedGraphService, WeatherForecastWeatherGraphsService, WeatherForecastDialogUtilsService, WeatherForecastWeatherGraphService, WeatherForecastGraphComponent],
   exports: [WeatherForecastComponent]
 })
 export class WeatherForecastModule { }

@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
-import { filter, map, tap } from 'rxjs/operators';
+import { Component, Input, OnInit } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { WeatherForecastCommunicationService } from '../weather-forecast-communication.service';
 import { WeatherForecastWindSpeedGraphService } from './weather-forecast-wind-speed-graph.service';
-import { WEATHER_FORECAST_WIND_TYPE, WindGraphInformation } from './weather-forecast-wind-speed-graph.types';
+import { WeatherForecastWindPlotData, WEATHER_FORECAST_WIND_TYPE, WindGraphInformation } from './weather-forecast-wind-speed-graph.types';
 
 @Component({
   selector: 'app-weather-forecast-wind-speed-graph',
@@ -10,50 +11,61 @@ import { WEATHER_FORECAST_WIND_TYPE, WindGraphInformation } from './weather-fore
   styleUrls: ['./weather-forecast-wind-speed-graph.component.scss']
 })
 export class WeatherForecastWindSpeedGraphComponent implements OnInit {
+  @Input() selectedForecast;
+
   speed = WEATHER_FORECAST_WIND_TYPE.SPEED;
   gust = WEATHER_FORECAST_WIND_TYPE.GUST;
   public plotLayout: Partial<Plotly.Layout>;
-  windGraphInformation$
+  windGraphInformation$: Observable<WeatherForecastWindPlotData>
   weatherForecastWindType = this.speed;
   degreesClass: string;
   windGraphHoverInformation: WindGraphInformation[];
-  
+  selectedForecast$: any;
+
   constructor(
-    private weatherForecastService: WeatherForecastWindSpeedGraphService, 
+    private weatherForecastService: WeatherForecastWindSpeedGraphService,
     private weatherForecastCommunicationService: WeatherForecastCommunicationService) { }
 
   ngOnInit(): void {
-    this.windGraphInformation$ =  this.fetchData(this.weatherForecastWindType)
+    this.selectedForecast$ = this.selectedForecast.pipe(
+      map((val: any) => {
+        return {
+          showPage: val.selectedView === 'wind'
+        }
+      })
+    )
+
+    this.windGraphInformation$ = this.fetchData(this.weatherForecastWindType)
   }
 
-  fetchData(windType: string){
+  fetchData(windType: string) {
     return this.weatherForecastCommunicationService.getWeatherForecasts().pipe(
-      filter(data => data.length != 0),
-      map(data =>{
+      map(data => {
         return this.weatherForecastService.getPlotData(data, windType)
       }),
-      tap(data =>{
-        this.windGraphHoverInformation = 
-        data.data.map((data) =>{
-          const weatherForecast = data.meta.weatherForecastWind[0]
-          return {
-            metaInfo: {...data.meta.generalInformation, weatherForecast},
-            degreesClass: `from-${weatherForecast.directions.val}-deg`
-          }
-        })
+      tap(data => {
+        this.windGraphHoverInformation =
+          data.data.map((data) => {
+            const weatherForecast = data.meta.weatherForecastWind[0]
+            return {
+              metaInfo: { ...data.meta.generalInformation, weatherForecast },
+              degreesClass: `from-${weatherForecast.directions.val}-deg`
+            }
+          })
       })
-    )}
-
-    onSelectType(type){
-      this.weatherForecastWindType = type;
-      this.windGraphInformation$ = this.fetchData(type);
+    )
   }
 
-  onHover(event){
-    this.windGraphHoverInformation = event.points.map(point =>{
+  onSelectType(type) {
+    this.weatherForecastWindType = type;
+    this.windGraphInformation$ = this.fetchData(type);
+  }
+
+  onHover(event) {
+    this.windGraphHoverInformation = event.points.map(point => {
       const weatherForecast = point.data.meta.weatherForecastWind[point.pointIndex]
       return {
-        metaInfo: { weatherForecast, ...point.data.meta.generalInformation},
+        metaInfo: { weatherForecast, ...point.data.meta.generalInformation },
         degreesClass: `from-${weatherForecast.directions.val}-deg`,
       }
     })

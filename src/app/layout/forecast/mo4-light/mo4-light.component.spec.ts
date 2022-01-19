@@ -18,13 +18,18 @@ import { ForecastMotionLimit } from '../models/forecast-limit';
 import { ForecastWeatherOverviewComponent } from './forecast-weather-overview/forecast-weather-overview.component';
 import * as moment from 'moment-timezone';
 import { ForecastProjectOverviewComponent } from './forecast-project-overview/forecast-project-overview.component';
-
+import { WeatherForecastCommunicationService } from '../models/weather-forecast/weather-forecast-communication.service';
+import { WeatherForecastUtilsService } from '../models/weather-forecast/weather-forecast-utils.service';
 
 describe('Mo4LightComponent', () => {
   let component: Mo4LightComponent;
   let fixture: ComponentFixture<Mo4LightComponent>;
+  let weatherForecastUtilsServiceMock;
+  let weatherForecastCommunicationServiceMock;
 
   beforeEach(() => {
+    weatherForecastUtilsServiceMock = jasmine.createSpyObj('WeatherForecastUtilsService', ['getMetoceanForecasts'])
+    weatherForecastCommunicationServiceMock = jasmine.createSpyObj('WeatherForecastCommunicationService', ['updatedSelectedWeatherForecasts'])
     TestBed.configureTestingModule({
       declarations: [
         Mo4LightComponent,
@@ -45,6 +50,8 @@ describe('Mo4LightComponent', () => {
       providers: [
         MockedCommonServiceProvider,
         MockedUserServiceProvider,
+        {provide: WeatherForecastCommunicationService, useValue: weatherForecastCommunicationServiceMock },
+        {provide: WeatherForecastUtilsService, useValue: weatherForecastUtilsServiceMock },
       ]
     })
     .compileComponents();
@@ -53,6 +60,7 @@ describe('Mo4LightComponent', () => {
   beforeEach(async () => {
     fixture = TestBed.createComponent(Mo4LightComponent);
     component = fixture.componentInstance;
+    weatherForecastUtilsServiceMock.getMetoceanForecasts.and.returnValue(of([{File_Id: '1234'}]))
     await fixture.whenStable();
   });
 
