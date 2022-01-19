@@ -39,12 +39,12 @@
                 <div class="weather-forecast__wave-report__graph-information__graph">
 
                     <div class="weather-forecast__wave-report__graph-information__selection">
-                            class="btn btn-outline-primary mb-2 mr-2">Hs</button>
-                        <button (click)="onSelectType('hMax')"
-                            class="btn btn-outline-primary mb-2 mr-2">HMax</button>
-                        <button (click)="onSelectType('tz')"
-                            class="btn btn-outline-primary mb-2 mr-2">Tz</button>
-                        <button (click)="onSelectType('hs')"
+                        <button  (click)="onSelectType('hMax')"  class="btn btn-outline-primary mb-2 mr-2">Hs</button>
+                        
+                        <button (click)="onSelectType('tz')" class="btn btn-outline-primary mb-2 mr-2">HMax</button>
+                        
+                        <button (click)="onSelectType('hs')"  class="btn btn-outline-primary mb-2 mr-2">Tz</button>
+                        
                     </div>
 
                     <plotly-plot className="plotly-canvas" [layout]='waveHeightInformation.plotLayout'
