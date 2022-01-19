@@ -51,7 +51,7 @@
         </dl>
         <div class="weather-forecast-day-report__button-wrapper">
           <div *ngFor="let dayReport of weatherForecast; let i = index">
-            <app-weather-icons *ngIf="dayReport.dateGraphInformation.length > 0" (click)="onSelectDayReport(i)"
+            <app-weather-icons *ngIf="dayReport.hasDateGraphInformation" (click)="onSelectDayReport(i)"
               [weatherIconType]="dayReport.dateIcon" [day]="dayReport.day"></app-weather-icons>
           </div>
         </div>

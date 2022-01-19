@@ -36,6 +36,7 @@ export interface DayReport {
   windGust: ExtendedDataType;
   windDirection: ExtendedDataType;
   dateGraphInformation: WeatherForecastHourChartInformation[];
+  hasDateGraphInformation: boolean;
 }
 
 interface ExtendedDataType {
