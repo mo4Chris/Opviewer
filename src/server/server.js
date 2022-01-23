@@ -9,12 +9,14 @@ var fileUploadServer = require('./file-upload.server.js');
 var mo4AdminServer = require('./administrative.server.js');
 var mo4AdminPostLoginServer = require('./admin.postlogin.server.js');
 var weatherForcastServer = require('./weather-forecast.server.js');
+var forecastPlanningServer = require('./forecast-planning.server.js')
 
 var {mongo} = require("./helper/connections");
 var ctv = require('./models/ctv.js')
 var sov = require('./models/sov.js')
 var geo = require('./models/geo.js')
 var twa = require('./models/twa.js')
+var fc_planning = require('./models/forecast-planning-models')
 var videoRequests = require('./models/video_requests.js')
 var weather = require('./models/weather.js');
 const { default: axios } = require('axios');
@@ -337,6 +339,7 @@ mo4lightServer(app, logger)
 fileUploadServer(app, logger)
 mo4AdminPostLoginServer(app, logger, mailTo)
 weatherForcastServer(app, logger)
+forecastPlanningServer(app, logger);
 //####################################################################
 //#################  Endpoints - with login  #########################
 //####################################################################

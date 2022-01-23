@@ -17,6 +17,7 @@ import { AlertService } from '@app/supportModules/alert.service';
 import { PermissionService } from '@app/shared/permissions/permission.service';
 import { Observable } from 'rxjs';
 import { MapZoomData, MapZoomLayer } from '@app/models/mapZoomLayer';
+import { ForecastPlanningCommonService } from '@app/forecast-planning-common.service';
 
 
 @Component({
@@ -32,6 +33,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private eventService: EventService,
     private dateTimeService: DatetimeService,
     private commonService: CommonService,
+    private commonForecastService: ForecastPlanningCommonService,
     private mapService: GmapService,
     private routerService: RouterService,
     private alert: AlertService,
@@ -115,6 +117,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ///////////////////////////////
 
   ngOnInit() {
+
+    this.commonForecastService.getForecastPlanningForToday(1).subscribe(data => console.log(data));
+    this.commonForecastService.getForecastOptionsAndTurbines(1, 'Beatrice_Demonstrator_turbine_coordinates').subscribe( data => console.log(data));
+
     this.commonService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (!userIsActive) {
         this.userService.logout();

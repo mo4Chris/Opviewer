@@ -10,6 +10,19 @@ var LatLonSchema = new Schema({
 }, { versionKey: false });
 var LatLonModel = mongo.model('turbineLocations', LatLonSchema, 'turbineLocations');
 
+var turbineAndGatesSchema = new Schema({
+  filename: { type: String },
+  SiteName: { type: String },
+  centroid: { type: Object },
+  outlineLonCoordinates: { type: Array },
+  outlineLatCoordinates: { type: Array },
+  lat: { type: Array},
+  lon: { type: Array},
+  name: { type: Array},
+  gates: { type: Array}
+}, { versionKey: false });
+var TurbineAndGatesModel = mongo.model('turbineAndGatesLocations', turbineAndGatesSchema, 'turbineAndGatesLocations');
+
 var PlatformLocationSchema = new Schema({
   filename: { type: String },
   SiteName: { type: String }
@@ -44,6 +57,7 @@ var HarbourModel = mongo.model('harbourLocations', harbourSchema, 'harbourLocati
 module.exports = {
   VesselLocationModel,
   LatLonModel,
+  TurbineAndGatesModel,
   PlatformLocationModel,
   CrewLocationModel,
   HarbourModel,
