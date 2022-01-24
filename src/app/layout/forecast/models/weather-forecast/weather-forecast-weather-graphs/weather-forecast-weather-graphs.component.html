@@ -1,5 +1,5 @@
 <div *ngIf="weatherForecasts$ | async as weaterForecasts">
     <ng-container *ngFor="let weatherForecast of weaterForecasts">
-            <app-weather-forecast-weather-graph [weatherForecast]="weatherForecast"></app-weather-forecast-weather-graph>
+            <app-weather-forecast-weather-graph *ngIf="showPage" [weatherForecast]="weatherForecast"></app-weather-forecast-weather-graph>
     </ng-container>
 </div>

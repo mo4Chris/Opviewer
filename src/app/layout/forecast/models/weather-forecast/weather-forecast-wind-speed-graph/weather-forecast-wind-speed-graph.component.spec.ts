@@ -28,6 +28,7 @@ describe('WeatherForecastWindSpeedGraphComponent', () => {
   });
   
   it('should create', () => {
+    component.selectedForecast = of({})
     weatherForecastCommunicationServiceMock.getWeatherForecasts.and.returnValue(of([]))
     weatherForecastWindSpeedGraphServiceMock.getPlotData.and.returnValue(of([]))
     fixture.detectChanges();
