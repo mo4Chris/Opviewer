@@ -2,7 +2,7 @@ import { DayReport } from '../weather-forecast.types';
 
 import { WeatherForecastWeatherGraphService } from './weather-forecast-weather-graph.service';
 
-fdescribe('WeatherForecastWeatherGraphService', () => {
+describe('WeatherForecastWeatherGraphService', () => {
   let service: WeatherForecastWeatherGraphService;
 
   beforeEach(() => {
@@ -126,22 +126,50 @@ fdescribe('WeatherForecastWeatherGraphService', () => {
   });
 
   describe('getRangeForType', () => {
-    it('should clamp the values when type is pressure', () => {
-      const array = [-1, 2, 4, 6, 8];
-      const actual = service.getRangeForType('pressure', array);
-      expect(actual).toEqual([-1, 8]);
+    describe('when the type is not temperature', () => {
+      it('should return a range containing the lowest and highest values', () => {
+        const input = [-1, 2, 4, 6, 8];
+        const actual = service.getRangeForType('cats-and-dogs', input);
+        expect(actual).toEqual([-1, 8]);
+      });
+
+      it('should return a range with the same number when the input is a single value', () => {
+        const input = [5];
+        const actual = service.getRangeForType('cats-and-dogs', input);
+        expect(actual).toEqual([5, 5]);
+      });
+
+      it('should return a range of [0, 0] when no values are received', () => {
+        const input = [];
+        const actual = service.getRangeForType('cats-and-dogs', input);
+        expect(actual).toEqual([0, 0]);
+      });
     });
 
-    it('should clamp the values when type is visibility', () => {
-      const array = [-1, 2, 4, 6, 8];
-      const actual = service.getRangeForType('visibility', array);
-      expect(actual).toEqual([-1, 8]);
-    });
+    describe('when the type is temperature', () => {
+      it('should return a range with 0 and the highest number when the lowest input value is greater than 0', () => {
+        const input = [4, 6, 8, 16, 20];
+        const actual = service.getRangeForType('temperature', input);
+        expect(actual).toEqual([0, 20]);
+      });
 
-    it('should return a floor of 0 of lower when type is temperature', () => {
-      const array = [4, 6, 8, 16, 20];
-      const actual = service.getRangeForType('temperature', array);
-      expect(actual).toEqual([0, 20]);
+      it('should return a range with the lowest and highest numbers when the lowest input value is less than 0 and the highest input value is greater than 0', () => {
+        const input = [-1, 2, 4, 6, 8];
+        const actual = service.getRangeForType('temperature', input);
+        expect(actual).toEqual([-1, 8]);
+      });
+
+      it('should return a range from the lowest value to 0 when all input values are less than 0', () => {
+        const input = [-3, -5, -6, -10];
+        const actual = service.getRangeForType('temperature', input);
+        expect(actual).toEqual([-10, 0]);
+      });
+
+      it('should return a range of [0, 0] when no values are received', () => {
+        const input = [];
+        const actual = service.getRangeForType('temperature', input);
+        expect(actual).toEqual([0, 0]);
+      });
     });
   });
 

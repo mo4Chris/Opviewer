@@ -28,15 +28,19 @@ export class WeatherForecastWeatherGraphService {
   }
 
   public getRangeForType(type: string, array): [number, number] {
-    const floor = Math.floor(Math.min(...array));
-    const ceil = Math.ceil(Math.max(...array));
+    let min = Math.floor(Math.min(...array));
+    let max = Math.ceil(Math.max(...array));
+
+    if (!isFinite(min)) min = 0;
+    if (!isFinite(max)) max = 0;
 
     if (type === 'temperature') {
-      const temperatureFloor = floor > 0 ? 0 : floor;
-      return [temperatureFloor, ceil];
+      const temperatureMin = min > 0 ? 0 : min;
+      const temperatureMax = max < 0 ? 0 : max;
+      return [temperatureMin, temperatureMax];
     }
 
-    return [floor, ceil];
+    return [min, max];
   }
 
   public createPlotlyData(graphInformation) {
