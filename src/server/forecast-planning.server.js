@@ -1,4 +1,4 @@
-const fc_planning_helper = require('./helper/forecast-planning-helper.js')
+const fc_planning_helper = require('./helper/forecast-planning-helper.js');
 
 
 // #################### Actual API ####################
@@ -42,8 +42,8 @@ module.exports = function (
 
     app.get("/api/fc-planning/getPlanningSettingsAndTurbines/:projectID/:windfarmName", async function(req, res) {
         let forecast_project_id = req.params.projectID;
-        let windfarmName = req.params.windfarmName || 'AOWF_turbine_coordinates';
-        let turbinesAndGates
+        let windfarmName = req.params.windfarmName;
+        let turbinesAndGates;
 
         let planningOptions = await fc_planning_helper.getForecastPlanningOptions(forecast_project_id);
         
@@ -54,7 +54,7 @@ module.exports = function (
         const returnData = {
             project_id: forecast_project_id,
             activity_options: planningOptions.activity_options,
-            turbines: turbinesAndGates
+            locations: turbinesAndGates
         }
         res.send(returnData);
     });

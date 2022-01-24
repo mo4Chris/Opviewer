@@ -8,8 +8,10 @@ function getTodaysForecastPlanning(forecast_project_id) {
     return fc_planning_models.forecastSovActiviesModel.findOne({
         forecast_id: forecast_project_id,
         date: todaysDate,
-        active: { $ne: false}
-    }, {}, { sort: { 'date' : -1 }}).exec();
+    }, function(err, data) {
+        if (err) return err;
+        return(data);
+      }, {});
     
 };
 module.exports.getTodaysForecastPlanning = getTodaysForecastPlanning;
@@ -19,8 +21,11 @@ function getForecastPlanning(forecast_project_id, date) {
     return fc_planning_models.forecastSovActiviesModel.findOne({
         forecast_id: forecast_project_id,
         date: date,
-        active: { $ne: false}
-    }, {}, { sort: { 'date' : -1 }}).exec();
+    }, function(err, data) {
+        if (err) return err;
+        return(data);
+      }, 
+      {});
 };
 module.exports.getForecastPlanning = getForecastPlanning;
 
@@ -28,7 +33,10 @@ function getForecastPlanningOptions(forecast_project_id) {
     return fc_planning_models.forecastSovActivityOptionsModel.findOne({
         forecast_id: forecast_project_id,
         active: { $ne: false}
-    }, {}, {}).exec();
+    }, function(err, data) {
+        if (err) return err;
+        return(data);
+      }, {});
     
 };
 module.exports.getForecastPlanningOptions = getForecastPlanningOptions;
@@ -37,23 +45,26 @@ function getTurbinesAndGates (sitename) {
     return geo_turbines_and_gates.TurbineAndGatesModel.findOne({
         filename: sitename,
         active: { $ne: false}
-    }, {}, {}).exec();
+    }, function(err, data) {
+        if (err) return err;
+        return(data);
+      }, {});
 }
 module.exports.getTurbinesAndGates = getTurbinesAndGates;
 
 function combineTurbinesAndGates (turbinesAndGates) {
-    turbines = turbinesAndGates.name;
+    locations = turbinesAndGates.name;
     gates = turbinesAndGates.gates;
     
     resultArray = []
 
-    turbines.forEach((turbine,index) => {
+    locations.forEach((location,index) => {
         gatesArray = [];
         gates[index].forEach(gate => {
-            gatesArray.push({gateName: gate})
+            gatesArray.push({"gate_name": gate.gate_name, "gate_id": gate.gate_id})
         })
         resultArray.push({
-            turbine_name: turbine,
+            location_name: location,
             gates: gatesArray
         })
     });
