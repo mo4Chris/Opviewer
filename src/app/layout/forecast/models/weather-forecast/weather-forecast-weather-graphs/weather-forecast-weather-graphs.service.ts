@@ -63,6 +63,7 @@ export class WeatherForecastWeatherGraphsService {
 
   createDayReports(groupedPerDay: WeatherForecastDayResult[][], dateGraphInformation: WeatherForecastHourChartInformation[][]): DayReport[] {
     return groupedPerDay.map((data) => {
+      const _dateGraphInformation = this.getDateGraphInformation(dateGraphInformation, data);
       return {
         daySummary: this.getValue(data, 'SUMMARY'),
         date: this.createFormattedDate(data),
@@ -78,9 +79,10 @@ export class WeatherForecastWeatherGraphsService {
         windSpeed: this.getExtendedValues(data, 'WINDSPEED'),
         windGust: this.getExtendedValues(data, 'WINDGUST'),
         windDirection: this.getExtendedValues(data, 'WINDDIRECTION'),
-        dateGraphInformation: this.getDateGraphInformation(dateGraphInformation, data)
-      }
-    })
+        dateGraphInformation: _dateGraphInformation,
+        hasDateGraphInformation: _dateGraphInformation.length > 0,
+      };
+    });
   }
 
   createTemperatureChartReport(weatherForecast: WeatherForecastDayResult[][]): WeatherForecastHourChartInformation[] {

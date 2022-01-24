@@ -1,74 +1,75 @@
 <div class="card" *ngIf="dayReport">
-    <div class="weather-forecast-day-report">
-        <div class="weather-forecast-day-report__wrapper">
-            <div class="weather-forecast-day-report__information">
-                <div class="weather-forecast-day-report__day-summary">
-                    <h2>{{dayReport.date}}</h2>
-                    <p>{{dayReport.daySummary}}</p>
-                </div>
-
-                <dl class="weather-forecast-day-report__definition-list">
-                    <div class="weather-forecast-day-report__list-item">
-                        <dt>Maximum temperature:</dt>
-                        <dd>{{dayReport.temperatureHigh.val}} {{dayReport.temperatureHigh.unit}}</dd>
-                    </div>
-                    <div class="weather-forecast-day-report__list-item">
-                        <dt>Minimum temperature:</dt>
-                        <dd>{{dayReport.temperatureLow.val}} {{dayReport.temperatureLow.unit}}</dd>
-                    </div>
-                    <div class="weather-forecast-day-report__list-item">
-                        <dt>Precipitation Probability:</dt>
-                        <dd>{{dayReport.precipitationProbability.val}} {{dayReport.precipitationProbability.unit}}</dd>
-                    </div>
-                    <div class="weather-forecast-day-report__list-item">
-                        <dt>Precipitation Intensity:</dt>
-                        <dd>{{dayReport.precipitationIntensity.val}} {{dayReport.precipitationIntensity.unit}}</dd>
-                    </div>
-                    <div class="weather-forecast-day-report__list-item">
-                        <dt>Wind speed:</dt>
-                        <dd>{{dayReport.windSpeed.val}} {{dayReport.windSpeed.unit}}</dd>
-                    </div>
-                    <div class="weather-forecast-day-report__list-item">
-                        <dt>Wind direction:</dt>
-                        <dd>{{dayReport.windDirection.val}} {{dayReport.windDirection.unit}}</dd>
-                    </div>
-                    <div class="weather-forecast-day-report__list-item">
-                        <dt>Wind gust:</dt>
-                        <dd>{{dayReport.windGust.val}} {{dayReport.windGust.unit}}</dd>
-                    </div>
-                    <div class="weather-forecast-day-report__list-item">
-                        <dt>Visibility:</dt>
-                        <dd>{{dayReport.visibility}}</dd>
-                    </div>
-                    <div class="weather-forecast-day-report__list-item">
-                        <dt>Sunrise:</dt>
-                        <dd>{{dayReport.timeOfSunrise}}</dd>
-                    </div>
-                    <div class="weather-forecast-day-report__list-item">
-                        <dt>Sunset:</dt>
-                        <dd>{{dayReport.timeOfSunset}}</dd>
-                    </div>
-                </dl>
-                <div class="weather-forecast-day-report__button-wrapper">
-                    <div *ngFor="let dayReport of weatherForecast; let i = index">
-                        <app-weather-icons (click)="onSelectDayReport(i)"
-                            [weatherIconType]="dayReport.dateIcon" [day]="dayReport.day"></app-weather-icons>
-                    </div>
-                </div>
-            </div>
-            <div class="weather-forecast-day-report__temperature-graph">
-                <div class="weather-forecast-day-report__temperature-graph__selection">
-                    <button (click)="onSelectType(temperature)" class="btn btn-outline-primary mb-2 mr-2">Temperature</button>
-                    <button (click)="onSelectType(humidity)" class="btn btn-outline-primary mb-2 mr-2">Humidity</button>
-                    <button (click)="onSelectType(visibility)" class="btn btn-outline-primary mb-2 mr-2">Visibility</button>
-                    <button (click)="onSelectType(pressure)" class="btn btn-outline-primary mb-2 mr-2">Pressure</button>
-                </div>
-                <plotly-plot className="plotly-canvas" [layout]='temperatureGraphInformation.plotLayout' [data]="temperatureGraphInformation.plotData" [useResizeHandler]="true" [config]="{displayModeBar: false}">
-                </plotly-plot>
-            </div>
+  <div class="weather-forecast-day-report">
+    <div class="weather-forecast-day-report__wrapper">
+      <div class="weather-forecast-day-report__information">
+        <div class="weather-forecast-day-report__day-summary">
+          <h2>{{dayReport.date}}</h2>
+          <p>{{dayReport.daySummary}}</p>
         </div>
 
+        <dl class="weather-forecast-day-report__definition-list">
+          <div class="weather-forecast-day-report__list-item">
+            <dt>Maximum temperature:</dt>
+            <dd>{{dayReport.temperatureHigh.val}} {{dayReport.temperatureHigh.unit}}</dd>
+          </div>
+          <div class="weather-forecast-day-report__list-item">
+            <dt>Minimum temperature:</dt>
+            <dd>{{dayReport.temperatureLow.val}} {{dayReport.temperatureLow.unit}}</dd>
+          </div>
+          <div class="weather-forecast-day-report__list-item">
+            <dt>Precipitation Probability:</dt>
+            <dd>{{dayReport.precipitationProbability.val}} {{dayReport.precipitationProbability.unit}}</dd>
+          </div>
+          <div class="weather-forecast-day-report__list-item">
+            <dt>Precipitation Intensity:</dt>
+            <dd>{{dayReport.precipitationIntensity.val}} {{dayReport.precipitationIntensity.unit}}</dd>
+          </div>
+          <div class="weather-forecast-day-report__list-item">
+            <dt>Wind speed:</dt>
+            <dd>{{dayReport.windSpeed.val}} {{dayReport.windSpeed.unit}}</dd>
+          </div>
+          <div class="weather-forecast-day-report__list-item">
+            <dt>Wind direction:</dt>
+            <dd>{{dayReport.windDirection.val}} {{dayReport.windDirection.unit}}</dd>
+          </div>
+          <div class="weather-forecast-day-report__list-item">
+            <dt>Wind gust:</dt>
+            <dd>{{dayReport.windGust.val}} {{dayReport.windGust.unit}}</dd>
+          </div>
+          <div class="weather-forecast-day-report__list-item">
+            <dt>Visibility:</dt>
+            <dd>{{dayReport.visibility}}</dd>
+          </div>
+          <div class="weather-forecast-day-report__list-item">
+            <dt>Sunrise:</dt>
+            <dd>{{dayReport.timeOfSunrise}}</dd>
+          </div>
+          <div class="weather-forecast-day-report__list-item">
+            <dt>Sunset:</dt>
+            <dd>{{dayReport.timeOfSunset}}</dd>
+          </div>
+        </dl>
+        <div class="weather-forecast-day-report__button-wrapper">
+          <div *ngFor="let dayReport of weatherForecast; let i = index">
+            <app-weather-icons *ngIf="dayReport.hasDateGraphInformation" (click)="onSelectDayReport(i)"
+              [weatherIconType]="dayReport.dateIcon" [day]="dayReport.day"></app-weather-icons>
+          </div>
+        </div>
+      </div>
+      <div class="weather-forecast-day-report__temperature-graph">
+        <div class="weather-forecast-day-report__temperature-graph__selection">
+          <button (click)="onSelectType(temperature)" class="btn btn-outline-primary mb-2 mr-2">Temperature</button>
+          <button (click)="onSelectType(humidity)" class="btn btn-outline-primary mb-2 mr-2">Humidity</button>
+          <button (click)="onSelectType(visibility)" class="btn btn-outline-primary mb-2 mr-2">Visibility</button>
+          <button (click)="onSelectType(pressure)" class="btn btn-outline-primary mb-2 mr-2">Pressure</button>
+        </div>
+        <plotly-plot className="plotly-canvas" [layout]='temperatureGraphInformation.plotLayout'
+          [data]="temperatureGraphInformation.plotData" [useResizeHandler]="true" [config]="{displayModeBar: false}">
+        </plotly-plot>
+      </div>
     </div>
+
+  </div>
 
 
 </div>
