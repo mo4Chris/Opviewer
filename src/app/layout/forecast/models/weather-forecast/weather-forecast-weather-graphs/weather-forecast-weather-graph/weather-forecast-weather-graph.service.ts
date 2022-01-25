@@ -5,32 +5,45 @@ import { DayReport } from '../weather-forecast.types';
 export class WeatherForecastWeatherGraphService {
 
   constructor() { }
-  createGraphInformation(dayReport: DayReport, type: string){
-    const dateArray = dayReport.dateGraphInformation.map(val =>{
-      return val.date
-    })
-    const array = dayReport.dateGraphInformation.map(val =>{
-      return val[type]?.val
-    })
 
-    const title =  dayReport.dateGraphInformation?.[0]?.[type]?.unit
-    const floor = Math.floor(Math.max(...array)) 
-    const ceil = Math.ceil(Math.max(...array))
-    const floorRange = floor <= 0 ? floor : 0
-    const range = [floorRange, ceil];
-    const graphtitle = `${dayReport.date}: ${type}`
-    const plotLayout = this.setPlotLayout(range,graphtitle ,title)
+  public createGraphInformation(dayReport: DayReport, type: string) {
+    const dateArray = dayReport.dateGraphInformation.map(val => val.date);
+    const array = dayReport.dateGraphInformation.map(val => val[type]?.val);
+
+    const unit = dayReport.dateGraphInformation?.[0]?.[type]?.unit;
+    const title = unit;
+
+    const range = this.getRangeForType(type, array);
+
+    const graphTitle = `${dayReport.date}: ${type}`;
+    const plotLayout = this.setPlotLayout(range, graphTitle, title);
     return {
-      plotData: this.createPlottyData({
+      plotData: this.createPlotlyData({
         dateArray,
         temperatureArray: array,
         title
       }),
       plotLayout
-    }
+    };
   }
 
-  createPlottyData(graphInformation) {
+  public getRangeForType(type: string, array): [number, number] {
+    let min = Math.floor(Math.min(...array));
+    let max = Math.ceil(Math.max(...array));
+
+    if (!isFinite(min)) min = 0;
+    if (!isFinite(max)) max = 0;
+
+    if (type === 'temperature') {
+      const temperatureMin = min > 0 ? 0 : min;
+      const temperatureMax = max < 0 ? 0 : max;
+      return [temperatureMin, temperatureMax];
+    }
+
+    return [min, max];
+  }
+
+  public createPlotlyData(graphInformation) {
     return [{
       x: graphInformation.dateArray,
       y: graphInformation.temperatureArray,
@@ -40,10 +53,10 @@ export class WeatherForecastWeatherGraphService {
       marker: {
         color: '#007bff',
       },
-    }]
+    }];
   }
 
-  setPlotLayout(range: number[], graphTitle: string ,titleY: string): Partial<Plotly.Layout> {
+  public setPlotLayout(range: number[], graphTitle: string, titleY: string): Partial<Plotly.Layout> {
     return {
       title: graphTitle,
       width: 800,
