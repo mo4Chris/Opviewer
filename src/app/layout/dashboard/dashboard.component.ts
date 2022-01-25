@@ -117,10 +117,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ///////////////////////////////
 
   ngOnInit() {
-
-    this.commonForecastService.getForecastPlanningForToday(1).subscribe(data => console.log(data));
-    this.commonForecastService.getForecastOptionsAndTurbines(1, 'Beatrice_Demonstrator_turbine_coordinates').subscribe( data => console.log(data));
-
     this.commonService.checkUserActive(this.tokenInfo.username).subscribe(userIsActive => {
       if (!userIsActive) {
         this.userService.logout();

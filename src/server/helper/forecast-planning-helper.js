@@ -64,7 +64,8 @@ function combineTurbinesAndGates (turbinesAndGates) {
             gatesArray.push({"gate_name": gate.gate_name, "gate_id": gate.gate_id})
         })
         resultArray.push({
-            location_name: location,
+            location_name: location.location_name,
+            location_id: location.location_id,
             gates: gatesArray
         })
     });
